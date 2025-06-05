@@ -1,15 +1,13 @@
 # Ethereal Nature
 
-A nature-inspired ecommerce application built with React, React Native, and Firebase.
+<div align="center">
+  <img src="packages/web/src/assets/ethnature.png" alt="Little Lemon Banner" width="700" height="600"/>
+</div>
 
-## 📱 Screenshots
-
-![Web Screenshot](https://via.placeholder.com/800x400?text=Ethereal+Nature+Web)
-![Mobile Screenshot](https://via.placeholder.com/400x800?text=Ethereal+Nature+Mobile)
 
 ## 🌿 About
 
-Ethereal Nature is a full-stack ecommerce application that specializes in natural wellness products. Built with a modern React and React Native stack, it demonstrates best practices for cross-platform development.
+Ethereal Nature is an eshop application for essential oils built with React, React Native, and Firebase.
 
 ## 🚀 Features
 
@@ -38,7 +36,7 @@ Ethereal Nature is a full-stack ecommerce application that specializes in natura
 
 ### Shared
 - TypeScript
-- Firebase (Auth, Firestore, Storage)
+- Firebase (Auth, Firestore Storage)
 
 ## 📁 Project Structure
 
@@ -53,12 +51,10 @@ ethereal_nature/
 └── README.md           # Project documentation
 ```
 
-## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 16+
-- Yarn
 - Firebase project
 
 ### Installation
@@ -71,7 +67,7 @@ ethereal_nature/
 
 2. Install dependencies
    ```
-   yarn install
+   npm install
    ```
 
 3. Create a Firebase project and update the configuration in `firebase/index.ts`
@@ -80,23 +76,11 @@ ethereal_nature/
 
 #### Web App
 ```
-yarn dev:web
+npm run dev:web
 ```
 
 #### Mobile App (with Expo)
 ```
-yarn dev:mobile
+npm  run dev:mobile
 ```
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/ethereal-nature/issues).
-
-## 📝 License
-
-This project is [MIT](LICENSE) licensed.
-
-## 🙏 Acknowledgements
-
-- Design inspiration from various nature-themed websites
-- Images: Placeholder images used for demonstration
