@@ -1,7 +1,7 @@
 # Ethereal Nature
 
 <div align="center">
-  <img src="packages/web/src/assets/ethnature.png" alt="Little Lemon Banner" width="700" height="600"/>
+  <img src="packages/web/src/assets/ethnature.png" alt="Little Lemon Banner" width="700" height="500"/>
 </div>
 
 
