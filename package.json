@@ -1,0 +1,19 @@
+{
+  "name": "ethereal-nature",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+"scripts": {
+  "dev:web": "npm run --workspace=@ethereal-nature/web dev",
+  "dev:mobile": "npm run --workspace=@ethereal-nature/mobile start",
+  "build:web": "npm run --workspace=@ethereal-nature/web build",
+  "lint": "npm run --workspaces lint"
+},
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0"
+  }
+}
