@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew --version)",
+      "Bash(brew services *)",
+      "Bash(npm install *)",
+      "Bash(pnpm --version)",
+      "Bash(brew install *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'docs: architecture, roadmap, ADRs, and agent operating rules *)"
+    ]
+  }
+}
