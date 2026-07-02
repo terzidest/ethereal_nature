@@ -1,7 +1,7 @@
 import { getHealthOptions } from '@ethereal-nature/api-client'
 import { StatusPill } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   // Server state is fetched in the loader and hydrated into React Query —
@@ -23,6 +23,12 @@ function Home() {
         <code className="mx-1 rounded bg-brand-50 px-1.5 py-0.5 text-sm">@ethereal-nature/api-client</code>
         health hook.
       </p>
+      <Link
+        to="/products"
+        className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+      >
+        Browse the shop →
+      </Link>
       <StatusPill tone={tone}>
         {isPending
           ? 'Checking backend…'

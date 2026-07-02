@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetHealthData, GetHealthResponses } from './types.gen';
+import type { GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -25,6 +25,27 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const getHealth = <ThrowOnError extends boolean = false>(options?: Options<GetHealthData, ThrowOnError>) => {
     return (options?.client ?? client).get<GetHealthResponses, unknown, ThrowOnError>({
         url: '/health',
+        ...options
+    });
+};
+
+/**
+ * List products
+ * Paginated, filterable catalog listing. Archived products are excluded.
+ */
+export const listProducts = <ThrowOnError extends boolean = false>(options?: Options<ListProductsData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListProductsResponses, unknown, ThrowOnError>({
+        url: '/products',
+        ...options
+    });
+};
+
+/**
+ * Get a product by id
+ */
+export const getProduct = <ThrowOnError extends boolean = false>(options: Options<GetProductData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetProductResponses, GetProductErrors, ThrowOnError>({
+        url: '/products/{id}',
         ...options
     });
 };

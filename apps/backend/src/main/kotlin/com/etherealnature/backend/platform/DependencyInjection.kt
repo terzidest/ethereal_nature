@@ -1,10 +1,12 @@
 package com.etherealnature.backend.platform
 
+import com.etherealnature.backend.catalog.catalogModule
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import javax.sql.DataSource
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 
@@ -22,9 +24,10 @@ fun Application.configureDependencyInjection() {
                 },
             )
         }
+        single { Database.connect(get<DataSource>()) }
     }
 
     install(Koin) {
-        modules(platformModule)
+        modules(platformModule, catalogModule)
     }
 }

@@ -18,6 +18,81 @@ export type HealthResponse = {
     database: string;
 };
 
+/**
+ * ProductCategoryDto
+ */
+export type ProductCategoryDto = 'OILS' | 'HERBS' | 'CRYSTALS' | 'TEAS';
+
+/**
+ * ProductSortDto
+ */
+export type ProductSortDto = 'newest' | 'name' | 'price-asc' | 'price-desc';
+
+/**
+ * ProductResponse
+ */
+export type ProductResponse = {
+    /**
+     * String
+     */
+    id: string;
+    /**
+     * String
+     */
+    slug: string;
+    /**
+     * String
+     */
+    name: string;
+    /**
+     * String
+     */
+    description: string;
+    /**
+     * Long
+     */
+    priceMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    /**
+     * Int
+     */
+    stock: number;
+    category: ProductCategoryDto;
+    /**
+     * String
+     */
+    imageUrl?: null | string;
+};
+
+/**
+ * ProductListResponse
+ */
+export type ProductListResponse = {
+    /**
+     * ArrayList<ProductResponse>
+     */
+    items: Array<ProductResponse>;
+    /**
+     * Int
+     */
+    page: number;
+    /**
+     * Int
+     */
+    pageSize: number;
+    /**
+     * Long
+     */
+    totalItems: number;
+    /**
+     * Long
+     */
+    totalPages: number;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -33,3 +108,72 @@ export type GetHealthResponses = {
 };
 
 export type GetHealthResponse = GetHealthResponses[keyof GetHealthResponses];
+
+export type ListProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Int
+         * 1-based page number (default 1)
+         */
+        page?: number;
+        /**
+         * Int
+         * Items per page, 1..100 (default 12)
+         */
+        pageSize?: number;
+        /**
+         * Filter by category
+         */
+        category?: ProductCategoryDto;
+        /**
+         * String
+         * Case-insensitive name search
+         */
+        q?: string;
+        /**
+         * Sort order (default newest)
+         */
+        sort?: ProductSortDto;
+    };
+    url: '/products';
+};
+
+export type ListProductsResponses = {
+    /**
+     * One page of products
+     */
+    200: ProductListResponse;
+};
+
+export type ListProductsResponse = ListProductsResponses[keyof ListProductsResponses];
+
+export type GetProductData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         * Product UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/products/{id}';
+};
+
+export type GetProductErrors = {
+    /**
+     * No product with this id
+     */
+    404: unknown;
+};
+
+export type GetProductResponses = {
+    /**
+     * The product
+     */
+    200: ProductResponse;
+};
+
+export type GetProductResponse = GetProductResponses[keyof GetProductResponses];

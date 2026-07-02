@@ -33,6 +33,129 @@
         },
         "deprecated": false
       }
+    },
+    "/products": {
+      "get": {
+        "tags": [],
+        "summary": "List products",
+        "description": "Paginated, filterable catalog listing. Archived products are excluded.",
+        "operationId": "listProducts",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-based page number (default 1)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Items per page, 1..100 (default 12)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive name search",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order (default newest)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/ProductSortDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of products",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": [],
+        "summary": "Get a product by id",
+        "operationId": "getProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Product UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The product",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No product with this id",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -54,6 +177,122 @@
           "status"
         ],
         "title": "HealthResponse"
+      },
+      "ProductCategoryDto": {
+        "type": "string",
+        "enum": [
+          "OILS",
+          "HERBS",
+          "CRYSTALS",
+          "TEAS"
+        ],
+        "title": "ProductCategoryDto"
+      },
+      "ProductSortDto": {
+        "type": "string",
+        "enum": [
+          "newest",
+          "name",
+          "price-asc",
+          "price-desc"
+        ],
+        "title": "ProductSortDto"
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "String"
+          },
+          "slug": {
+            "type": "string",
+            "title": "String"
+          },
+          "name": {
+            "type": "string",
+            "title": "String"
+          },
+          "description": {
+            "type": "string",
+            "title": "String"
+          },
+          "priceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ProductCategoryDto"
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          }
+        },
+        "required": [
+          "category",
+          "currency",
+          "description",
+          "id",
+          "name",
+          "priceMinor",
+          "slug",
+          "stock"
+        ],
+        "title": "ProductResponse"
+      },
+      "ProductListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            },
+            "title": "ArrayList<ProductResponse>"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalItems",
+          "totalPages"
+        ],
+        "title": "ProductListResponse"
       }
     },
     "examples": {}

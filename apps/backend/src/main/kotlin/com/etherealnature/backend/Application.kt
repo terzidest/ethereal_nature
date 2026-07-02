@@ -1,5 +1,6 @@
 package com.etherealnature.backend
 
+import com.etherealnature.backend.catalog.api.productRoutes
 import com.etherealnature.backend.health.healthRoutes
 import com.etherealnature.backend.platform.configureCors
 import com.etherealnature.backend.platform.configureDatabase
@@ -26,5 +27,6 @@ fun Application.module() {
     routing {
         route("openapi.json") { openApi() }
         healthRoutes()
+        productRoutes()
     }
 }
