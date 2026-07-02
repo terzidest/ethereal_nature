@@ -1,10 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { categoryLabel, formatPrice } from '../../features/catalog/derive'
 import { productDetailQuery } from '../../features/catalog/queries'
 
 export const Route = createFileRoute('/products/$productId')({
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(productDetailQuery(params.productId)),
+  loader: async ({ context, params }) => {
+    try {
+      return await context.queryClient.ensureQueryData(productDetailQuery(params.productId))
+    } catch (error) {
+      // The backend answers 404/400 with an ErrorResponse body; anything the
+      // catalog doesn't know is a proper HTTP 404 page, not a 500.
+      const code = (error as { code?: string } | null)?.code
+      if (code === 'PRODUCT_NOT_FOUND' || code === 'BAD_REQUEST') throw notFound()
+      throw error
+    }
+  },
+  notFoundComponent: ProductNotFound,
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
