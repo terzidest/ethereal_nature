@@ -24,3 +24,6 @@ apps/backend/**/build/
 .idea/
 *.iml
 .vscode/
+
+# Local agent settings
+.claude/settings.local.json

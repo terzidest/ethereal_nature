@@ -1,0 +1,24 @@
+{
+  "name": "@ethereal-nature/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "node scripts/fetch-spec.mjs && openapi-ts",
+    "typecheck": "tsc",
+    "lint": "eslint src scripts"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "@ethereal-nature/config": "workspace:*",
+    "@hey-api/openapi-ts": "^0.84.0",
+    "@tanstack/react-query": "^5.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.8.0"
+  }
+}

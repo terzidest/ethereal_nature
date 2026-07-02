@@ -1,0 +1,35 @@
+[versions]
+kotlin = "2.4.0"
+ktor = "3.5.1"
+koin = "4.2.2"
+smiley4 = "5.7.0"
+schemakenerator = "2.7.2"
+hikari = "7.1.0"
+postgres = "42.7.12"
+flyway = "12.10.0"
+logback = "1.5.18"
+
+[libraries]
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+smiley4-ktor-openapi = { module = "io.github.smiley4:ktor-openapi", version.ref = "smiley4" }
+schemakenerator-core = { module = "io.github.smiley4:schema-kenerator-core", version.ref = "schemakenerator" }
+schemakenerator-swagger = { module = "io.github.smiley4:schema-kenerator-swagger", version.ref = "schemakenerator" }
+schemakenerator-serialization = { module = "io.github.smiley4:schema-kenerator-serialization", version.ref = "schemakenerator" }
+hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
+postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-postgres = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }

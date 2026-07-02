@@ -1,0 +1,62 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ethereal Nature API",
+    "description": "Contract source of truth for storefront and admin (ADR-0004).",
+    "version": "0.1.0"
+  },
+  "externalDocs": {
+    "url": "/"
+  },
+  "servers": [],
+  "tags": [],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [],
+        "summary": "Service health",
+        "description": "Reports service liveness and database connectivity.",
+        "operationId": "getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "String"
+          },
+          "database": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "database",
+          "status"
+        ],
+        "title": "HealthResponse"
+      }
+    },
+    "examples": {}
+  },
+  "webhooks": {}
+}

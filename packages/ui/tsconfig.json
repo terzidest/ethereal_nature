@@ -1,0 +1,4 @@
+{
+  "extends": "@ethereal-nature/config/tsconfig/react.json",
+  "include": ["src"]
+}

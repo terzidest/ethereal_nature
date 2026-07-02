@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@import '@ethereal-nature/ui/tokens.css';
+
+@source '../../../packages/ui/src';
