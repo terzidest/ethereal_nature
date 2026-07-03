@@ -30,19 +30,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isRestoring, setIsRestoring] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      setIsRestoring(false)
-      return
-    }
-    setApiAuthToken(token)
-    getCurrentUser({ throwOnError: true })
-      .then(({ data }) => setUser(data))
-      .catch(() => {
+    let cancelled = false
+    const restore = async () => {
+      const token = localStorage.getItem(TOKEN_KEY)
+      if (!token) return null
+      setApiAuthToken(token)
+      try {
+        return (await getCurrentUser({ throwOnError: true })).data
+      } catch {
         localStorage.removeItem(TOKEN_KEY)
         setApiAuthToken(null)
-      })
-      .finally(() => setIsRestoring(false))
+        return null
+      }
+    }
+    void restore().then((restored) => {
+      if (cancelled) return
+      setUser(restored)
+      setIsRestoring(false)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const login = useCallback((auth: AuthResponse) => {

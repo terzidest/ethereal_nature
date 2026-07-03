@@ -18,10 +18,8 @@ export function configureApiClient(config: { baseUrl: string }) {
  * session can never leak into another's render.
  */
 export function setApiAuthToken(token: string | null) {
-  const { baseUrl, headers: _headers, ...rest } = client.getConfig()
   client.setConfig({
-    ...rest,
-    baseUrl,
+    ...client.getConfig(),
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
 }
