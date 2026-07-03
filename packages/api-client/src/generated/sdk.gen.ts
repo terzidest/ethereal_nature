@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses } from './types.gen';
+import type { GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, RegisterData, RegisterErrors, RegisterResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -46,6 +46,54 @@ export const listProducts = <ThrowOnError extends boolean = false>(options?: Opt
 export const getProduct = <ThrowOnError extends boolean = false>(options: Options<GetProductData, ThrowOnError>) => {
     return (options.client ?? client).get<GetProductResponses, GetProductErrors, ThrowOnError>({
         url: '/products/{id}',
+        ...options
+    });
+};
+
+/**
+ * Register a new customer account
+ */
+export const register = <ThrowOnError extends boolean = false>(options?: Options<RegisterData, ThrowOnError>) => {
+    return (options?.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+        url: '/auth/register',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * Sign in with email and password
+ */
+export const login = <ThrowOnError extends boolean = false>(options?: Options<LoginData, ThrowOnError>) => {
+    return (options?.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+        url: '/auth/login',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * The authenticated user
+ */
+export const getCurrentUser = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentUserData, ThrowOnError>) => {
+    return (options?.client ?? client).get<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError>({
+        url: '/auth/me',
+        ...options
+    });
+};
+
+/**
+ * All user accounts (admin only)
+ */
+export const listUsers = <ThrowOnError extends boolean = false>(options?: Options<ListUsersData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListUsersResponses, ListUsersErrors, ThrowOnError>({
+        url: '/auth/users',
         ...options
     });
 };

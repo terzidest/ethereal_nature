@@ -1,6 +1,7 @@
 package com.etherealnature.backend.platform
 
 import com.etherealnature.backend.catalog.domain.CatalogError
+import com.etherealnature.backend.identity.domain.IdentityError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -24,6 +25,26 @@ fun Application.configureErrorHandling() {
             call.respond(
                 HttpStatusCode.NotFound,
                 ErrorResponse(code = "PRODUCT_NOT_FOUND", message = cause.message),
+            )
+        }
+        exception<IdentityError.EmailAlreadyRegistered> { call, cause ->
+            call.respond(
+                HttpStatusCode.Conflict,
+                ErrorResponse(code = "EMAIL_ALREADY_REGISTERED", message = cause.message),
+            )
+        }
+        exception<IdentityError.InvalidCredentials> { call, cause ->
+            call.respond(
+                HttpStatusCode.Unauthorized,
+                ErrorResponse(code = "INVALID_CREDENTIALS", message = cause.message),
+            )
+        }
+        // Domain value objects validate in their constructors (ADR-0005's
+        // "invalid-by-construction"); a failed require() at the edge is a 400.
+        exception<IllegalArgumentException> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(code = "VALIDATION", message = cause.message ?: "Invalid request"),
             )
         }
         exception<BadRequestException> { call, cause ->

@@ -11,3 +11,17 @@ import { client } from './generated/client.gen'
 export function configureApiClient(config: { baseUrl: string }) {
   client.setConfig({ baseUrl: config.baseUrl })
 }
+
+/**
+ * Attach (or clear) the bearer token for subsequent requests.
+ * Browser-only by design: the SSR pass stays anonymous so one request's
+ * session can never leak into another's render.
+ */
+export function setApiAuthToken(token: string | null) {
+  const { baseUrl, headers: _headers, ...rest } = client.getConfig()
+  client.setConfig({
+    ...rest,
+    baseUrl,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+}

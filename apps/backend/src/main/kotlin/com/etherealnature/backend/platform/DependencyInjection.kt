@@ -1,6 +1,8 @@
 package com.etherealnature.backend.platform
 
 import com.etherealnature.backend.catalog.catalogModule
+import com.etherealnature.backend.identity.identityModule
+import com.etherealnature.backend.identity.infrastructure.JwtSettings
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.Application
@@ -27,7 +29,14 @@ fun Application.configureDependencyInjection() {
         single { Database.connect(get<DataSource>()) }
     }
 
+    val jwtSettings = JwtSettings(
+        secret = config.property("jwt.secret").getString(),
+        issuer = config.property("jwt.issuer").getString(),
+        audience = config.property("jwt.audience").getString(),
+        expiresInMinutes = config.property("jwt.expiresInMinutes").getString().toLong(),
+    )
+
     install(Koin) {
-        modules(platformModule, catalogModule)
+        modules(platformModule, catalogModule, identityModule(jwtSettings))
     }
 }

@@ -156,6 +156,138 @@
         },
         "deprecated": false
       }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [],
+        "summary": "Register a new customer account",
+        "operationId": "register",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "Account created and signed in",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email or password shape",
+            "headers": {}
+          },
+          "409": {
+            "description": "Email already registered",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [],
+        "summary": "Sign in with email and password",
+        "operationId": "login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [],
+        "summary": "The authenticated user",
+        "operationId": "getCurrentUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current user",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/auth/users": {
+      "get": {
+        "tags": [],
+        "summary": "All user accounts (admin only)",
+        "operationId": "listUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All users",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -293,6 +425,111 @@
           "totalPages"
         ],
         "title": "ProductListResponse"
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "String"
+          },
+          "password": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "RegisterRequest"
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "String"
+          },
+          "email": {
+            "type": "string",
+            "title": "String"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDto"
+          }
+        },
+        "required": [
+          "email",
+          "id",
+          "role"
+        ],
+        "title": "UserResponse"
+      },
+      "RoleDto": {
+        "type": "string",
+        "enum": [
+          "CUSTOMER",
+          "ADMIN"
+        ],
+        "title": "RoleDto"
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "String"
+          },
+          "expiresAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "expiresAtEpochSeconds",
+          "token",
+          "user"
+        ],
+        "title": "AuthResponse"
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "String"
+          },
+          "password": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            },
+            "title": "ArrayList<UserResponse>"
+          }
+        },
+        "required": [
+          "users"
+        ],
+        "title": "UserListResponse"
       }
     },
     "examples": {}

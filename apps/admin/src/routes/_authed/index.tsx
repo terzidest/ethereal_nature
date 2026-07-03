@@ -3,7 +3,7 @@ import { StatusPill } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_authed/')({
   component: Dashboard,
 })
 

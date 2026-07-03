@@ -2,6 +2,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
+import { SiteHeader } from '../components/SiteHeader'
+import { AuthProvider } from '../features/account/session'
 import appCss from '../styles.css?url'
 
 interface RouterContext {
@@ -28,7 +30,10 @@ function RootDocument({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-screen bg-surface font-sans text-ink antialiased">
-        {children}
+        <AuthProvider>
+          <SiteHeader />
+          {children}
+        </AuthProvider>
         <Scripts />
       </body>
     </html>

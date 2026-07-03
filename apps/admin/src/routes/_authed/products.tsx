@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ProductsTable } from '../features/products/components/ProductsTable'
-import { categoryLabel } from '../features/products/derive'
-import { productsTableQuery } from '../features/products/queries'
+import { ProductsTable } from '../../features/products/components/ProductsTable'
+import { categoryLabel } from '../../features/products/derive'
+import { productsTableQuery } from '../../features/products/queries'
 import {
   CATEGORIES,
   PAGE_SIZES,
@@ -10,9 +10,9 @@ import {
   pageSizeOf,
   sortOf,
   validateProductsTableSearch,
-} from '../features/products/search'
+} from '../../features/products/search'
 
-export const Route = createFileRoute('/products')({
+export const Route = createFileRoute('/_authed/products')({
   validateSearch: validateProductsTableSearch,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(productsTableQuery(deps)),

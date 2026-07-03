@@ -93,6 +93,79 @@ export type ProductListResponse = {
     totalPages: number;
 };
 
+/**
+ * RegisterRequest
+ */
+export type RegisterRequest = {
+    /**
+     * String
+     */
+    email: string;
+    /**
+     * String
+     */
+    password: string;
+};
+
+/**
+ * UserResponse
+ */
+export type UserResponse = {
+    /**
+     * String
+     */
+    id: string;
+    /**
+     * String
+     */
+    email: string;
+    role: RoleDto;
+};
+
+/**
+ * RoleDto
+ */
+export type RoleDto = 'CUSTOMER' | 'ADMIN';
+
+/**
+ * AuthResponse
+ */
+export type AuthResponse = {
+    /**
+     * String
+     */
+    token: string;
+    /**
+     * Long
+     */
+    expiresAtEpochSeconds: number;
+    user: UserResponse;
+};
+
+/**
+ * LoginRequest
+ */
+export type LoginRequest = {
+    /**
+     * String
+     */
+    email: string;
+    /**
+     * String
+     */
+    password: string;
+};
+
+/**
+ * UserListResponse
+ */
+export type UserListResponse = {
+    /**
+     * ArrayList<UserResponse>
+     */
+    users: Array<UserResponse>;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -177,3 +250,103 @@ export type GetProductResponses = {
 };
 
 export type GetProductResponse = GetProductResponses[keyof GetProductResponses];
+
+export type RegisterData = {
+    body?: RegisterRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/register';
+};
+
+export type RegisterErrors = {
+    /**
+     * Invalid email or password shape
+     */
+    400: unknown;
+    /**
+     * Email already registered
+     */
+    409: unknown;
+};
+
+export type RegisterResponses = {
+    /**
+     * Account created and signed in
+     */
+    201: AuthResponse;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
+
+export type LoginData = {
+    body?: LoginRequest;
+    path?: never;
+    query?: never;
+    url: '/auth/login';
+};
+
+export type LoginErrors = {
+    /**
+     * Invalid credentials
+     */
+    401: unknown;
+};
+
+export type LoginResponses = {
+    /**
+     * Signed in
+     */
+    200: AuthResponse;
+};
+
+export type LoginResponse = LoginResponses[keyof LoginResponses];
+
+export type GetCurrentUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/me';
+};
+
+export type GetCurrentUserErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+};
+
+export type GetCurrentUserResponses = {
+    /**
+     * Current user
+     */
+    200: UserResponse;
+};
+
+export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
+
+export type ListUsersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/users';
+};
+
+export type ListUsersErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+};
+
+export type ListUsersResponses = {
+    /**
+     * All users
+     */
+    200: UserListResponse;
+};
+
+export type ListUsersResponse = ListUsersResponses[keyof ListUsersResponses];
