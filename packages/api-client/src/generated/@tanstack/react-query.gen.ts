@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { getCurrentUser, getHealth, getProduct, listProducts, listUsers, login, type Options, register } from '../sdk.gen';
-import type { GetCurrentUserData, GetHealthData, GetProductData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, RegisterData, RegisterResponse } from '../types.gen';
+import { getCart, getCurrentUser, getHealth, getProduct, listProducts, listUsers, login, mergeCart, type Options, register, setCartItem } from '../sdk.gen';
+import type { GetCartData, GetCurrentUserData, GetHealthData, GetProductData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -236,4 +236,59 @@ export const listUsersOptions = (options?: Options<ListUsersData>) => {
         },
         queryKey: listUsersQueryKey(options)
     });
+};
+
+export const getCartQueryKey = (options?: Options<GetCartData>) => createQueryKey('getCart', options);
+
+/**
+ * The authenticated user's cart, priced fresh from the catalog
+ */
+export const getCartOptions = (options?: Options<GetCartData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await getCart({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: getCartQueryKey(options)
+    });
+};
+
+/**
+ * Merge guest cart lines into the server cart
+ * Sum-then-clamp policy with an adjustments report. Idempotent per mergeId: replaying a processed merge returns the cart unchanged. Client price snapshots are display provenance only — never trusted.
+ */
+export const mergeCartMutation = (options?: Partial<Options<MergeCartData>>): UseMutationOptions<MergeCartResponse2, DefaultError, Options<MergeCartData>> => {
+    const mutationOptions: UseMutationOptions<MergeCartResponse2, DefaultError, Options<MergeCartData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await mergeCart({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Set a line's quantity (0 removes the line)
+ */
+export const setCartItemMutation = (options?: Partial<Options<SetCartItemData>>): UseMutationOptions<SetCartItemResponse, DefaultError, Options<SetCartItemData>> => {
+    const mutationOptions: UseMutationOptions<SetCartItemResponse, DefaultError, Options<SetCartItemData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await setCartItem({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };

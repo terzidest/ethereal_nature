@@ -1,5 +1,6 @@
 package com.etherealnature.backend.platform
 
+import com.etherealnature.backend.cart.domain.CartError
 import com.etherealnature.backend.catalog.domain.CatalogError
 import com.etherealnature.backend.identity.domain.IdentityError
 import io.ktor.http.HttpStatusCode
@@ -25,6 +26,12 @@ fun Application.configureErrorHandling() {
             call.respond(
                 HttpStatusCode.NotFound,
                 ErrorResponse(code = "PRODUCT_NOT_FOUND", message = cause.message),
+            )
+        }
+        exception<CartError.ProductUnavailable> { call, cause ->
+            call.respond(
+                HttpStatusCode.Conflict,
+                ErrorResponse(code = "PRODUCT_UNAVAILABLE", message = cause.message),
             )
         }
         exception<IdentityError.EmailAlreadyRegistered> { call, cause ->

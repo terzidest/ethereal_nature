@@ -1,6 +1,7 @@
 package com.etherealnature.backend.catalog
 
 import com.etherealnature.backend.catalog.application.GetProduct
+import com.etherealnature.backend.catalog.application.GetProductsByIds
 import com.etherealnature.backend.catalog.application.ListProducts
 import com.etherealnature.backend.catalog.application.ProductRepository
 import com.etherealnature.backend.catalog.application.TransactionRunner
@@ -14,4 +15,5 @@ val catalogModule = module {
     single<ProductRepository> { ExposedProductRepository() }
     single { ListProducts(get(), get()) }
     single { GetProduct(get(), get()) }
+    single { GetProductsByIds(get()) }
 }

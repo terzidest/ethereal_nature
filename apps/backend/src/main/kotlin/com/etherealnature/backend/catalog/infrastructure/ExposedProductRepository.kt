@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -35,6 +36,12 @@ class ExposedProductRepository : ProductRepository {
             .where(ProductsTable.id eq id.value)
             .singleOrNull()
             ?.toProduct()
+
+    override fun findByIds(ids: Collection<ProductId>): List<Product> =
+        if (ids.isEmpty()) emptyList()
+        else ProductsTable.selectAll()
+            .where(ProductsTable.id inList ids.map { it.value })
+            .map { it.toProduct() }
 
     private fun buildPredicate(query: ProductQuery): Op<Boolean> {
         var predicate: Op<Boolean> = ProductsTable.archived eq false

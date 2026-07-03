@@ -20,7 +20,8 @@
     "nitro": "npm:nitro-nightly@3.0.1-20260701-161626-1f1e52d7",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "tailwindcss": "4.3.2"
+    "tailwindcss": "4.3.2",
+    "zustand": "5.0.14"
   },
   "devDependencies": {
     "@ethereal-nature/config": "workspace:*",

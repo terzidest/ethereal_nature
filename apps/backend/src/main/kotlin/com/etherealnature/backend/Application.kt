@@ -1,5 +1,6 @@
 package com.etherealnature.backend
 
+import com.etherealnature.backend.cart.api.cartRoutes
 import com.etherealnature.backend.catalog.api.productRoutes
 import com.etherealnature.backend.health.healthRoutes
 import com.etherealnature.backend.identity.api.authRoutes
@@ -37,6 +38,7 @@ fun Application.module() {
         healthRoutes()
         productRoutes()
         authRoutes()
+        cartRoutes()
     }
 }
 

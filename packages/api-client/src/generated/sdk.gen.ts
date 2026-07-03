@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, RegisterData, RegisterErrors, RegisterResponses } from './types.gen';
+import type { GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -95,5 +95,44 @@ export const listUsers = <ThrowOnError extends boolean = false>(options?: Option
     return (options?.client ?? client).get<ListUsersResponses, ListUsersErrors, ThrowOnError>({
         url: '/auth/users',
         ...options
+    });
+};
+
+/**
+ * The authenticated user's cart, priced fresh from the catalog
+ */
+export const getCart = <ThrowOnError extends boolean = false>(options?: Options<GetCartData, ThrowOnError>) => {
+    return (options?.client ?? client).get<GetCartResponses, GetCartErrors, ThrowOnError>({
+        url: '/cart',
+        ...options
+    });
+};
+
+/**
+ * Merge guest cart lines into the server cart
+ * Sum-then-clamp policy with an adjustments report. Idempotent per mergeId: replaying a processed merge returns the cart unchanged. Client price snapshots are display provenance only — never trusted.
+ */
+export const mergeCart = <ThrowOnError extends boolean = false>(options?: Options<MergeCartData, ThrowOnError>) => {
+    return (options?.client ?? client).post<MergeCartResponses, MergeCartErrors, ThrowOnError>({
+        url: '/cart/merge',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * Set a line's quantity (0 removes the line)
+ */
+export const setCartItem = <ThrowOnError extends boolean = false>(options?: Options<SetCartItemData, ThrowOnError>) => {
+    return (options?.client ?? client).put<SetCartItemResponses, SetCartItemErrors, ThrowOnError>({
+        url: '/cart/items',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
     });
 };

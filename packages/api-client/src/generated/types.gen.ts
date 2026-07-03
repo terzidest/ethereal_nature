@@ -166,6 +166,186 @@ export type UserListResponse = {
     users: Array<UserResponse>;
 };
 
+/**
+ * CartLineResponse
+ */
+export type CartLineResponse = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * String
+     */
+    name: string;
+    /**
+     * Int
+     */
+    quantity: number;
+    /**
+     * Long
+     */
+    unitPriceMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    /**
+     * Int
+     */
+    stock: number;
+    /**
+     * Boolean
+     */
+    available: boolean;
+    /**
+     * Long
+     */
+    lineTotalMinor: number;
+};
+
+/**
+ * CartResponse
+ */
+export type CartResponse = {
+    /**
+     * ArrayList<CartLineResponse>
+     */
+    lines: Array<CartLineResponse>;
+    /**
+     * Long
+     */
+    subtotalMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+};
+
+/**
+ * GuestLineDto
+ */
+export type GuestLineDto = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * Int
+     */
+    quantity: number;
+    /**
+     * Long
+     */
+    priceSnapshotMinor?: null | number;
+};
+
+/**
+ * MergeCartRequest
+ */
+export type MergeCartRequest = {
+    /**
+     * String
+     */
+    mergeId: string;
+    /**
+     * ArrayList<GuestLineDto>
+     */
+    lines: Array<GuestLineDto>;
+};
+
+/**
+ * AdjustmentsDto
+ */
+export type AdjustmentsDto = {
+    /**
+     * ArrayList<DroppedLineDto>
+     */
+    dropped: Array<DroppedLineDto>;
+    /**
+     * ArrayList<ClampedLineDto>
+     */
+    clamped: Array<ClampedLineDto>;
+    /**
+     * ArrayList<PriceChangeDto>
+     */
+    priceChanged: Array<PriceChangeDto>;
+};
+
+/**
+ * DroppedLineDto
+ */
+export type DroppedLineDto = {
+    /**
+     * String
+     */
+    productId: string;
+    reason: DropReasonDto;
+};
+
+/**
+ * DropReasonDto
+ */
+export type DropReasonDto = 'NOT_FOUND' | 'ARCHIVED' | 'OUT_OF_STOCK';
+
+/**
+ * ClampedLineDto
+ */
+export type ClampedLineDto = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * Int
+     */
+    requestedQuantity: number;
+    /**
+     * Int
+     */
+    grantedQuantity: number;
+};
+
+/**
+ * PriceChangeDto
+ */
+export type PriceChangeDto = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * Long
+     */
+    snapshotPriceMinor: number;
+    /**
+     * Long
+     */
+    currentPriceMinor: number;
+};
+
+/**
+ * MergeCartResponse
+ */
+export type MergeCartResponse = {
+    cart: CartResponse;
+    adjustments: AdjustmentsDto;
+};
+
+/**
+ * SetCartItemRequest
+ */
+export type SetCartItemRequest = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * Int
+     */
+    quantity: number;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -350,3 +530,76 @@ export type ListUsersResponses = {
 };
 
 export type ListUsersResponse = ListUsersResponses[keyof ListUsersResponses];
+
+export type GetCartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/cart';
+};
+
+export type GetCartErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+};
+
+export type GetCartResponses = {
+    /**
+     * Current server cart
+     */
+    200: CartResponse;
+};
+
+export type GetCartResponse = GetCartResponses[keyof GetCartResponses];
+
+export type MergeCartData = {
+    body?: MergeCartRequest;
+    path?: never;
+    query?: never;
+    url: '/cart/merge';
+};
+
+export type MergeCartErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+};
+
+export type MergeCartResponses = {
+    /**
+     * Merged cart plus adjustments (dropped / clamped / price-changed)
+     */
+    200: MergeCartResponse;
+};
+
+export type MergeCartResponse2 = MergeCartResponses[keyof MergeCartResponses];
+
+export type SetCartItemData = {
+    body?: SetCartItemRequest;
+    path?: never;
+    query?: never;
+    url: '/cart/items';
+};
+
+export type SetCartItemErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Product unavailable
+     */
+    409: unknown;
+};
+
+export type SetCartItemResponses = {
+    /**
+     * Updated cart
+     */
+    200: CartResponse;
+};
+
+export type SetCartItemResponse = SetCartItemResponses[keyof SetCartItemResponses];

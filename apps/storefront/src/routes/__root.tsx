@@ -2,8 +2,10 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
+import { useEffect } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
 import { AuthProvider } from '../features/account/session'
+import { useGuestCart } from '../features/cart/guest-store'
 import appCss from '../styles.css?url'
 
 interface RouterContext {
@@ -24,6 +26,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootDocument({ children }: { children: ReactNode }) {
+  // Persisted stores use skipHydration; rehydrate after mount so the first
+  // client render matches the server-rendered HTML.
+  useEffect(() => {
+    void useGuestCart.persist.rehydrate()
+  }, [])
+
   return (
     <html lang="en">
       <head>

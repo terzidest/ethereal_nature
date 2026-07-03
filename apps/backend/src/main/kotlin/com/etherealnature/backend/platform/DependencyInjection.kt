@@ -1,5 +1,6 @@
 package com.etherealnature.backend.platform
 
+import com.etherealnature.backend.cart.cartModule
 import com.etherealnature.backend.catalog.catalogModule
 import com.etherealnature.backend.identity.identityModule
 import com.etherealnature.backend.identity.infrastructure.JwtSettings
@@ -37,6 +38,6 @@ fun Application.configureDependencyInjection() {
     )
 
     install(Koin) {
-        modules(platformModule, catalogModule, identityModule(jwtSettings))
+        modules(platformModule, catalogModule, identityModule(jwtSettings), cartModule)
     }
 }

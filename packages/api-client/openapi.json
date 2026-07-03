@@ -288,6 +288,109 @@
         },
         "deprecated": false
       }
+    },
+    "/cart": {
+      "get": {
+        "tags": [],
+        "summary": "The authenticated user's cart, priced fresh from the catalog",
+        "operationId": "getCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current server cart",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/cart/merge": {
+      "post": {
+        "tags": [],
+        "summary": "Merge guest cart lines into the server cart",
+        "description": "Sum-then-clamp policy with an adjustments report. Idempotent per mergeId: replaying a processed merge returns the cart unchanged. Client price snapshots are display provenance only — never trusted.",
+        "operationId": "mergeCart",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeCartRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Merged cart plus adjustments (dropped / clamped / price-changed)",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeCartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/cart/items": {
+      "put": {
+        "tags": [],
+        "summary": "Set a line's quantity (0 removes the line)",
+        "operationId": "setCartItem",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCartItemRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Updated cart",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "409": {
+            "description": "Product unavailable",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -530,6 +633,276 @@
           "users"
         ],
         "title": "UserListResponse"
+      },
+      "CartLineResponse": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "name": {
+            "type": "string",
+            "title": "String"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "unitPriceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Boolean"
+          },
+          "lineTotalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "available",
+          "currency",
+          "lineTotalMinor",
+          "name",
+          "productId",
+          "quantity",
+          "stock",
+          "unitPriceMinor"
+        ],
+        "title": "CartLineResponse"
+      },
+      "CartResponse": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartLineResponse"
+            },
+            "title": "ArrayList<CartLineResponse>"
+          },
+          "subtotalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "currency",
+          "lines",
+          "subtotalMinor"
+        ],
+        "title": "CartResponse"
+      },
+      "GuestLineDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "priceSnapshotMinor": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "title": "GuestLineDto"
+      },
+      "MergeCartRequest": {
+        "type": "object",
+        "properties": {
+          "mergeId": {
+            "type": "string",
+            "title": "String"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestLineDto"
+            },
+            "title": "ArrayList<GuestLineDto>"
+          }
+        },
+        "required": [
+          "lines",
+          "mergeId"
+        ],
+        "title": "MergeCartRequest"
+      },
+      "AdjustmentsDto": {
+        "type": "object",
+        "properties": {
+          "dropped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DroppedLineDto"
+            },
+            "title": "ArrayList<DroppedLineDto>"
+          },
+          "clamped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClampedLineDto"
+            },
+            "title": "ArrayList<ClampedLineDto>"
+          },
+          "priceChanged": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PriceChangeDto"
+            },
+            "title": "ArrayList<PriceChangeDto>"
+          }
+        },
+        "required": [
+          "clamped",
+          "dropped",
+          "priceChanged"
+        ],
+        "title": "AdjustmentsDto"
+      },
+      "DroppedLineDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/DropReasonDto"
+          }
+        },
+        "required": [
+          "productId",
+          "reason"
+        ],
+        "title": "DroppedLineDto"
+      },
+      "DropReasonDto": {
+        "type": "string",
+        "enum": [
+          "NOT_FOUND",
+          "ARCHIVED",
+          "OUT_OF_STOCK"
+        ],
+        "title": "DropReasonDto"
+      },
+      "ClampedLineDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "requestedQuantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "grantedQuantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          }
+        },
+        "required": [
+          "grantedQuantity",
+          "productId",
+          "requestedQuantity"
+        ],
+        "title": "ClampedLineDto"
+      },
+      "PriceChangeDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "snapshotPriceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currentPriceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "currentPriceMinor",
+          "productId",
+          "snapshotPriceMinor"
+        ],
+        "title": "PriceChangeDto"
+      },
+      "MergeCartResponse": {
+        "type": "object",
+        "properties": {
+          "cart": {
+            "$ref": "#/components/schemas/CartResponse"
+          },
+          "adjustments": {
+            "$ref": "#/components/schemas/AdjustmentsDto"
+          }
+        },
+        "required": [
+          "adjustments",
+          "cart"
+        ],
+        "title": "MergeCartResponse"
+      },
+      "SetCartItemRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "title": "SetCartItemRequest"
       }
     },
     "examples": {}

@@ -1,8 +1,9 @@
 import { loginMutation } from '@ethereal-nature/api-client'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { AuthForm, errorMessage } from '../features/account/components/AuthForm'
 import { useSession } from '../features/account/session'
+import { mergeGuestCartAfterLogin } from '../features/cart/merge'
 
 export const Route = createFileRoute('/login')({
   head: () => ({ meta: [{ title: 'Sign in | Ethereal Nature' }] }),
@@ -12,11 +13,13 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const session = useSession()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const mutation = useMutation({
     ...loginMutation({ throwOnError: true }),
-    onSuccess: ({ ...auth }) => {
+    onSuccess: async (auth) => {
       session.login(auth)
-      void navigate({ to: '/account' })
+      const merged = await mergeGuestCartAfterLogin(queryClient).catch(() => false)
+      void navigate({ to: merged ? '/cart' : '/account' })
     },
   })
 

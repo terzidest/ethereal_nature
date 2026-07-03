@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { AddToCartButton } from '../../features/cart/components/AddToCartButton'
 import { categoryLabel, formatPrice } from '../../features/catalog/derive'
 import { productDetailQuery } from '../../features/catalog/queries'
 
@@ -55,7 +56,7 @@ function ProductPage() {
           {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
         </span>
       </div>
-      {/* Add-to-cart arrives with the cart slice in Phase 3. */}
+      <AddToCartButton product={product} />
     </main>
   )
 }
