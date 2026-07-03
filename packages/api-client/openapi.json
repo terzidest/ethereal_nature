@@ -644,6 +644,260 @@
         },
         "deprecated": false
       }
+    },
+    "/admin/products": {
+      "get": {
+        "tags": [],
+        "summary": "Catalog listing for the back office — includes archived products",
+        "operationId": "listAdminProducts",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-based page (default 1)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Items per page, 1..100 (default 25)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive name search",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order (default newest)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/ProductSortDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of products, archived included",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [],
+        "summary": "Create a product",
+        "description": "Slug derives from the name at creation and never changes.",
+        "operationId": "createProduct",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInputRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "The created product",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "headers": {}
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/admin/products/{id}": {
+      "put": {
+        "tags": [],
+        "summary": "Update a product's details, price, and stock",
+        "description": "Never touches placed orders — they hold their own snapshots.",
+        "operationId": "updateProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Product UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInputRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "The updated product",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "headers": {}
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such product",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/admin/products/{id}/archive": {
+      "put": {
+        "tags": [],
+        "summary": "Archive or restore a product",
+        "description": "Archived products vanish from the public catalog but stay in the back office and in historical order snapshots.",
+        "operationId": "setProductArchived",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Product UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveProductRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "The product with its new archived state",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such product",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -728,9 +982,14 @@
               "string"
             ],
             "title": "String"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Boolean"
           }
         },
         "required": [
+          "archived",
           "category",
           "currency",
           "description",
@@ -1386,6 +1645,65 @@
           "status"
         ],
         "title": "TransitionStatusRequest"
+      },
+      "ProductInputRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "String"
+          },
+          "description": {
+            "type": "string",
+            "title": "String"
+          },
+          "priceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ProductCategoryDto"
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          }
+        },
+        "required": [
+          "category",
+          "currency",
+          "description",
+          "name",
+          "priceMinor",
+          "stock"
+        ],
+        "title": "ProductInputRequest"
+      },
+      "ArchiveProductRequest": {
+        "type": "object",
+        "properties": {
+          "archived": {
+            "type": "boolean",
+            "title": "Boolean"
+          }
+        },
+        "required": [
+          "archived"
+        ],
+        "title": "ArchiveProductRequest"
       }
     },
     "examples": {}

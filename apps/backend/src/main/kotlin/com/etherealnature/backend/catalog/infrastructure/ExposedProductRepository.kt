@@ -6,6 +6,7 @@ import com.etherealnature.backend.catalog.application.ProductRepository
 import com.etherealnature.backend.catalog.application.ProductSort
 import com.etherealnature.backend.catalog.domain.Product
 import com.etherealnature.backend.catalog.domain.ProductId
+import java.time.Instant
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -15,6 +16,8 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.minus
+import org.jetbrains.exposed.v1.core.statements.UpdateBuilder
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 
@@ -40,6 +43,33 @@ class ExposedProductRepository : ProductRepository {
             .singleOrNull()
             ?.toProduct()
 
+    override fun slugExists(slug: String): Boolean =
+        ProductsTable.selectAll().where(ProductsTable.slug eq slug).count() > 0
+
+    override fun insert(product: Product) {
+        ProductsTable.insert { row -> write(row, product, includeCreated = true) }
+    }
+
+    override fun update(product: Product) {
+        ProductsTable.update(where = { ProductsTable.id eq product.id.value }) { row ->
+            write(row, product, includeCreated = false)
+        }
+    }
+
+    private fun write(row: UpdateBuilder<*>, product: Product, includeCreated: Boolean) {
+        row[ProductsTable.id] = product.id.value
+        row[ProductsTable.slug] = product.slug
+        row[ProductsTable.name] = product.name
+        row[ProductsTable.description] = product.description
+        row[ProductsTable.priceMinor] = product.price.amountMinor
+        row[ProductsTable.currency] = product.price.currency
+        row[ProductsTable.stock] = product.stock.quantity
+        row[ProductsTable.category] = product.category.name
+        row[ProductsTable.imageUrl] = product.imageUrl
+        row[ProductsTable.archived] = product.archived
+        if (includeCreated) row[ProductsTable.createdAt] = Instant.now()
+    }
+
     override fun decrementStock(id: ProductId, quantity: Int): Boolean =
         ProductsTable.update(
             where = { (ProductsTable.id eq id.value) and (ProductsTable.stock greaterEq quantity) },
@@ -54,7 +84,8 @@ class ExposedProductRepository : ProductRepository {
             .map { it.toProduct() }
 
     private fun buildPredicate(query: ProductQuery): Op<Boolean> {
-        var predicate: Op<Boolean> = ProductsTable.archived eq false
+        var predicate: Op<Boolean> =
+            if (query.includeArchived) Op.TRUE else ProductsTable.archived eq false
         query.category?.let { category ->
             predicate = predicate and (ProductsTable.category eq category.name)
         }

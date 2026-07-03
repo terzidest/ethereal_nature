@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetProductData, GetProductErrors, GetProductResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses } from './types.gen';
+import type { CreateProductData, CreateProductErrors, CreateProductResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetProductData, GetProductErrors, GetProductResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -189,6 +189,61 @@ export const listAllOrders = <ThrowOnError extends boolean = false>(options?: Op
 export const transitionOrderStatus = <ThrowOnError extends boolean = false>(options: Options<TransitionOrderStatusData, ThrowOnError>) => {
     return (options.client ?? client).post<TransitionOrderStatusResponses, TransitionOrderStatusErrors, ThrowOnError>({
         url: '/admin/orders/{id}/status',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Catalog listing for the back office — includes archived products
+ */
+export const listAdminProducts = <ThrowOnError extends boolean = false>(options?: Options<ListAdminProductsData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListAdminProductsResponses, ListAdminProductsErrors, ThrowOnError>({
+        url: '/admin/products',
+        ...options
+    });
+};
+
+/**
+ * Create a product
+ * Slug derives from the name at creation and never changes.
+ */
+export const createProduct = <ThrowOnError extends boolean = false>(options?: Options<CreateProductData, ThrowOnError>) => {
+    return (options?.client ?? client).post<CreateProductResponses, CreateProductErrors, ThrowOnError>({
+        url: '/admin/products',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * Update a product's details, price, and stock
+ * Never touches placed orders — they hold their own snapshots.
+ */
+export const updateProduct = <ThrowOnError extends boolean = false>(options: Options<UpdateProductData, ThrowOnError>) => {
+    return (options.client ?? client).put<UpdateProductResponses, UpdateProductErrors, ThrowOnError>({
+        url: '/admin/products/{id}',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Archive or restore a product
+ * Archived products vanish from the public catalog but stay in the back office and in historical order snapshots.
+ */
+export const setProductArchived = <ThrowOnError extends boolean = false>(options: Options<SetProductArchivedData, ThrowOnError>) => {
+    return (options.client ?? client).put<SetProductArchivedResponses, SetProductArchivedErrors, ThrowOnError>({
+        url: '/admin/products/{id}/archive',
         ...options,
         headers: {
             'Content-Type': 'application/json',

@@ -12,6 +12,8 @@ data class ProductQuery(
     val category: ProductCategory?,
     val search: String?,
     val sort: ProductSort,
+    /** Admin listings see archived products; the public catalog never does. */
+    val includeArchived: Boolean = false,
 ) {
     init {
         require(page >= 1) { "page must be >= 1" }
@@ -40,4 +42,8 @@ interface ProductRepository {
 
     /** Guarded decrement: false when stock is insufficient (no change made). */
     fun decrementStock(id: ProductId, quantity: Int): Boolean
+
+    fun slugExists(slug: String): Boolean
+    fun insert(product: Product)
+    fun update(product: Product)
 }

@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getProduct, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, transitionOrderStatus } from '../sdk.gen';
-import type { GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetProductData, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, TransitionOrderStatusData, TransitionOrderStatusResponse } from '../types.gen';
+import { createProduct, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getProduct, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, transitionOrderStatus, updateProduct } from '../sdk.gen';
+import type { CreateProductData, CreateProductResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetProductData, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -408,6 +408,109 @@ export const transitionOrderStatusMutation = (options?: Partial<Options<Transiti
     const mutationOptions: UseMutationOptions<TransitionOrderStatusResponse, DefaultError, Options<TransitionOrderStatusData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await transitionOrderStatus({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listAdminProductsQueryKey = (options?: Options<ListAdminProductsData>) => createQueryKey('listAdminProducts', options);
+
+/**
+ * Catalog listing for the back office — includes archived products
+ */
+export const listAdminProductsOptions = (options?: Options<ListAdminProductsData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await listAdminProducts({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listAdminProductsQueryKey(options)
+    });
+};
+
+export const listAdminProductsInfiniteQueryKey = (options?: Options<ListAdminProductsData>): QueryKey<Options<ListAdminProductsData>> => createQueryKey('listAdminProducts', options, true);
+
+/**
+ * Catalog listing for the back office — includes archived products
+ */
+export const listAdminProductsInfiniteOptions = (options?: Options<ListAdminProductsData>) => {
+    return infiniteQueryOptions<ListAdminProductsResponse, DefaultError, InfiniteData<ListAdminProductsResponse>, QueryKey<Options<ListAdminProductsData>>, number | Pick<QueryKey<Options<ListAdminProductsData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<ListAdminProductsData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await listAdminProducts({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listAdminProductsInfiniteQueryKey(options)
+    });
+};
+
+/**
+ * Create a product
+ * Slug derives from the name at creation and never changes.
+ */
+export const createProductMutation = (options?: Partial<Options<CreateProductData>>): UseMutationOptions<CreateProductResponse, DefaultError, Options<CreateProductData>> => {
+    const mutationOptions: UseMutationOptions<CreateProductResponse, DefaultError, Options<CreateProductData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createProduct({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Update a product's details, price, and stock
+ * Never touches placed orders — they hold their own snapshots.
+ */
+export const updateProductMutation = (options?: Partial<Options<UpdateProductData>>): UseMutationOptions<UpdateProductResponse, DefaultError, Options<UpdateProductData>> => {
+    const mutationOptions: UseMutationOptions<UpdateProductResponse, DefaultError, Options<UpdateProductData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateProduct({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Archive or restore a product
+ * Archived products vanish from the public catalog but stay in the back office and in historical order snapshots.
+ */
+export const setProductArchivedMutation = (options?: Partial<Options<SetProductArchivedData>>): UseMutationOptions<SetProductArchivedResponse, DefaultError, Options<SetProductArchivedData>> => {
+    const mutationOptions: UseMutationOptions<SetProductArchivedResponse, DefaultError, Options<SetProductArchivedData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await setProductArchived({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

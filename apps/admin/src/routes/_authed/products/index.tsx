@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ProductsTable } from '../../features/products/components/ProductsTable'
-import { categoryLabel } from '../../features/products/derive'
-import { productsTableQuery } from '../../features/products/queries'
+import { ProductsTable } from '../../../features/products/components/ProductsTable'
+import { categoryLabel } from '../../../features/products/derive'
+import { productsTableQuery } from '../../../features/products/queries'
 import {
   CATEGORIES,
   PAGE_SIZES,
@@ -10,9 +10,9 @@ import {
   pageSizeOf,
   sortOf,
   validateProductsTableSearch,
-} from '../../features/products/search'
+} from '../../../features/products/search'
 
-export const Route = createFileRoute('/_authed/products')({
+export const Route = createFileRoute('/_authed/products/')({
   validateSearch: validateProductsTableSearch,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(productsTableQuery(deps)),
@@ -21,16 +21,22 @@ export const Route = createFileRoute('/_authed/products')({
 
 function ProductsPage() {
   const search = Route.useSearch()
-  const navigate = useNavigate({ from: '/products' })
+  const navigate = useNavigate({ from: '/products/' })
   const { data, isFetching } = useQuery(productsTableQuery(search))
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10">
-      <header className="flex items-baseline justify-between">
+      <header className="flex items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-brand-900">Products</h1>
         <span className="text-sm text-ink/50">
           {data ? `${data.totalItems} products` : ''} {isFetching ? '· refreshing…' : ''}
         </span>
+        <Link
+          to="/products/new"
+          className="ml-auto rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+        >
+          New product
+        </Link>
       </header>
 
       <div className="flex flex-wrap items-center gap-3">

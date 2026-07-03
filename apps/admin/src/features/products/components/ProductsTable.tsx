@@ -1,4 +1,5 @@
 import type { ProductResponse, ProductSortDto } from '@ethereal-nature/api-client'
+import { Link } from '@tanstack/react-router'
 import {
   createColumnHelper,
   flexRender,
@@ -13,7 +14,22 @@ const columnHelper = createColumnHelper<ProductResponse>()
 const columns = [
   columnHelper.accessor('name', {
     header: 'Name',
-    cell: (info) => <span className="font-medium text-ink">{info.getValue()}</span>,
+    cell: (info) => (
+      <span className="flex items-center gap-2">
+        <Link
+          to="/products/$productId"
+          params={{ productId: info.row.original.id }}
+          className="font-medium text-brand-700 hover:text-brand-900"
+        >
+          {info.getValue()}
+        </Link>
+        {info.row.original.archived && (
+          <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600">
+            archived
+          </span>
+        )}
+      </span>
+    ),
   }),
   columnHelper.accessor('category', {
     header: 'Category',

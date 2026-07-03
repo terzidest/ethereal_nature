@@ -1,9 +1,12 @@
 package com.etherealnature.backend.catalog
 
+import com.etherealnature.backend.catalog.application.CreateProduct
 import com.etherealnature.backend.catalog.application.DecrementStock
 import com.etherealnature.backend.catalog.application.GetProduct
 import com.etherealnature.backend.catalog.application.GetProductsByIds
 import com.etherealnature.backend.catalog.application.ListProducts
+import com.etherealnature.backend.catalog.application.SetProductArchived
+import com.etherealnature.backend.catalog.application.UpdateProduct
 import com.etherealnature.backend.catalog.application.ProductRepository
 import com.etherealnature.backend.catalog.application.TransactionRunner
 import com.etherealnature.backend.catalog.infrastructure.ExposedProductRepository
@@ -18,4 +21,7 @@ val catalogModule = module {
     single { GetProduct(get(), get()) }
     single { GetProductsByIds(get()) }
     single { DecrementStock(get()) }
+    single { CreateProduct(get(), get()) }
+    single { UpdateProduct(get(), get()) }
+    single { SetProductArchived(get(), get()) }
 }

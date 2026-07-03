@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedProductsRouteImport } from './routes/_authed/products'
+import { Route as AuthedProductsIndexRouteImport } from './routes/_authed/products/index'
 import { Route as AuthedOrdersIndexRouteImport } from './routes/_authed/orders/index'
+import { Route as AuthedProductsNewRouteImport } from './routes/_authed/products/new'
+import { Route as AuthedProductsProductIdRouteImport } from './routes/_authed/products/$productId'
 import { Route as AuthedOrdersOrderIdRouteImport } from './routes/_authed/orders/$orderId'
 
 const LoginRoute = LoginRouteImport.update({
@@ -30,14 +32,24 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedProductsRoute = AuthedProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
+const AuthedProductsIndexRoute = AuthedProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedOrdersIndexRoute = AuthedOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedProductsNewRoute = AuthedProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedProductsProductIdRoute = AuthedProductsProductIdRouteImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedOrdersOrderIdRoute = AuthedOrdersOrderIdRouteImport.update({
@@ -49,39 +61,61 @@ const AuthedOrdersOrderIdRoute = AuthedOrdersOrderIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
-  '/products': typeof AuthedProductsRoute
   '/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/products/$productId': typeof AuthedProductsProductIdRoute
+  '/products/new': typeof AuthedProductsNewRoute
   '/orders/': typeof AuthedOrdersIndexRoute
+  '/products/': typeof AuthedProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/products': typeof AuthedProductsRoute
   '/': typeof AuthedIndexRoute
   '/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/products/$productId': typeof AuthedProductsProductIdRoute
+  '/products/new': typeof AuthedProductsNewRoute
   '/orders': typeof AuthedOrdersIndexRoute
+  '/products': typeof AuthedProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/products': typeof AuthedProductsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/_authed/products/$productId': typeof AuthedProductsProductIdRoute
+  '/_authed/products/new': typeof AuthedProductsNewRoute
   '/_authed/orders/': typeof AuthedOrdersIndexRoute
+  '/_authed/products/': typeof AuthedProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/products' | '/orders/$orderId' | '/orders/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/orders/$orderId'
+    | '/products/$productId'
+    | '/products/new'
+    | '/orders/'
+    | '/products/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/products' | '/' | '/orders/$orderId' | '/orders'
+  to:
+    | '/login'
+    | '/'
+    | '/orders/$orderId'
+    | '/products/$productId'
+    | '/products/new'
+    | '/orders'
+    | '/products'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
-    | '/_authed/products'
     | '/_authed/'
     | '/_authed/orders/$orderId'
+    | '/_authed/products/$productId'
+    | '/_authed/products/new'
     | '/_authed/orders/'
+    | '/_authed/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,11 +146,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/products': {
-      id: '/_authed/products'
+    '/_authed/products/': {
+      id: '/_authed/products/'
       path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof AuthedProductsRouteImport
+      fullPath: '/products/'
+      preLoaderRoute: typeof AuthedProductsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/orders/': {
@@ -124,6 +158,20 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders/'
       preLoaderRoute: typeof AuthedOrdersIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/products/new': {
+      id: '/_authed/products/new'
+      path: '/products/new'
+      fullPath: '/products/new'
+      preLoaderRoute: typeof AuthedProductsNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/products/$productId': {
+      id: '/_authed/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof AuthedProductsProductIdRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/orders/$orderId': {
@@ -137,17 +185,21 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
-  AuthedProductsRoute: typeof AuthedProductsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedOrdersOrderIdRoute: typeof AuthedOrdersOrderIdRoute
+  AuthedProductsProductIdRoute: typeof AuthedProductsProductIdRoute
+  AuthedProductsNewRoute: typeof AuthedProductsNewRoute
   AuthedOrdersIndexRoute: typeof AuthedOrdersIndexRoute
+  AuthedProductsIndexRoute: typeof AuthedProductsIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedProductsRoute: AuthedProductsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedOrdersOrderIdRoute: AuthedOrdersOrderIdRoute,
+  AuthedProductsProductIdRoute: AuthedProductsProductIdRoute,
+  AuthedProductsNewRoute: AuthedProductsNewRoute,
   AuthedOrdersIndexRoute: AuthedOrdersIndexRoute,
+  AuthedProductsIndexRoute: AuthedProductsIndexRoute,
 }
 
 const AuthedRouteWithChildren =

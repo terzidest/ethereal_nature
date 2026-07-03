@@ -65,6 +65,10 @@ export type ProductResponse = {
      * String
      */
     imageUrl?: null | string;
+    /**
+     * Boolean
+     */
+    archived: boolean;
 };
 
 /**
@@ -497,6 +501,47 @@ export type TransitionStatusRequest = {
     status: OrderStatusDto;
 };
 
+/**
+ * ProductInputRequest
+ */
+export type ProductInputRequest = {
+    /**
+     * String
+     */
+    name: string;
+    /**
+     * String
+     */
+    description: string;
+    /**
+     * Long
+     */
+    priceMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    /**
+     * Int
+     */
+    stock: number;
+    category: ProductCategoryDto;
+    /**
+     * String
+     */
+    imageUrl?: null | string;
+};
+
+/**
+ * ArchiveProductRequest
+ */
+export type ArchiveProductRequest = {
+    /**
+     * Boolean
+     */
+    archived: boolean;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -927,3 +972,163 @@ export type TransitionOrderStatusResponses = {
 };
 
 export type TransitionOrderStatusResponse = TransitionOrderStatusResponses[keyof TransitionOrderStatusResponses];
+
+export type ListAdminProductsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Int
+         * 1-based page (default 1)
+         */
+        page?: number;
+        /**
+         * Int
+         * Items per page, 1..100 (default 25)
+         */
+        pageSize?: number;
+        /**
+         * Filter by category
+         */
+        category?: ProductCategoryDto;
+        /**
+         * String
+         * Case-insensitive name search
+         */
+        q?: string;
+        /**
+         * Sort order (default newest)
+         */
+        sort?: ProductSortDto;
+    };
+    url: '/admin/products';
+};
+
+export type ListAdminProductsErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+};
+
+export type ListAdminProductsResponses = {
+    /**
+     * One page of products, archived included
+     */
+    200: ProductListResponse;
+};
+
+export type ListAdminProductsResponse = ListAdminProductsResponses[keyof ListAdminProductsResponses];
+
+export type CreateProductData = {
+    body?: ProductInputRequest;
+    path?: never;
+    query?: never;
+    url: '/admin/products';
+};
+
+export type CreateProductErrors = {
+    /**
+     * Validation failed
+     */
+    400: unknown;
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+};
+
+export type CreateProductResponses = {
+    /**
+     * The created product
+     */
+    201: ProductResponse;
+};
+
+export type CreateProductResponse = CreateProductResponses[keyof CreateProductResponses];
+
+export type UpdateProductData = {
+    body?: ProductInputRequest;
+    path: {
+        /**
+         * String
+         * Product UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/admin/products/{id}';
+};
+
+export type UpdateProductErrors = {
+    /**
+     * Validation failed
+     */
+    400: unknown;
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+    /**
+     * No such product
+     */
+    404: unknown;
+};
+
+export type UpdateProductResponses = {
+    /**
+     * The updated product
+     */
+    200: ProductResponse;
+};
+
+export type UpdateProductResponse = UpdateProductResponses[keyof UpdateProductResponses];
+
+export type SetProductArchivedData = {
+    body?: ArchiveProductRequest;
+    path: {
+        /**
+         * String
+         * Product UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/admin/products/{id}/archive';
+};
+
+export type SetProductArchivedErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+    /**
+     * No such product
+     */
+    404: unknown;
+};
+
+export type SetProductArchivedResponses = {
+    /**
+     * The product with its new archived state
+     */
+    200: ProductResponse;
+};
+
+export type SetProductArchivedResponse = SetProductArchivedResponses[keyof SetProductArchivedResponses];

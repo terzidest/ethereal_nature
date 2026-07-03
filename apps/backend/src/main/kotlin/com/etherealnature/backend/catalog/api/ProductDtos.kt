@@ -1,5 +1,6 @@
 package com.etherealnature.backend.catalog.api
 
+import com.etherealnature.backend.catalog.application.ProductInput
 import com.etherealnature.backend.catalog.application.ProductPage
 import com.etherealnature.backend.catalog.domain.Product
 import com.etherealnature.backend.catalog.domain.ProductCategory
@@ -36,7 +37,22 @@ data class ProductResponse(
     val stock: Int,
     val category: ProductCategoryDto,
     val imageUrl: String?,
+    val archived: Boolean,
 )
+
+@Serializable
+data class ProductInputRequest(
+    val name: String,
+    val description: String,
+    val priceMinor: Long,
+    val currency: String,
+    val stock: Int,
+    val category: ProductCategoryDto,
+    val imageUrl: String? = null,
+)
+
+@Serializable
+data class ArchiveProductRequest(val archived: Boolean)
 
 @Serializable
 data class ProductListResponse(
@@ -57,6 +73,17 @@ fun Product.toResponse(): ProductResponse = ProductResponse(
     stock = stock.quantity,
     category = ProductCategoryDto.from(category),
     imageUrl = imageUrl,
+    archived = archived,
+)
+
+fun ProductInputRequest.toInput(): ProductInput = ProductInput(
+    name = name,
+    description = description,
+    priceMinor = priceMinor,
+    currency = currency,
+    stock = stock,
+    category = category.toDomain(),
+    imageUrl = imageUrl?.takeIf { it.isNotBlank() },
 )
 
 fun ProductPage.toResponse(): ProductListResponse = ProductListResponse(
