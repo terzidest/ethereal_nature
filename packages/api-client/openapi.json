@@ -391,6 +391,259 @@
         },
         "deprecated": false
       }
+    },
+    "/orders": {
+      "get": {
+        "tags": [],
+        "summary": "The authenticated user's order history, newest first",
+        "operationId": "getMyOrders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Own orders",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderResponse"
+                  },
+                  "title": "ArrayList<OrderResponse>"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [],
+        "summary": "Place an order from the current cart",
+        "description": "Atomic: final price/stock re-validation, stock decrement, immutable order write, cart cleared — one transaction. Rejected with 409 when the re-validation finds changes (issues, or a total that no longer matches expectedTotalMinor).",
+        "operationId": "placeOrder",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceOrderRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "description": "The frozen order",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty cart",
+            "headers": {}
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "409": {
+            "description": "Cart changed since it was displayed — confirm again",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutRejectionResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": [],
+        "summary": "A single order (owner or admin)",
+        "operationId": "getOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Order UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such order (or not yours)",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/admin/orders": {
+      "get": {
+        "tags": [],
+        "summary": "All orders (admin), paginated, newest first",
+        "operationId": "listAllOrders",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-based page (default 1)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Items per page, 1..100 (default 25)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "title": "Int"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by fulfillment status",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/OrderStatusDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of orders",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/admin/orders/{id}/status": {
+      "post": {
+        "tags": [],
+        "summary": "Advance an order's fulfillment status (admin)",
+        "description": "The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.",
+        "operationId": "transitionOrderStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Order UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionStatusRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Order with the new status",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "403": {
+            "description": "Requires ADMIN role",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such order",
+            "headers": {}
+          },
+          "409": {
+            "description": "Invalid transition",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -903,6 +1156,236 @@
           "quantity"
         ],
         "title": "SetCartItemRequest"
+      },
+      "PlaceOrderRequest": {
+        "type": "object",
+        "properties": {
+          "expectedTotalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "expectedTotalMinor"
+        ],
+        "title": "PlaceOrderRequest"
+      },
+      "OrderStatusDto": {
+        "type": "string",
+        "enum": [
+          "PLACED",
+          "PAID",
+          "PACKED",
+          "SHIPPED"
+        ],
+        "title": "OrderStatusDto"
+      },
+      "OrderLineResponse": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "name": {
+            "type": "string",
+            "title": "String"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "unitPriceMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "lineTotalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "currency",
+          "lineTotalMinor",
+          "name",
+          "productId",
+          "quantity",
+          "unitPriceMinor"
+        ],
+        "title": "OrderLineResponse"
+      },
+      "OrderResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "String"
+          },
+          "userId": {
+            "type": "string",
+            "title": "String"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusDto"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderLineResponse"
+            },
+            "title": "ArrayList<OrderLineResponse>"
+          },
+          "totalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "placedAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "currency",
+          "id",
+          "lines",
+          "placedAtEpochSeconds",
+          "status",
+          "totalMinor",
+          "userId"
+        ],
+        "title": "OrderResponse"
+      },
+      "CheckoutIssueDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "title": "String"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/IssueKindDto"
+          },
+          "requestedQuantity": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "availableStock": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          }
+        },
+        "required": [
+          "availableStock",
+          "kind",
+          "productId",
+          "requestedQuantity"
+        ],
+        "title": "CheckoutIssueDto"
+      },
+      "IssueKindDto": {
+        "type": "string",
+        "enum": [
+          "UNAVAILABLE",
+          "INSUFFICIENT_STOCK"
+        ],
+        "title": "IssueKindDto"
+      },
+      "CheckoutRejectionResponse": {
+        "type": "object",
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CheckoutIssueDto"
+            },
+            "title": "ArrayList<CheckoutIssueDto>"
+          },
+          "currentTotalMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "currentTotalMinor",
+          "issues"
+        ],
+        "title": "CheckoutRejectionResponse"
+      },
+      "OrderListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderResponse"
+            },
+            "title": "ArrayList<OrderResponse>"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalItems",
+          "totalPages"
+        ],
+        "title": "OrderListResponse"
+      },
+      "TransitionStatusRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/OrderStatusDto"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "TransitionStatusRequest"
       }
     },
     "examples": {}

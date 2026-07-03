@@ -37,4 +37,7 @@ interface ProductRepository {
     fun findPage(query: ProductQuery): ProductPage
     fun findById(id: ProductId): Product?
     fun findByIds(ids: Collection<ProductId>): List<Product>
+
+    /** Guarded decrement: false when stock is insufficient (no change made). */
+    fun decrementStock(id: ProductId, quantity: Int): Boolean
 }

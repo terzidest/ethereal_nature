@@ -346,6 +346,157 @@ export type SetCartItemRequest = {
     quantity: number;
 };
 
+/**
+ * PlaceOrderRequest
+ */
+export type PlaceOrderRequest = {
+    /**
+     * Long
+     */
+    expectedTotalMinor: number;
+};
+
+/**
+ * OrderStatusDto
+ */
+export type OrderStatusDto = 'PLACED' | 'PAID' | 'PACKED' | 'SHIPPED';
+
+/**
+ * OrderLineResponse
+ */
+export type OrderLineResponse = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * String
+     */
+    name: string;
+    /**
+     * Int
+     */
+    quantity: number;
+    /**
+     * Long
+     */
+    unitPriceMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    /**
+     * Long
+     */
+    lineTotalMinor: number;
+};
+
+/**
+ * OrderResponse
+ */
+export type OrderResponse = {
+    /**
+     * String
+     */
+    id: string;
+    /**
+     * String
+     */
+    userId: string;
+    status: OrderStatusDto;
+    /**
+     * ArrayList<OrderLineResponse>
+     */
+    lines: Array<OrderLineResponse>;
+    /**
+     * Long
+     */
+    totalMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    /**
+     * Long
+     */
+    placedAtEpochSeconds: number;
+};
+
+/**
+ * CheckoutIssueDto
+ */
+export type CheckoutIssueDto = {
+    /**
+     * String
+     */
+    productId: string;
+    /**
+     * String
+     */
+    name?: null | string;
+    kind: IssueKindDto;
+    /**
+     * Int
+     */
+    requestedQuantity: number;
+    /**
+     * Int
+     */
+    availableStock: number;
+};
+
+/**
+ * IssueKindDto
+ */
+export type IssueKindDto = 'UNAVAILABLE' | 'INSUFFICIENT_STOCK';
+
+/**
+ * CheckoutRejectionResponse
+ */
+export type CheckoutRejectionResponse = {
+    /**
+     * ArrayList<CheckoutIssueDto>
+     */
+    issues: Array<CheckoutIssueDto>;
+    /**
+     * Long
+     */
+    currentTotalMinor: number;
+};
+
+/**
+ * OrderListResponse
+ */
+export type OrderListResponse = {
+    /**
+     * ArrayList<OrderResponse>
+     */
+    items: Array<OrderResponse>;
+    /**
+     * Int
+     */
+    page: number;
+    /**
+     * Int
+     */
+    pageSize: number;
+    /**
+     * Long
+     */
+    totalItems: number;
+    /**
+     * Long
+     */
+    totalPages: number;
+};
+
+/**
+ * TransitionStatusRequest
+ */
+export type TransitionStatusRequest = {
+    status: OrderStatusDto;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -603,3 +754,176 @@ export type SetCartItemResponses = {
 };
 
 export type SetCartItemResponse = SetCartItemResponses[keyof SetCartItemResponses];
+
+export type GetMyOrdersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/orders';
+};
+
+export type GetMyOrdersErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+};
+
+export type GetMyOrdersResponses = {
+    /**
+     * ArrayList<OrderResponse>
+     * Own orders
+     */
+    200: Array<OrderResponse>;
+};
+
+export type GetMyOrdersResponse = GetMyOrdersResponses[keyof GetMyOrdersResponses];
+
+export type PlaceOrderData = {
+    body?: PlaceOrderRequest;
+    path?: never;
+    query?: never;
+    url: '/orders';
+};
+
+export type PlaceOrderErrors = {
+    /**
+     * Empty cart
+     */
+    400: unknown;
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Cart changed since it was displayed — confirm again
+     */
+    409: CheckoutRejectionResponse;
+};
+
+export type PlaceOrderError = PlaceOrderErrors[keyof PlaceOrderErrors];
+
+export type PlaceOrderResponses = {
+    /**
+     * The frozen order
+     */
+    201: OrderResponse;
+};
+
+export type PlaceOrderResponse = PlaceOrderResponses[keyof PlaceOrderResponses];
+
+export type GetOrderData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         * Order UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/orders/{id}';
+};
+
+export type GetOrderErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * No such order (or not yours)
+     */
+    404: unknown;
+};
+
+export type GetOrderResponses = {
+    /**
+     * The order
+     */
+    200: OrderResponse;
+};
+
+export type GetOrderResponse = GetOrderResponses[keyof GetOrderResponses];
+
+export type ListAllOrdersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Int
+         * 1-based page (default 1)
+         */
+        page?: number;
+        /**
+         * Int
+         * Items per page, 1..100 (default 25)
+         */
+        pageSize?: number;
+        /**
+         * Filter by fulfillment status
+         */
+        status?: OrderStatusDto;
+    };
+    url: '/admin/orders';
+};
+
+export type ListAllOrdersErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+};
+
+export type ListAllOrdersResponses = {
+    /**
+     * One page of orders
+     */
+    200: OrderListResponse;
+};
+
+export type ListAllOrdersResponse = ListAllOrdersResponses[keyof ListAllOrdersResponses];
+
+export type TransitionOrderStatusData = {
+    body?: TransitionStatusRequest;
+    path: {
+        /**
+         * String
+         * Order UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/admin/orders/{id}/status';
+};
+
+export type TransitionOrderStatusErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+    /**
+     * No such order
+     */
+    404: unknown;
+    /**
+     * Invalid transition
+     */
+    409: unknown;
+};
+
+export type TransitionOrderStatusResponses = {
+    /**
+     * Order with the new status
+     */
+    200: OrderResponse;
+};
+
+export type TransitionOrderStatusResponse = TransitionOrderStatusResponses[keyof TransitionOrderStatusResponses];

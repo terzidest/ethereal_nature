@@ -32,6 +32,9 @@ function AdminShell() {
             <Link to="/products" className="hover:text-brand-700 [&.active]:text-brand-700">
               Products
             </Link>
+            <Link to="/orders" className="hover:text-brand-700 [&.active]:text-brand-700">
+              Orders
+            </Link>
           </nav>
           <div className="ml-auto flex items-center gap-4 text-sm">
             <span className="text-ink/50">{user.email}</span>

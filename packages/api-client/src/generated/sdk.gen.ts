@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetProductData, GetProductErrors, GetProductResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses } from './types.gen';
+import type { GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetProductData, GetProductErrors, GetProductResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -133,6 +133,66 @@ export const setCartItem = <ThrowOnError extends boolean = false>(options?: Opti
         headers: {
             'Content-Type': 'application/json',
             ...options?.headers
+        }
+    });
+};
+
+/**
+ * The authenticated user's order history, newest first
+ */
+export const getMyOrders = <ThrowOnError extends boolean = false>(options?: Options<GetMyOrdersData, ThrowOnError>) => {
+    return (options?.client ?? client).get<GetMyOrdersResponses, GetMyOrdersErrors, ThrowOnError>({
+        url: '/orders',
+        ...options
+    });
+};
+
+/**
+ * Place an order from the current cart
+ * Atomic: final price/stock re-validation, stock decrement, immutable order write, cart cleared — one transaction. Rejected with 409 when the re-validation finds changes (issues, or a total that no longer matches expectedTotalMinor).
+ */
+export const placeOrder = <ThrowOnError extends boolean = false>(options?: Options<PlaceOrderData, ThrowOnError>) => {
+    return (options?.client ?? client).post<PlaceOrderResponses, PlaceOrderErrors, ThrowOnError>({
+        url: '/orders',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * A single order (owner or admin)
+ */
+export const getOrder = <ThrowOnError extends boolean = false>(options: Options<GetOrderData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetOrderResponses, GetOrderErrors, ThrowOnError>({
+        url: '/orders/{id}',
+        ...options
+    });
+};
+
+/**
+ * All orders (admin), paginated, newest first
+ */
+export const listAllOrders = <ThrowOnError extends boolean = false>(options?: Options<ListAllOrdersData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListAllOrdersResponses, ListAllOrdersErrors, ThrowOnError>({
+        url: '/admin/orders',
+        ...options
+    });
+};
+
+/**
+ * Advance an order's fulfillment status (admin)
+ * The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.
+ */
+export const transitionOrderStatus = <ThrowOnError extends boolean = false>(options: Options<TransitionOrderStatusData, ThrowOnError>) => {
+    return (options.client ?? client).post<TransitionOrderStatusResponses, TransitionOrderStatusErrors, ThrowOnError>({
+        url: '/admin/orders/{id}/status',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
         }
     });
 };

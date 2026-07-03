@@ -141,7 +141,14 @@ function ServerCart() {
           {formatPrice(cart.subtotalMinor, cart.currency)}
         </span>
       </div>
-      <p className="text-right text-xs text-ink/40">Checkout arrives in Phase 4.</p>
+      <div className="flex justify-end">
+        <Link
+          to="/checkout"
+          className="rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+        >
+          Proceed to checkout
+        </Link>
+      </div>
     </div>
   )
 }

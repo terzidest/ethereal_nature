@@ -1,5 +1,9 @@
+import { getMyOrdersOptions } from '@ethereal-nature/api-client'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSession } from '../features/account/session'
+import { formatPrice } from '../features/catalog/derive'
+import { formatOrderDate, orderStatusLabels } from '../features/checkout/format'
 
 export const Route = createFileRoute('/account')({
   head: () => ({ meta: [{ title: 'Account | Ethereal Nature' }] }),
@@ -50,7 +54,7 @@ function AccountPage() {
           <dd>{user.role}</dd>
         </div>
       </dl>
-      <p className="text-sm text-ink/50">Order history arrives with checkout (Phase 4).</p>
+      <OrderHistory />
       <button
         type="button"
         onClick={() => {
@@ -62,5 +66,43 @@ function AccountPage() {
         Sign out
       </button>
     </main>
+  )
+}
+
+function OrderHistory() {
+  const orders = useQuery(getMyOrdersOptions())
+
+  return (
+    <section className="flex w-full flex-col gap-3">
+      <h2 className="text-xl font-semibold text-brand-900">Order history</h2>
+      {orders.isPending && <p className="text-sm text-ink/50">Loading orders…</p>}
+      {orders.data?.length === 0 && <p className="text-sm text-ink/50">No orders yet.</p>}
+      {orders.data && orders.data.length > 0 && (
+        <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
+          {orders.data.map((order) => (
+            <li key={order.id}>
+              <Link
+                to="/orders/$orderId"
+                params={{ orderId: order.id }}
+                className="flex items-center justify-between gap-4 p-4 hover:bg-brand-50/50"
+              >
+                <span className="flex flex-col">
+                  <span className="font-medium text-ink">
+                    {formatOrderDate(order.placedAtEpochSeconds)}
+                  </span>
+                  <span className="text-sm text-ink/50">
+                    {order.lines.length} {order.lines.length === 1 ? 'item' : 'items'} ·{' '}
+                    {orderStatusLabels[order.status] ?? order.status}
+                  </span>
+                </span>
+                <span className="font-semibold text-brand-900">
+                  {formatPrice(order.totalMinor, order.currency)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }

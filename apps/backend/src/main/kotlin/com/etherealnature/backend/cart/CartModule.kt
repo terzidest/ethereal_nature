@@ -1,7 +1,9 @@
 package com.etherealnature.backend.cart
 
 import com.etherealnature.backend.cart.application.CartRepository
+import com.etherealnature.backend.cart.application.ClearCart
 import com.etherealnature.backend.cart.application.GetCart
+import com.etherealnature.backend.cart.application.GetCartLines
 import com.etherealnature.backend.cart.application.MergeCart
 import com.etherealnature.backend.cart.application.ProductCatalogPort
 import com.etherealnature.backend.cart.application.SetCartItem
@@ -19,4 +21,6 @@ val cartModule = module {
     single { GetCart(get(), get(), get()) }
     single { MergeCart(get(), get(), get()) }
     single { SetCartItem(get(), get(), get()) }
+    single { GetCartLines(get()) }
+    single { ClearCart(get()) }
 }

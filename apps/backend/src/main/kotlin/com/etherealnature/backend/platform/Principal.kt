@@ -12,3 +12,7 @@ fun RoutingContext.authenticatedUserId(): Uuid {
         ?: throw BadRequestException("Missing token subject")
     return Uuid.parse(subject)
 }
+
+/** Whether the caller's token carries the ADMIN role. */
+fun RoutingContext.isAdmin(): Boolean =
+    call.principal<JWTPrincipal>()?.payload?.getClaim("role")?.asString() == "ADMIN"

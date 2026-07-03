@@ -10,10 +10,13 @@ import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.core.minus
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 
 class ExposedProductRepository : ProductRepository {
 
@@ -36,6 +39,13 @@ class ExposedProductRepository : ProductRepository {
             .where(ProductsTable.id eq id.value)
             .singleOrNull()
             ?.toProduct()
+
+    override fun decrementStock(id: ProductId, quantity: Int): Boolean =
+        ProductsTable.update(
+            where = { (ProductsTable.id eq id.value) and (ProductsTable.stock greaterEq quantity) },
+        ) {
+            it[stock] = ProductsTable.stock minus quantity
+        } == 1
 
     override fun findByIds(ids: Collection<ProductId>): List<Product> =
         if (ids.isEmpty()) emptyList()

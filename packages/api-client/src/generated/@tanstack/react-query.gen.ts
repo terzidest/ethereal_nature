@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { getCart, getCurrentUser, getHealth, getProduct, listProducts, listUsers, login, mergeCart, type Options, register, setCartItem } from '../sdk.gen';
-import type { GetCartData, GetCurrentUserData, GetHealthData, GetProductData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse } from '../types.gen';
+import { getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getProduct, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, transitionOrderStatus } from '../sdk.gen';
+import type { GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetProductData, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, TransitionOrderStatusData, TransitionOrderStatusResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -283,6 +283,131 @@ export const setCartItemMutation = (options?: Partial<Options<SetCartItemData>>)
     const mutationOptions: UseMutationOptions<SetCartItemResponse, DefaultError, Options<SetCartItemData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await setCartItem({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getMyOrdersQueryKey = (options?: Options<GetMyOrdersData>) => createQueryKey('getMyOrders', options);
+
+/**
+ * The authenticated user's order history, newest first
+ */
+export const getMyOrdersOptions = (options?: Options<GetMyOrdersData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await getMyOrders({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: getMyOrdersQueryKey(options)
+    });
+};
+
+/**
+ * Place an order from the current cart
+ * Atomic: final price/stock re-validation, stock decrement, immutable order write, cart cleared — one transaction. Rejected with 409 when the re-validation finds changes (issues, or a total that no longer matches expectedTotalMinor).
+ */
+export const placeOrderMutation = (options?: Partial<Options<PlaceOrderData>>): UseMutationOptions<PlaceOrderResponse, PlaceOrderError, Options<PlaceOrderData>> => {
+    const mutationOptions: UseMutationOptions<PlaceOrderResponse, PlaceOrderError, Options<PlaceOrderData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await placeOrder({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getOrderQueryKey = (options: Options<GetOrderData>) => createQueryKey('getOrder', options);
+
+/**
+ * A single order (owner or admin)
+ */
+export const getOrderOptions = (options: Options<GetOrderData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await getOrder({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: getOrderQueryKey(options)
+    });
+};
+
+export const listAllOrdersQueryKey = (options?: Options<ListAllOrdersData>) => createQueryKey('listAllOrders', options);
+
+/**
+ * All orders (admin), paginated, newest first
+ */
+export const listAllOrdersOptions = (options?: Options<ListAllOrdersData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await listAllOrders({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listAllOrdersQueryKey(options)
+    });
+};
+
+export const listAllOrdersInfiniteQueryKey = (options?: Options<ListAllOrdersData>): QueryKey<Options<ListAllOrdersData>> => createQueryKey('listAllOrders', options, true);
+
+/**
+ * All orders (admin), paginated, newest first
+ */
+export const listAllOrdersInfiniteOptions = (options?: Options<ListAllOrdersData>) => {
+    return infiniteQueryOptions<ListAllOrdersResponse, DefaultError, InfiniteData<ListAllOrdersResponse>, QueryKey<Options<ListAllOrdersData>>, number | Pick<QueryKey<Options<ListAllOrdersData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+    // @ts-ignore
+    {
+        queryFn: async ({ pageParam, queryKey, signal }) => {
+            // @ts-ignore
+            const page: Pick<QueryKey<Options<ListAllOrdersData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+                query: {
+                    page: pageParam
+                }
+            };
+            const params = createInfiniteParams(queryKey, page);
+            const { data } = await listAllOrders({
+                ...options,
+                ...params,
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listAllOrdersInfiniteQueryKey(options)
+    });
+};
+
+/**
+ * Advance an order's fulfillment status (admin)
+ * The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.
+ */
+export const transitionOrderStatusMutation = (options?: Partial<Options<TransitionOrderStatusData>>): UseMutationOptions<TransitionOrderStatusResponse, DefaultError, Options<TransitionOrderStatusData>> => {
+    const mutationOptions: UseMutationOptions<TransitionOrderStatusResponse, DefaultError, Options<TransitionOrderStatusData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await transitionOrderStatus({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

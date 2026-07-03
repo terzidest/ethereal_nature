@@ -13,6 +13,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedProductsRouteImport } from './routes/_authed/products'
+import { Route as AuthedOrdersIndexRouteImport } from './routes/_authed/orders/index'
+import { Route as AuthedOrdersOrderIdRouteImport } from './routes/_authed/orders/$orderId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -33,16 +35,30 @@ const AuthedProductsRoute = AuthedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedOrdersIndexRoute = AuthedOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedOrdersOrderIdRoute = AuthedOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/products': typeof AuthedProductsRoute
+  '/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/orders/': typeof AuthedOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/products': typeof AuthedProductsRoute
   '/': typeof AuthedIndexRoute
+  '/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/orders': typeof AuthedOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +66,22 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authed/products': typeof AuthedProductsRoute
   '/_authed/': typeof AuthedIndexRoute
+  '/_authed/orders/$orderId': typeof AuthedOrdersOrderIdRoute
+  '/_authed/orders/': typeof AuthedOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/products'
+  fullPaths: '/' | '/login' | '/products' | '/orders/$orderId' | '/orders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/products' | '/'
-  id: '__root__' | '/_authed' | '/login' | '/_authed/products' | '/_authed/'
+  to: '/login' | '/products' | '/' | '/orders/$orderId' | '/orders'
+  id:
+    | '__root__'
+    | '/_authed'
+    | '/login'
+    | '/_authed/products'
+    | '/_authed/'
+    | '/_authed/orders/$orderId'
+    | '/_authed/orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,17 +119,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedProductsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/orders/': {
+      id: '/_authed/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof AuthedOrdersIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/orders/$orderId': {
+      id: '/_authed/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof AuthedOrdersOrderIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
 interface AuthedRouteChildren {
   AuthedProductsRoute: typeof AuthedProductsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedOrdersOrderIdRoute: typeof AuthedOrdersOrderIdRoute
+  AuthedOrdersIndexRoute: typeof AuthedOrdersIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedProductsRoute: AuthedProductsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
+  AuthedOrdersOrderIdRoute: AuthedOrdersOrderIdRoute,
+  AuthedOrdersIndexRoute: AuthedOrdersIndexRoute,
 }
 
 const AuthedRouteWithChildren =

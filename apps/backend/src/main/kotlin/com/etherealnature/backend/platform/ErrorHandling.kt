@@ -3,6 +3,7 @@ package com.etherealnature.backend.platform
 import com.etherealnature.backend.cart.domain.CartError
 import com.etherealnature.backend.catalog.domain.CatalogError
 import com.etherealnature.backend.identity.domain.IdentityError
+import com.etherealnature.backend.ordering.domain.OrderingError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -32,6 +33,24 @@ fun Application.configureErrorHandling() {
             call.respond(
                 HttpStatusCode.Conflict,
                 ErrorResponse(code = "PRODUCT_UNAVAILABLE", message = cause.message),
+            )
+        }
+        exception<OrderingError.EmptyCart> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(code = "EMPTY_CART", message = cause.message),
+            )
+        }
+        exception<OrderingError.OrderNotFound> { call, cause ->
+            call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse(code = "ORDER_NOT_FOUND", message = cause.message),
+            )
+        }
+        exception<OrderingError.InvalidStatusTransition> { call, cause ->
+            call.respond(
+                HttpStatusCode.Conflict,
+                ErrorResponse(code = "INVALID_STATUS_TRANSITION", message = cause.message),
             )
         }
         exception<IdentityError.EmailAlreadyRegistered> { call, cause ->
