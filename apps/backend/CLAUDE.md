@@ -37,9 +37,10 @@ Ktor or Exposed symbol inside `domain/`, you have made a mistake — stop.
 
 ## Cart / ordering specifics
 
-- `mergeCarts(...)` and `placeOrder(...)` are **pure domain functions** that take
-  ports as parameters. They return results + adjustment reports; they do not
-  perform IO themselves.
+- `mergeCarts(...)` and `priceCart(...)` are **pure domain functions** that take
+  a catalog snapshot (plain data, fetched by the use case inside its
+  transaction) as a parameter. They return results + adjustment reports; they
+  do not perform IO themselves.
 - Recompute price and stock server-side on merge and on checkout. Ignore any
   price/total in the request body.
 - `placeOrder` is one atomic transaction: re-validate → decrement stock → write

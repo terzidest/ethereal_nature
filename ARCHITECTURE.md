@@ -184,16 +184,18 @@ api ──► application ──► domain ◄── infrastructure
 - The domain is the center and imports nothing framework-y.
 - **Ports are declared in the application layer; adapters live in
   infrastructure.** The cart's application layer says "I need something that can
-  fetch a product's price and stock" as an interface *it owns*; infrastructure
-  provides the implementation.
+  fetch a product's price, stock, and name" as an interface *it owns*
+  (`ProductCatalogPort` — one port per consuming context, returning one atomic
+  snapshot; see ADR-0009); infrastructure provides the implementation.
 - The transaction boundary lives in the **use-case layer** — never in a
   repository, never in a route. One use case = one transaction.
 
 ### 4.4 Cross-context communication
 
-A context **never** reads another context's tables. `cart` needs pricing and
-stock from `catalog`, so cart's application layer defines ports (`ProductPricing`,
-`StockChecker`) and is handed an adapter that calls catalog's application service.
+A context **never** reads another context's tables. `cart` and `ordering`
+need pricing and stock from `catalog`, so each defines its own
+`ProductCatalogPort` and is handed an adapter that calls catalog's application
+service (`GetProductsByIds`, `DecrementStock`).
 
 At single-module scale the adapter is an in-process call. The *seam* is real, so
 when catalog becomes its own service, only the adapter implementation changes.
@@ -222,7 +224,7 @@ The client posts its guest lines to `POST /cart/merge`. The core is a pure
 domain function:
 
 ```
-mergeCarts(guestLines, existingUserCart, pricingPort) -> MergeResult
+mergeCarts(guestLines, existingUserCart, catalogSnapshot) -> MergeResult
 ```
 
 `MergeResult` returns the merged cart **plus an adjustments report**: items
@@ -241,7 +243,7 @@ Cart and order are **different aggregates**. The cart is mutable and cheap. The
 order is an **immutable snapshot** taken at purchase, living in `ordering`:
 
 ```
-placeOrder(cart, pricingPort, stockPort) -> Order
+placeOrder: priceCart(intents, catalogSnapshot) -> PricedCart, then decrement + write
 ```
 
 This use case re-validates stock and price one final time, decrements stock, and
@@ -262,8 +264,8 @@ plugs in.
 
 ```
 identity ──(principal)──► scopes whose cart/order is whose
-catalog  ◄──(ports: pricing, stock)── cart
-catalog  ◄──(ports: pricing, stock)── ordering
+catalog  ◄──(port: ProductCatalogPort)── cart
+catalog  ◄──(port: ProductCatalogPort)── ordering
 cart     ──(snapshot at checkout)──► ordering
                     │
                     ▼

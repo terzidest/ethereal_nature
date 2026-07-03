@@ -14,3 +14,4 @@ change a decision, write a new ADR that supersedes the old one.
 | [0006](0006-exposed-dsl-and-context-modules.md) | Exposed DSL + package-bounded contexts | Accepted |
 | [0007](0007-cart-and-order-aggregates.md) | Cart as server aggregate, Order as immutable snapshot | Accepted |
 | [0008](0008-frontend-state-ownership.md) | Frontend state ownership boundaries | Accepted |
+| [0009](0009-deferred-decisions-confirmed.md) | Deferred cart/ordering decisions confirmed post-implementation | Accepted |

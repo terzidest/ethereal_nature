@@ -2,6 +2,7 @@ import { configureApiClient } from '@ethereal-nature/api-client'
 import { QueryClient } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
+import { ErrorFallback, NotFoundFallback, PendingFallback } from './components/RouterFallbacks'
 import { routeTree } from './routeTree.gen'
 
 configureApiClient({
@@ -16,6 +17,9 @@ export function getRouter() {
     context: { queryClient },
     defaultPreload: 'intent',
     scrollRestoration: true,
+    defaultErrorComponent: ErrorFallback,
+    defaultNotFoundComponent: NotFoundFallback,
+    defaultPendingComponent: PendingFallback,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient })

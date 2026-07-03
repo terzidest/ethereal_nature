@@ -36,7 +36,9 @@ function CatalogPage() {
       )}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {data?.items.map((product) => <ProductCard key={product.id} product={product} />)}
+        {data
+          ? data.items.map((product) => <ProductCard key={product.id} product={product} />)
+          : Array.from({ length: 6 }, (_, i) => <ProductCardSkeleton key={i} />)}
       </section>
 
       {data && data.totalPages > 1 && (
@@ -54,6 +56,17 @@ function CatalogPage() {
         </nav>
       )}
     </main>
+  )
+}
+
+function ProductCardSkeleton() {
+  return (
+    <div className="flex animate-pulse flex-col gap-3 rounded-card border border-brand-100 bg-white p-5" aria-hidden>
+      <div className="h-3 w-16 rounded bg-brand-100" />
+      <div className="h-5 w-3/4 rounded bg-brand-100" />
+      <div className="h-4 w-full rounded bg-brand-50" />
+      <div className="mt-auto h-6 w-20 rounded bg-brand-100" />
+    </div>
   )
 }
 

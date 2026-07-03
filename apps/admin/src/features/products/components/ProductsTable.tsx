@@ -122,6 +122,13 @@ export function ProductsTable({
         ))}
       </thead>
       <tbody>
+        {products.length === 0 && (
+          <tr>
+            <td colSpan={columns.length} className="px-3 py-8 text-center text-ink/50">
+              No products match.
+            </td>
+          </tr>
+        )}
         {table.getRowModel().rows.map((row) => (
           <tr key={row.id} className="border-b border-brand-50 hover:bg-brand-50/50">
             {row.getVisibleCells().map((cell) => (
