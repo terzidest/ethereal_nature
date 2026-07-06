@@ -16,10 +16,10 @@ export function AuthForm({
   footer: ReactNode
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-6 py-24">
-      <h1 className="text-3xl font-bold tracking-tight text-brand-900">{title}</h1>
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-6 py-20">
+      <h1 className="text-center font-display text-3xl font-semibold tracking-tight text-brand-900">{title}</h1>
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 rounded-tile bg-surface-raised p-6 shadow-card"
         onSubmit={(event) => {
           event.preventDefault()
           const form = new FormData(event.currentTarget)
@@ -56,7 +56,7 @@ export function AuthForm({
           {isPending ? 'Please wait…' : submitLabel}
         </button>
       </form>
-      <div className="text-sm text-ink/70">{footer}</div>
+      <div className="text-center text-sm text-ink/70">{footer}</div>
     </main>
   )
 }

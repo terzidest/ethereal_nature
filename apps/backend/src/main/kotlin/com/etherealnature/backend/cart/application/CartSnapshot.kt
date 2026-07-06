@@ -8,6 +8,7 @@ import kotlin.uuid.Uuid
 data class PricedLine(
     val productId: Uuid,
     val name: String,
+    val category: String,
     val quantity: Int,
     val unitPriceMinor: Long,
     val currency: String,
@@ -25,6 +26,7 @@ internal fun snapshotOf(lines: List<CartLine>, products: Map<Uuid, ProductInfo>)
         PricedLine(
             productId = line.productId,
             name = info.name,
+            category = info.category,
             quantity = line.quantity,
             unitPriceMinor = info.priceMinor,
             currency = info.currency,

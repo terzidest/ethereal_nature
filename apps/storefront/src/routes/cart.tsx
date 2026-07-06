@@ -5,9 +5,11 @@ import {
   type CartResponse,
 } from '@ethereal-nature/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ProductArt } from '@ethereal-nature/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
+import { artCategory } from '../features/cart/art'
 import { AdjustmentsBanner } from '../features/cart/components/AdjustmentsBanner'
 import { useGuestCart } from '../features/cart/guest-store'
 import { useCartSummary } from '../features/cart/useCartSummary'
@@ -22,7 +24,7 @@ function CartPage() {
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-brand-900">Your cart</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Your cart</h1>
       <AdjustmentsBanner />
       {user ? <ServerCart /> : <GuestCart />}
     </main>
@@ -101,6 +103,9 @@ function ServerCart() {
       <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
         {cart.lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
+              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+            </div>
             <div className="flex flex-1 flex-col">
               <Link
                 to="/products/$productId"
@@ -167,6 +172,9 @@ function GuestCart() {
       <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
         {lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
+              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+            </div>
             <div className="flex flex-1 flex-col">
               <Link
                 to="/products/$productId"

@@ -17,7 +17,7 @@ class MergeCartsTest {
     private val ghost = Uuid.parse("0d9f3f65-1a2b-4c3d-8e4f-00000000dead")
 
     private fun info(priceMinor: Long = 1450, stock: Int = 10, archived: Boolean = false) =
-        ProductInfo(name = "p", priceMinor = priceMinor, currency = "EUR", stock = stock, archived = archived)
+        ProductInfo(name = "p", category = "HERBS", priceMinor = priceMinor, currency = "EUR", stock = stock, archived = archived)
 
     @Test
     fun `sums duplicate products then clamps to stock`() {

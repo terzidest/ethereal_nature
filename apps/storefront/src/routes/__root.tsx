@@ -3,8 +3,10 @@ import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanst
 import type { ReactNode } from 'react'
 
 import { useEffect } from 'react'
+import { SiteFooter } from '../components/SiteFooter'
 import { SiteHeader } from '../components/SiteHeader'
 import { AuthProvider } from '../features/account/session'
+import { CartDrawer } from '../features/cart/components/CartDrawer'
 import { useGuestCart } from '../features/cart/guest-store'
 import appCss from '../styles.css?url'
 
@@ -37,10 +39,12 @@ function RootDocument({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-screen bg-surface font-sans text-ink antialiased">
+      <body className="flex min-h-screen flex-col bg-surface font-sans text-ink antialiased">
         <AuthProvider>
           <SiteHeader />
           {children}
+          <SiteFooter />
+          <CartDrawer />
         </AuthProvider>
         <Scripts />
       </body>

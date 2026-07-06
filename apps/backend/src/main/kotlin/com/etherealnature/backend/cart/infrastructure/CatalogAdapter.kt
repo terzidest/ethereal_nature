@@ -18,6 +18,7 @@ class CatalogAdapter(private val getProductsByIds: GetProductsByIds) : ProductCa
             .associate { (id, product) ->
                 id.value to ProductInfo(
                     name = product.name,
+                    category = product.category.name,
                     priceMinor = product.price.amountMinor,
                     currency = product.price.currency,
                     stock = product.stock.quantity,

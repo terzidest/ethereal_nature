@@ -1157,6 +1157,10 @@
             "type": "string",
             "title": "String"
           },
+          "category": {
+            "type": "string",
+            "title": "String"
+          },
           "quantity": {
             "type": "integer",
             "format": "int32",
@@ -1188,6 +1192,7 @@
         },
         "required": [
           "available",
+          "category",
           "currency",
           "lineTotalMinor",
           "name",

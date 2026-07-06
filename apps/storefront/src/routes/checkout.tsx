@@ -3,11 +3,13 @@ import {
   placeOrderMutation,
   type CheckoutRejectionResponse,
 } from '@ethereal-nature/api-client'
+import { ProductArt } from '@ethereal-nature/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
+import { artCategory } from '../features/cart/art'
 import { useCartSummary } from '../features/cart/useCartSummary'
 
 export const Route = createFileRoute('/checkout')({
@@ -79,7 +81,7 @@ function CheckoutPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-brand-900">Checkout</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Checkout</h1>
 
       {rejection && (
         <aside className="flex flex-col gap-2 rounded-card border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -102,8 +104,11 @@ function CheckoutPage() {
 
       <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
         {cart.lines.map((line) => (
-          <li key={line.productId} className="flex items-center justify-between gap-4 p-4">
-            <span>
+          <li key={line.productId} className="flex items-center gap-4 p-4">
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-card">
+              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+            </div>
+            <span className="flex-1">
               {line.name} <span className="text-ink/50">× {line.quantity}</span>
               {!line.available && <span className="ml-2 text-sm text-red-600">unavailable</span>}
             </span>

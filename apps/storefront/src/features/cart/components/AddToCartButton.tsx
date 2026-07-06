@@ -7,16 +7,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from '../../account/session'
 import { useCartSummary } from '../useCartSummary'
 import { useGuestCart } from '../guest-store'
+import { useCartUi } from '../ui-store'
 
-export function AddToCartButton({ product }: { product: ProductResponse }) {
+export function AddToCartButton({ product, quantity = 1 }: { product: ProductResponse; quantity?: number }) {
   const { user } = useSession()
   const queryClient = useQueryClient()
   const addGuestLine = useGuestCart((s) => s.addLine)
+  const openDrawer = useCartUi((s) => s.openDrawer)
   const { serverCart } = useCartSummary()
 
   const mutation = useMutation({
     ...setCartItemMutation({ throwOnError: true }),
-    onSuccess: (cart) => queryClient.setQueryData(getCartQueryKey(), cart),
+    onSuccess: (cart) => {
+      queryClient.setQueryData(getCartQueryKey(), cart)
+      openDrawer()
+    },
   })
 
   if (product.stock === 0) {
@@ -35,14 +40,19 @@ export function AddToCartButton({ product }: { product: ProductResponse }) {
     if (user) {
       const currentQty =
         serverCart.data?.lines.find((line) => line.productId === product.id)?.quantity ?? 0
-      mutation.mutate({ body: { productId: product.id, quantity: currentQty + 1 } })
+      mutation.mutate({ body: { productId: product.id, quantity: currentQty + quantity } })
     } else {
-      addGuestLine({
-        productId: product.id,
-        name: product.name,
-        priceSnapshotMinor: product.priceMinor,
-        currency: product.currency,
-      })
+      addGuestLine(
+        {
+          productId: product.id,
+          name: product.name,
+          category: product.category,
+          priceSnapshotMinor: product.priceMinor,
+          currency: product.currency,
+        },
+        quantity,
+      )
+      openDrawer()
     }
   }
 

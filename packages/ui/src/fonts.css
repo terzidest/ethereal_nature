@@ -1,0 +1,3 @@
+/* Self-hosted variable fonts (no external requests, SSR-safe). */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/fraunces';

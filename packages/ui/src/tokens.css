@@ -1,16 +1,33 @@
 /* Design tokens shared by storefront and admin (Tailwind v4 @theme). */
 @theme {
+  /* Brand greens */
   --color-brand-50: oklch(0.97 0.02 155);
   --color-brand-100: oklch(0.93 0.04 155);
+  --color-brand-200: oklch(0.87 0.06 155);
+  --color-brand-300: oklch(0.78 0.09 155);
   --color-brand-500: oklch(0.55 0.12 155);
   --color-brand-600: oklch(0.48 0.12 155);
   --color-brand-700: oklch(0.42 0.11 155);
+  --color-brand-800: oklch(0.34 0.09 155);
   --color-brand-900: oklch(0.28 0.07 155);
 
-  --color-surface: oklch(0.99 0.005 120);
-  --color-ink: oklch(0.22 0.02 155);
+  /* Warm neutrals — the shop should feel like paper, not plastic */
+  --color-surface: oklch(0.985 0.006 95);
+  --color-surface-raised: oklch(1 0 0);
+  --color-sand-100: oklch(0.95 0.015 90);
+  --color-sand-200: oklch(0.91 0.02 90);
+  --color-ink: oklch(0.24 0.02 155);
+  --color-ink-soft: oklch(0.45 0.02 155);
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* Accent for warmth (amber resin) */
+  --color-amber-accent: oklch(0.75 0.12 75);
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
 
   --radius-card: 0.75rem;
+  --radius-tile: 1.25rem;
+
+  --shadow-card: 0 1px 2px oklch(0.28 0.07 155 / 0.06), 0 4px 16px oklch(0.28 0.07 155 / 0.07);
+  --shadow-lifted: 0 2px 4px oklch(0.28 0.07 155 / 0.08), 0 12px 32px oklch(0.28 0.07 155 / 0.12);
 }

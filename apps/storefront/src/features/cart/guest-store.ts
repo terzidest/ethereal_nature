@@ -10,6 +10,8 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 export interface GuestCartLine {
   productId: string
   name: string
+  /** Display metadata for artwork; older persisted carts may lack it. */
+  category?: string
   quantity: number
   priceSnapshotMinor: number
   currency: string

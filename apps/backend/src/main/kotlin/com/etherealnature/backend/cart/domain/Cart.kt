@@ -24,6 +24,7 @@ data class GuestLine(val productId: Uuid, val quantity: Int, val priceSnapshotMi
 /** Catalog snapshot the merge works against — plain data, no IO. */
 data class ProductInfo(
     val name: String,
+    val category: String,
     val priceMinor: Long,
     val currency: String,
     val stock: Int,

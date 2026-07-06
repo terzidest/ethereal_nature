@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 data class CartLineResponse(
     val productId: String,
     val name: String,
+    val category: String,
     val quantity: Int,
     val unitPriceMinor: Long,
     val currency: String,
@@ -59,6 +60,7 @@ fun CartSnapshot.toResponse(): CartResponse = CartResponse(
         CartLineResponse(
             productId = it.productId.toString(),
             name = it.name,
+            category = it.category,
             quantity = it.quantity,
             unitPriceMinor = it.unitPriceMinor,
             currency = it.currency,

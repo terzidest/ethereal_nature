@@ -25,11 +25,18 @@ function CatalogPage() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-brand-900">Shop</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Shop</h1>
         <p className="text-ink/70">Essential oils, herbs, crystals, and teas.</p>
       </header>
 
       <CatalogControls search={search} />
+
+      {data && data.items.length > 0 && (
+        <p className="text-sm text-ink/50">
+          {data.totalItems} {data.totalItems === 1 ? 'product' : 'products'}
+          {search.q ? ` for “${search.q}”` : ''}
+        </p>
+      )}
 
       {data && data.items.length === 0 && (
         <p className="py-16 text-center text-ink/60">Nothing matches — try a different search or category.</p>
@@ -61,11 +68,13 @@ function CatalogPage() {
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-3 rounded-card border border-brand-100 bg-white p-5" aria-hidden>
-      <div className="h-3 w-16 rounded bg-brand-100" />
-      <div className="h-5 w-3/4 rounded bg-brand-100" />
-      <div className="h-4 w-full rounded bg-brand-50" />
-      <div className="mt-auto h-6 w-20 rounded bg-brand-100" />
+    <div className="flex animate-pulse flex-col overflow-hidden rounded-tile bg-surface-raised shadow-card" aria-hidden>
+      <div className="aspect-square bg-brand-50" />
+      <div className="flex flex-col gap-2 px-4 py-3.5">
+        <div className="h-3 w-16 rounded bg-brand-100" />
+        <div className="h-5 w-3/4 rounded bg-brand-100" />
+        <div className="h-6 w-20 rounded bg-brand-50" />
+      </div>
     </div>
   )
 }
