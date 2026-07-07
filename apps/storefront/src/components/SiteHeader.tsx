@@ -5,13 +5,6 @@ import { useCartSummary } from '../features/cart/useCartSummary'
 import { useCartUi } from '../features/cart/ui-store'
 import { LeafMark } from './LeafMark'
 
-const categories = [
-  { label: 'Oils', value: 'OILS' },
-  { label: 'Herbs', value: 'HERBS' },
-  { label: 'Crystals', value: 'CRYSTALS' },
-  { label: 'Teas', value: 'TEAS' },
-] as const
-
 export function SiteHeader() {
   const { user, isRestoring } = useSession()
   const { itemCount } = useCartSummary()
@@ -27,20 +20,10 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-5 text-sm font-medium text-ink/70 md:flex" aria-label="Categories">
+        <nav className="hidden items-center gap-5 text-sm font-medium text-ink/70 md:flex" aria-label="Main">
           <Link to="/products" className="hover:text-brand-700 [&.active]:text-brand-700">
-            All
+            Shop
           </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.value}
-              to="/products"
-              search={{ category: category.value }}
-              className="hover:text-brand-700"
-            >
-              {category.label}
-            </Link>
-          ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-5 text-sm font-medium">
