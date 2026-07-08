@@ -20,7 +20,7 @@ function NewProductPage() {
   })
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
+    <main className="flex max-w-4xl flex-col gap-6 px-6 py-8 lg:px-8">
       <Link to="/products" className="text-sm font-medium text-brand-700 hover:text-brand-900">
         ← All products
       </Link>

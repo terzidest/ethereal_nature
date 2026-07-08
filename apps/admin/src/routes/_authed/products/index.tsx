@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { PageHeader } from '../../../components/PageHeader'
 import { ProductsTable } from '../../../features/products/components/ProductsTable'
 import { categoryLabel } from '../../../features/products/derive'
 import { productsTableQuery } from '../../../features/products/queries'
@@ -25,19 +26,23 @@ function ProductsPage() {
   const { data, isFetching } = useQuery(productsTableQuery(search))
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10">
-      <header className="flex items-center gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-brand-900">Products</h1>
-        <span className="text-sm text-ink/50">
-          {data ? `${data.totalItems} products` : ''} {isFetching ? '· refreshing…' : ''}
-        </span>
-        <Link
-          to="/products/new"
-          className="ml-auto rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
-        >
-          New product
-        </Link>
-      </header>
+    <main className="flex flex-col gap-6 px-6 py-8 lg:px-8">
+      <PageHeader
+        title="Products"
+        hint={
+          <>
+            {data ? `${data.totalItems} products` : ''} {isFetching ? '· refreshing…' : ''}
+          </>
+        }
+        action={
+          <Link
+            to="/products/new"
+            className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+          >
+            New product
+          </Link>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <select

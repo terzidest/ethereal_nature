@@ -30,10 +30,10 @@ function OrderDetailPage() {
     },
   })
 
-  if (order.isPending) return <main className="mx-auto max-w-4xl px-6 py-10 text-ink/50">Loading…</main>
+  if (order.isPending) return <main className="max-w-4xl px-6 py-8 text-ink/50 lg:px-8">Loading…</main>
   if (order.isError || !order.data) {
     return (
-      <main className="mx-auto flex max-w-4xl flex-col items-start gap-4 px-6 py-10">
+      <main className="flex max-w-4xl flex-col items-start gap-4 px-6 py-8 lg:px-8">
         <p className="text-red-600">Order not found.</p>
         <Link to="/orders" className="text-sm font-medium text-brand-700 hover:text-brand-900">
           ← All orders
@@ -46,7 +46,7 @@ function OrderDetailPage() {
   const advance = nextStatus[data.status]
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
+    <main className="flex max-w-4xl flex-col gap-6 px-6 py-8 lg:px-8">
       <Link to="/orders" className="text-sm font-medium text-brand-700 hover:text-brand-900">
         ← All orders
       </Link>

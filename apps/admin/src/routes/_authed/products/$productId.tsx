@@ -28,10 +28,10 @@ function EditProductPage() {
     onSuccess: () => void invalidateProductQueries(queryClient),
   })
 
-  if (product.isPending) return <main className="mx-auto max-w-4xl px-6 py-10 text-ink/50">Loading…</main>
+  if (product.isPending) return <main className="max-w-4xl px-6 py-8 text-ink/50 lg:px-8">Loading…</main>
   if (product.isError || !product.data) {
     return (
-      <main className="mx-auto flex max-w-4xl flex-col items-start gap-4 px-6 py-10">
+      <main className="flex max-w-4xl flex-col items-start gap-4 px-6 py-8 lg:px-8">
         <p className="text-red-600">Product not found.</p>
         <Link to="/products" className="text-sm font-medium text-brand-700 hover:text-brand-900">
           ← All products
@@ -43,7 +43,7 @@ function EditProductPage() {
   const data = product.data
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
+    <main className="flex max-w-4xl flex-col gap-6 px-6 py-8 lg:px-8">
       <Link to="/products" className="text-sm font-medium text-brand-700 hover:text-brand-900">
         ← All products
       </Link>

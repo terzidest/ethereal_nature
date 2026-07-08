@@ -1,6 +1,7 @@
 import { listAllOrdersOptions } from '@ethereal-nature/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { PageHeader } from '../../../components/PageHeader'
 import { formatOrderDate, formatPrice, statusTone } from '../../../features/orders/derive'
 import {
   ORDER_STATUSES,
@@ -30,13 +31,15 @@ function OrdersPage() {
   const { data, isFetching } = useQuery(ordersQuery(search))
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-brand-900">Orders</h1>
-        <span className="text-sm text-ink/50">
-          {data ? `${data.totalItems} orders` : ''} {isFetching ? '· refreshing…' : ''}
-        </span>
-      </header>
+    <main className="flex flex-col gap-6 px-6 py-8 lg:px-8">
+      <PageHeader
+        title="Orders"
+        hint={
+          <>
+            {data ? `${data.totalItems} orders` : ''} {isFetching ? '· refreshing…' : ''}
+          </>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <select
