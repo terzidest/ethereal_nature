@@ -5,12 +5,13 @@ import {
 } from '@ethereal-nature/api-client'
 import { ProductArt } from '@ethereal-nature/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
 import { artCategory } from '../features/cart/art'
 import { useCartSummary } from '../features/cart/useCartSummary'
+import { useStartPayment } from '../features/payments/useStartPayment'
 
 export const Route = createFileRoute('/checkout')({
   head: () => ({ meta: [{ title: 'Checkout | Ethereal Nature' }] }),
@@ -25,7 +26,7 @@ function CheckoutPage() {
   const { user, isRestoring } = useSession()
   const { serverCart } = useCartSummary()
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
+  const startPayment = useStartPayment()
   const [rejection, setRejection] = useState<CheckoutRejectionResponse | null>(null)
 
   const mutation = useMutation({
@@ -33,7 +34,9 @@ function CheckoutPage() {
     onSuccess: (order) => {
       setRejection(null)
       void queryClient.invalidateQueries({ queryKey: getCartQueryKey() })
-      void navigate({ to: '/orders/$orderId', params: { orderId: order.id } })
+      // The order is placed either way; payment continues on the provider page
+      // (or, if intent creation fails, from the order page).
+      startPayment.start(order.id)
     },
     onError: (error) => {
       if (isRejection(error)) {
@@ -127,11 +130,13 @@ function CheckoutPage() {
       <div className="flex items-center gap-4">
         <button
           type="button"
-          disabled={mutation.isPending || unavailable}
+          disabled={mutation.isPending || startPayment.isPending || unavailable}
           onClick={() => mutation.mutate({ body: { expectedTotalMinor: cart.subtotalMinor } })}
           className="rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
         >
-          {mutation.isPending ? 'Placing order…' : `Place order · ${formatPrice(cart.subtotalMinor, cart.currency)}`}
+          {mutation.isPending || startPayment.isPending
+            ? 'Placing order…'
+            : `Place order · ${formatPrice(cart.subtotalMinor, cart.currency)}`}
         </button>
         <Link to="/cart" className="text-sm font-medium text-brand-700 hover:text-brand-900">
           Back to cart
@@ -140,7 +145,7 @@ function CheckoutPage() {
       {unavailable && (
         <p className="text-sm text-red-600">Remove unavailable items in your cart before checking out.</p>
       )}
-      <p className="text-xs text-ink/40">Demo shop — no payment is taken.</p>
+      <p className="text-xs text-ink/40">Demo shop — payment is simulated on the next step.</p>
     </main>
   )
 }

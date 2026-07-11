@@ -5,6 +5,8 @@ import com.etherealnature.backend.catalog.catalogModule
 import com.etherealnature.backend.identity.identityModule
 import com.etherealnature.backend.ordering.orderingModule
 import com.etherealnature.backend.identity.infrastructure.JwtSettings
+import com.etherealnature.backend.payments.application.PaymentsSettings
+import com.etherealnature.backend.payments.paymentsModule
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.Application
@@ -42,7 +44,19 @@ fun Application.configureDependencyInjection() {
         expiresInMinutes = config.property("jwt.expiresInMinutes").getString().toLong(),
     )
 
+    val paymentsSettings = PaymentsSettings(
+        webhookSecret = config.property("payments.webhookSecret").getString(),
+        mockPspEnabled = config.property("payments.mockPspEnabled").getString().toBoolean(),
+    )
+
     install(Koin) {
-        modules(platformModule, catalogModule, identityModule(jwtSettings), cartModule, orderingModule)
+        modules(
+            platformModule,
+            catalogModule,
+            identityModule(jwtSettings),
+            cartModule,
+            orderingModule,
+            paymentsModule(paymentsSettings),
+        )
     }
 }

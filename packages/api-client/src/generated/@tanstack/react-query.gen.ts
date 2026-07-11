@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createProduct, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getProduct, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, transitionOrderStatus, updateProduct } from '../sdk.gen';
-import type { CreateProductData, CreateProductResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetProductData, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
+import { createPaymentIntent, createProduct, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updateProduct } from '../sdk.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -511,6 +511,80 @@ export const setProductArchivedMutation = (options?: Partial<Options<SetProductA
     const mutationOptions: UseMutationOptions<SetProductArchivedResponse, DefaultError, Options<SetProductArchivedData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await setProductArchived({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Create (or return the open) payment intent for one of your orders
+ * Amount and currency are copied from the order server-side. Idempotent while an intent is open: a repeat call returns the existing CREATED intent (200) instead of minting a new one (201).
+ */
+export const createPaymentIntentMutation = (options?: Partial<Options<CreatePaymentIntentData>>): UseMutationOptions<CreatePaymentIntentResponse, DefaultError, Options<CreatePaymentIntentData>> => {
+    const mutationOptions: UseMutationOptions<CreatePaymentIntentResponse, DefaultError, Options<CreatePaymentIntentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createPaymentIntent({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getPaymentIntentQueryKey = (options: Options<GetPaymentIntentData>) => createQueryKey('getPaymentIntent', options);
+
+/**
+ * A single payment intent (owner only)
+ */
+export const getPaymentIntentOptions = (options: Options<GetPaymentIntentData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await getPaymentIntent({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: getPaymentIntentQueryKey(options)
+    });
+};
+
+/**
+ * PSP callback (HMAC-signed, not user-facing)
+ * Settles a payment intent from a provider event. The X-Webhook-Signature header must carry the HMAC-SHA256 of the raw body. Replays of settled events are acknowledged with 200 and left as no-ops.
+ */
+export const handlePaymentWebhookMutation = (options?: Partial<Options<HandlePaymentWebhookData>>): UseMutationOptions<HandlePaymentWebhookResponse, DefaultError, Options<HandlePaymentWebhookData>> => {
+    const mutationOptions: UseMutationOptions<HandlePaymentWebhookResponse, DefaultError, Options<HandlePaymentWebhookData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await handlePaymentWebhook({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Simulate the payment provider settling an intent (dev only)
+ * Emits a signed PAYMENT_SUCCEEDED or PAYMENT_FAILED event for your own intent through the webhook pipeline. An already-settled intent is a no-op.
+ */
+export const simulatePaymentMutation = (options?: Partial<Options<SimulatePaymentData>>): UseMutationOptions<SimulatePaymentResponse, DefaultError, Options<SimulatePaymentData>> => {
+    const mutationOptions: UseMutationOptions<SimulatePaymentResponse, DefaultError, Options<SimulatePaymentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await simulatePayment({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

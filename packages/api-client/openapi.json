@@ -898,6 +898,218 @@
         },
         "deprecated": false
       }
+    },
+    "/payments/intents": {
+      "post": {
+        "tags": [],
+        "summary": "Create (or return the open) payment intent for one of your orders",
+        "description": "Amount and currency are copied from the order server-side. Idempotent while an intent is open: a repeat call returns the existing CREATED intent (200) instead of minting a new one (201).",
+        "operationId": "createPaymentIntent",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "The already-open intent for this order",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "A new payment intent",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such order (or not yours)",
+            "headers": {}
+          },
+          "409": {
+            "description": "Order is not awaiting payment",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/payments/intents/{id}": {
+      "get": {
+        "tags": [],
+        "summary": "A single payment intent (owner only)",
+        "operationId": "getPaymentIntent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Payment intent UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The payment intent",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such intent (or not yours)",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/payments/webhook": {
+      "post": {
+        "tags": [],
+        "summary": "PSP callback (HMAC-signed, not user-facing)",
+        "description": "Settles a payment intent from a provider event. The X-Webhook-Signature header must carry the HMAC-SHA256 of the raw body. Replays of settled events are acknowledged with 200 and left as no-ops.",
+        "operationId": "handlePaymentWebhook",
+        "parameters": [
+          {
+            "name": "X-Webhook-Signature",
+            "in": "header",
+            "description": "HMAC-SHA256 hex of the raw body",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "title": "String"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Event processed (or already processed)",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookAckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed event payload",
+            "headers": {}
+          },
+          "401": {
+            "description": "Missing or invalid signature",
+            "headers": {}
+          },
+          "404": {
+            "description": "Unknown payment intent",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/mock-psp/intents/{id}/simulate": {
+      "post": {
+        "tags": [],
+        "summary": "Simulate the payment provider settling an intent (dev only)",
+        "description": "Emits a signed PAYMENT_SUCCEEDED or PAYMENT_FAILED event for your own intent through the webhook pipeline. An already-settled intent is a no-op.",
+        "operationId": "simulatePayment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Payment intent UUID",
+            "required": true,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "title": "String"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulatePaymentRequest"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "The intent after the simulated outcome",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "headers": {}
+          },
+          "404": {
+            "description": "No such intent (or not yours)",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -1709,6 +1921,100 @@
           "archived"
         ],
         "title": "ArchiveProductRequest"
+      },
+      "CreatePaymentIntentRequest": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "orderId"
+        ],
+        "title": "CreatePaymentIntentRequest"
+      },
+      "PaymentIntentStatusDto": {
+        "type": "string",
+        "enum": [
+          "CREATED",
+          "SUCCEEDED",
+          "FAILED"
+        ],
+        "title": "PaymentIntentStatusDto"
+      },
+      "PaymentIntentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "String"
+          },
+          "orderId": {
+            "type": "string",
+            "title": "String"
+          },
+          "amountMinor": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          },
+          "currency": {
+            "type": "string",
+            "title": "String"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentIntentStatusDto"
+          },
+          "createdAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
+          }
+        },
+        "required": [
+          "amountMinor",
+          "createdAtEpochSeconds",
+          "currency",
+          "id",
+          "orderId",
+          "status"
+        ],
+        "title": "PaymentIntentResponse"
+      },
+      "WebhookAckResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "String"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "WebhookAckResponse"
+      },
+      "SimulatedOutcomeDto": {
+        "type": "string",
+        "enum": [
+          "PAY",
+          "DECLINE"
+        ],
+        "title": "SimulatedOutcomeDto"
+      },
+      "SimulatePaymentRequest": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "$ref": "#/components/schemas/SimulatedOutcomeDto"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "SimulatePaymentRequest"
       }
     },
     "examples": {}

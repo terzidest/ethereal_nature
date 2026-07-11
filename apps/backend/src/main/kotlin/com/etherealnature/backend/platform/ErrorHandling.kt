@@ -4,6 +4,7 @@ import com.etherealnature.backend.cart.domain.CartError
 import com.etherealnature.backend.catalog.domain.CatalogError
 import com.etherealnature.backend.identity.domain.IdentityError
 import com.etherealnature.backend.ordering.domain.OrderingError
+import com.etherealnature.backend.payments.domain.PaymentsError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -51,6 +52,36 @@ fun Application.configureErrorHandling() {
             call.respond(
                 HttpStatusCode.Conflict,
                 ErrorResponse(code = "INVALID_STATUS_TRANSITION", message = cause.message),
+            )
+        }
+        exception<PaymentsError.IntentNotFound> { call, cause ->
+            call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse(code = "PAYMENT_INTENT_NOT_FOUND", message = cause.message),
+            )
+        }
+        exception<PaymentsError.PayableOrderNotFound> { call, cause ->
+            call.respond(
+                HttpStatusCode.NotFound,
+                ErrorResponse(code = "ORDER_NOT_FOUND", message = cause.message),
+            )
+        }
+        exception<PaymentsError.OrderNotPayable> { call, cause ->
+            call.respond(
+                HttpStatusCode.Conflict,
+                ErrorResponse(code = "ORDER_NOT_PAYABLE", message = cause.message),
+            )
+        }
+        exception<PaymentsError.InvalidWebhookSignature> { call, cause ->
+            call.respond(
+                HttpStatusCode.Unauthorized,
+                ErrorResponse(code = "INVALID_WEBHOOK_SIGNATURE", message = cause.message),
+            )
+        }
+        exception<PaymentsError.MalformedWebhookEvent> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(code = "MALFORMED_WEBHOOK_EVENT", message = cause.message),
             )
         }
         exception<IdentityError.EmailAlreadyRegistered> { call, cause ->

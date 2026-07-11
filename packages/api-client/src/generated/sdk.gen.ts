@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProductData, CreateProductErrors, CreateProductResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetProductData, GetProductErrors, GetProductResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -244,6 +244,61 @@ export const updateProduct = <ThrowOnError extends boolean = false>(options: Opt
 export const setProductArchived = <ThrowOnError extends boolean = false>(options: Options<SetProductArchivedData, ThrowOnError>) => {
     return (options.client ?? client).put<SetProductArchivedResponses, SetProductArchivedErrors, ThrowOnError>({
         url: '/admin/products/{id}/archive',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    });
+};
+
+/**
+ * Create (or return the open) payment intent for one of your orders
+ * Amount and currency are copied from the order server-side. Idempotent while an intent is open: a repeat call returns the existing CREATED intent (200) instead of minting a new one (201).
+ */
+export const createPaymentIntent = <ThrowOnError extends boolean = false>(options?: Options<CreatePaymentIntentData, ThrowOnError>) => {
+    return (options?.client ?? client).post<CreatePaymentIntentResponses, CreatePaymentIntentErrors, ThrowOnError>({
+        url: '/payments/intents',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * A single payment intent (owner only)
+ */
+export const getPaymentIntent = <ThrowOnError extends boolean = false>(options: Options<GetPaymentIntentData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetPaymentIntentResponses, GetPaymentIntentErrors, ThrowOnError>({
+        url: '/payments/intents/{id}',
+        ...options
+    });
+};
+
+/**
+ * PSP callback (HMAC-signed, not user-facing)
+ * Settles a payment intent from a provider event. The X-Webhook-Signature header must carry the HMAC-SHA256 of the raw body. Replays of settled events are acknowledged with 200 and left as no-ops.
+ */
+export const handlePaymentWebhook = <ThrowOnError extends boolean = false>(options?: Options<HandlePaymentWebhookData, ThrowOnError>) => {
+    return (options?.client ?? client).post<HandlePaymentWebhookResponses, HandlePaymentWebhookErrors, ThrowOnError>({
+        url: '/payments/webhook',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options?.headers
+        }
+    });
+};
+
+/**
+ * Simulate the payment provider settling an intent (dev only)
+ * Emits a signed PAYMENT_SUCCEEDED or PAYMENT_FAILED event for your own intent through the webhook pipeline. An already-settled intent is a no-op.
+ */
+export const simulatePayment = <ThrowOnError extends boolean = false>(options: Options<SimulatePaymentData, ThrowOnError>) => {
+    return (options.client ?? client).post<SimulatePaymentResponses, SimulatePaymentErrors, ThrowOnError>({
+        url: '/mock-psp/intents/{id}/simulate',
         ...options,
         headers: {
             'Content-Type': 'application/json',

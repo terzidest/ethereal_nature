@@ -546,6 +546,70 @@ export type ArchiveProductRequest = {
     archived: boolean;
 };
 
+/**
+ * CreatePaymentIntentRequest
+ */
+export type CreatePaymentIntentRequest = {
+    /**
+     * String
+     */
+    orderId: string;
+};
+
+/**
+ * PaymentIntentStatusDto
+ */
+export type PaymentIntentStatusDto = 'CREATED' | 'SUCCEEDED' | 'FAILED';
+
+/**
+ * PaymentIntentResponse
+ */
+export type PaymentIntentResponse = {
+    /**
+     * String
+     */
+    id: string;
+    /**
+     * String
+     */
+    orderId: string;
+    /**
+     * Long
+     */
+    amountMinor: number;
+    /**
+     * String
+     */
+    currency: string;
+    status: PaymentIntentStatusDto;
+    /**
+     * Long
+     */
+    createdAtEpochSeconds: number;
+};
+
+/**
+ * WebhookAckResponse
+ */
+export type WebhookAckResponse = {
+    /**
+     * String
+     */
+    status: string;
+};
+
+/**
+ * SimulatedOutcomeDto
+ */
+export type SimulatedOutcomeDto = 'PAY' | 'DECLINE';
+
+/**
+ * SimulatePaymentRequest
+ */
+export type SimulatePaymentRequest = {
+    outcome: SimulatedOutcomeDto;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -1136,3 +1200,145 @@ export type SetProductArchivedResponses = {
 };
 
 export type SetProductArchivedResponse = SetProductArchivedResponses[keyof SetProductArchivedResponses];
+
+export type CreatePaymentIntentData = {
+    body?: CreatePaymentIntentRequest;
+    path?: never;
+    query?: never;
+    url: '/payments/intents';
+};
+
+export type CreatePaymentIntentErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * No such order (or not yours)
+     */
+    404: unknown;
+    /**
+     * Order is not awaiting payment
+     */
+    409: unknown;
+};
+
+export type CreatePaymentIntentResponses = {
+    /**
+     * The already-open intent for this order
+     */
+    200: PaymentIntentResponse;
+    /**
+     * A new payment intent
+     */
+    201: PaymentIntentResponse;
+};
+
+export type CreatePaymentIntentResponse = CreatePaymentIntentResponses[keyof CreatePaymentIntentResponses];
+
+export type GetPaymentIntentData = {
+    body?: never;
+    path: {
+        /**
+         * String
+         * Payment intent UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/payments/intents/{id}';
+};
+
+export type GetPaymentIntentErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * No such intent (or not yours)
+     */
+    404: unknown;
+};
+
+export type GetPaymentIntentResponses = {
+    /**
+     * The payment intent
+     */
+    200: PaymentIntentResponse;
+};
+
+export type GetPaymentIntentResponse = GetPaymentIntentResponses[keyof GetPaymentIntentResponses];
+
+export type HandlePaymentWebhookData = {
+    /**
+     * String
+     */
+    body?: string;
+    headers?: {
+        /**
+         * String
+         * HMAC-SHA256 hex of the raw body
+         */
+        'X-Webhook-Signature'?: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/payments/webhook';
+};
+
+export type HandlePaymentWebhookErrors = {
+    /**
+     * Malformed event payload
+     */
+    400: unknown;
+    /**
+     * Missing or invalid signature
+     */
+    401: unknown;
+    /**
+     * Unknown payment intent
+     */
+    404: unknown;
+};
+
+export type HandlePaymentWebhookResponses = {
+    /**
+     * Event processed (or already processed)
+     */
+    200: WebhookAckResponse;
+};
+
+export type HandlePaymentWebhookResponse = HandlePaymentWebhookResponses[keyof HandlePaymentWebhookResponses];
+
+export type SimulatePaymentData = {
+    body?: SimulatePaymentRequest;
+    path: {
+        /**
+         * String
+         * Payment intent UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/mock-psp/intents/{id}/simulate';
+};
+
+export type SimulatePaymentErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * No such intent (or not yours)
+     */
+    404: unknown;
+};
+
+export type SimulatePaymentResponses = {
+    /**
+     * The intent after the simulated outcome
+     */
+    200: PaymentIntentResponse;
+};
+
+export type SimulatePaymentResponse = SimulatePaymentResponses[keyof SimulatePaymentResponses];

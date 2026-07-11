@@ -5,6 +5,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
 import { formatOrderDate, orderStatusLabels } from '../features/checkout/format'
+import { useStartPayment } from '../features/payments/useStartPayment'
 
 export const Route = createFileRoute('/orders/$orderId')({
   head: () => ({ meta: [{ title: 'Order | Ethereal Nature' }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/orders/$orderId')({
 function OrderPage() {
   const { orderId } = Route.useParams()
   const { user, isRestoring } = useSession()
+  const startPayment = useStartPayment()
   const order = useQuery({ ...getOrderOptions({ path: { id: orderId } }), enabled: user !== null })
 
   if (isRestoring || (user && order.isPending)) {
@@ -32,17 +34,38 @@ function OrderPage() {
   }
 
   const data = order.data
+  const awaitingPayment = data.status === 'PLACED'
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight text-brand-900">Thank you!</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-brand-900">
+          {awaitingPayment ? 'Almost there' : 'Thank you!'}
+        </h1>
         <p className="text-ink/60">
           Order <code className="text-sm">{data.id.slice(0, 8)}</code> · {formatOrderDate(data.placedAtEpochSeconds)}
         </p>
       </div>
 
-      <StatusPill tone="ok">{orderStatusLabels[data.status] ?? data.status}</StatusPill>
+      <StatusPill tone={awaitingPayment ? 'pending' : 'ok'}>
+        {orderStatusLabels[data.status] ?? data.status}
+      </StatusPill>
+
+      {awaitingPayment && (
+        <aside className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm text-amber-900">
+            <strong>Payment pending.</strong> Your order is reserved but not paid yet.
+          </p>
+          <button
+            type="button"
+            disabled={startPayment.isPending}
+            onClick={() => startPayment.start(data.id)}
+            className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          >
+            {startPayment.isPending ? 'One moment…' : 'Complete payment'}
+          </button>
+        </aside>
+      )}
 
       <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
         {data.lines.map((line) => (

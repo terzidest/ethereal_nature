@@ -6,6 +6,9 @@ import com.etherealnature.backend.catalog.api.productRoutes
 import com.etherealnature.backend.health.healthRoutes
 import com.etherealnature.backend.identity.api.authRoutes
 import com.etherealnature.backend.ordering.api.orderRoutes
+import com.etherealnature.backend.payments.api.mockPspRoutes
+import com.etherealnature.backend.payments.api.paymentRoutes
+import com.etherealnature.backend.payments.application.PaymentsSettings
 import com.etherealnature.backend.identity.application.EnsureAdminUser
 import com.etherealnature.backend.identity.domain.Email
 import com.etherealnature.backend.identity.domain.RawPassword
@@ -43,6 +46,9 @@ fun Application.module() {
         cartRoutes()
         orderRoutes()
         adminProductRoutes()
+        paymentRoutes()
+        val paymentsSettings by inject<PaymentsSettings>()
+        if (paymentsSettings.mockPspEnabled) mockPspRoutes()
     }
 }
 
