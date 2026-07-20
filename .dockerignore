@@ -1,0 +1,14 @@
+.git
+node_modules
+**/node_modules
+**/.output
+**/.nitro
+**/.tanstack
+**/.turbo
+**/dist
+**/build
+apps/backend
+.env
+.env.*
+.idea
+.vscode
