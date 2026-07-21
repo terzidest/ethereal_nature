@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+# Build context is the repo root (same convention as Dockerfile.frontend);
+# all paths are prefixed apps/backend/. Select with RAILWAY_DOCKERFILE_PATH.
+
+# --- build ---
+FROM eclipse-temurin:21-jdk-jammy AS build
+WORKDIR /build
+# Wrapper + build scripts first, so the dependency layer survives source edits.
+COPY apps/backend/gradlew apps/backend/settings.gradle.kts apps/backend/build.gradle.kts ./
+COPY apps/backend/gradle/ gradle/
+RUN chmod +x gradlew && ./gradlew --no-daemon dependencies > /dev/null 2>&1 || true
+# Then the sources.
+COPY apps/backend/src/ src/
+# installDist, not a fat jar: Flyway resolves its plugins via META-INF/services,
+# which fat-jar merging silently breaks (empty PluginRegister → NPE on boot).
+RUN ./gradlew --no-daemon installDist
+
+# --- runtime ---
+FROM eclipse-temurin:21-jre-alpine
+RUN addgroup -S app && adduser -S app -G app
+WORKDIR /app
+COPY --from=build /build/build/install/ethereal-nature-backend/ ./
+USER app
+# Netty reads $PORT (application.conf: ktor.deployment.port = ${?PORT}); Railway injects it.
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
+EXPOSE 8080
+CMD ["bin/ethereal-nature-backend"]

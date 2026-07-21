@@ -7,16 +7,23 @@ SPA). Everything is driven from the dashboard; there is intentionally no
 
 ## Images
 
-| Service | Root directory | Dockerfile | Build context |
-|---------|----------------|------------|---------------|
-| backend | `apps/backend` | `apps/backend/Dockerfile` (auto-detected) | `apps/backend` |
-| storefront | `/` (repo root) | `Dockerfile.frontend` via `RAILWAY_DOCKERFILE_PATH` | repo root |
-| admin | `/` (repo root) | `Dockerfile.frontend` via `RAILWAY_DOCKERFILE_PATH` | repo root |
+All three services build from the **repo root** with an explicit
+`RAILWAY_DOCKERFILE_PATH` — one convention everywhere. (CLI `railway up`
+uploads relative to the linked directory; a per-service subdirectory context
+fails silently at build scheduling, so don't use one.)
+
+| Service | Root directory | `RAILWAY_DOCKERFILE_PATH` |
+|---------|----------------|---------------------------|
+| backend | `/` (repo root) | `Dockerfile.backend` |
+| storefront | `/` (repo root) | `Dockerfile.frontend` |
+| admin | `/` (repo root) | `Dockerfile.frontend` |
 
 Both frontends share one parameterized `Dockerfile.frontend`; the `APP` build
-arg selects which app to build. Because their root directory is the repo root
-(the pnpm workspace needs `packages/*` and the lockfile), set
-`RAILWAY_DOCKERFILE_PATH=Dockerfile.frontend` on each so Railway finds it.
+arg selects which app to build (the pnpm workspace needs `packages/*` and the
+root lockfile in context). The backend's `Dockerfile.backend` runs
+`gradlew installDist` — **not** `buildFatJar`: Flyway discovers its plugins via
+`META-INF/services`, which fat-jar merging breaks (empty `PluginRegister` →
+NPE on boot).
 
 ## Environment variables
 
@@ -66,10 +73,17 @@ VITE_API_URL=https://<backend-domain>
 > frontends, not just restarting them. Railway forwards service variables to the
 > build only for the `ARG`s declared in the Dockerfile (`APP`, `VITE_API_URL`).
 
+## Deploying from the CLI
+
+With the project linked (`railway link`), each service deploys from the repo
+root: `railway up --service <name> --detach`. Watch progress with
+`railway deployment list --service <name>` and
+`railway logs --build --service <name>`.
+
 ## Deploy order
 
 1. **Postgres** — add the Railway Postgres plugin.
-2. **backend** — create the service (root `apps/backend`), set its variables
+2. **backend** — create the service, set its variables
    (the `CORS_ALLOWED_ORIGINS` value can wait — the localhost dev fallback is
    harmless until the frontends exist), generate a public domain, deploy. Set
    the healthcheck path to `/health` with a generous timeout (~300s): the first
@@ -87,7 +101,7 @@ VITE_API_URL=https://<backend-domain>
 ## Local container check (optional, needs Docker)
 
 ```bash
-docker build -t en-backend apps/backend
+docker build -t en-backend -f Dockerfile.backend .
 docker build -t en-storefront --build-arg APP=storefront \
   --build-arg VITE_API_URL=http://localhost:8080 -f Dockerfile.frontend .
 docker build -t en-admin --build-arg APP=admin \
