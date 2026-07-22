@@ -2,6 +2,10 @@ import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/
 import { clearSession, ensureSession } from '../features/auth/session'
 
 export const Route = createFileRoute('/_authed')({
+  // Never run the auth gate outside the browser: the token lives in
+  // localStorage, and the SPA-shell prerender would bake a guard error (or a
+  // spurious redirect) into the shell served for every route.
+  ssr: false,
   beforeLoad: async ({ location }) => {
     const user = await ensureSession()
     if (!user) {
