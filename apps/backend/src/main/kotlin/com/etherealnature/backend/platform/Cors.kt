@@ -8,7 +8,11 @@ import io.ktor.server.plugins.cors.routing.CORS
 
 fun Application.configureCors() {
     val allowedOrigins =
-        environment.config.propertyOrNull("cors.allowedOrigins")?.getList().orEmpty()
+        environment.config.propertyOrNull("cors.allowedOrigins")?.getString()
+            .orEmpty()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
 
     install(CORS) {
         allowedOrigins.forEach { origin ->

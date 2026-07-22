@@ -16,6 +16,9 @@ let restorePromise: Promise<UserResponse | null> | null = null
  * regardless of anything stored here.
  */
 export function ensureSession(): Promise<UserResponse | null> {
+  // Not in a browser (SPA-shell prerender / SSR): there is no token and no
+  // localStorage. Don't memoize — the real check must still run client-side.
+  if (typeof window === 'undefined') return Promise.resolve(null)
   restorePromise ??= (async () => {
     const token = localStorage.getItem(TOKEN_KEY)
     if (!token) return null

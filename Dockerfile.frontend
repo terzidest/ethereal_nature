@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1
+# One image for both TanStack Start frontends. Build context is the repo root
+# (the pnpm workspace needs packages/* and the root lockfile). Pick the app
+# with --build-arg APP=storefront | admin — package names map 1:1 to apps/<APP>.
+
+# --- build ---
+FROM node:22-alpine AS build
+# Pin pnpm via npm (not corepack — its signature pinning is a known breakage source);
+# this matches the packageManager field in the root package.json.
+RUN npm i -g pnpm@11.9.0
+WORKDIR /repo
+# Lockfile-only fetch: a cached layer that survives all source changes.
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm fetch
+# Full workspace sources, then link from the fetched store.
+COPY . .
+RUN pnpm install --frozen-lockfile --offline
+ARG APP
+# VITE_API_URL is inlined into the bundle at build time (import.meta.env), so it
+# must be present now — a runtime env var would be too late.
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+RUN pnpm --filter "@ethereal-nature/${APP}" build
+
+# --- runtime ---
+FROM node:22-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+ARG APP
+# The nitro node-server output is self-contained; it listens on $PORT.
+COPY --from=build --chown=node:node /repo/apps/${APP}/.output ./.output
+USER node
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]
