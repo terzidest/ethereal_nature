@@ -5,6 +5,7 @@ import {
 } from '@ethereal-nature/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useIsViewer } from '../../../features/auth/viewer'
 import { formatOrderDate, formatPrice, nextStatus, statusTone } from '../../../features/orders/derive'
 
 export const Route = createFileRoute('/_authed/orders/$orderId')({
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/_authed/orders/$orderId')({
 
 function OrderDetailPage() {
   const { orderId } = Route.useParams()
+  const isViewer = useIsViewer()
   const queryClient = useQueryClient()
   const order = useQuery(getOrderOptions({ path: { id: orderId } }))
 
@@ -61,7 +63,8 @@ function OrderDetailPage() {
         {advance && (
           <button
             type="button"
-            disabled={transition.isPending}
+            disabled={isViewer || transition.isPending}
+            title={isViewer ? 'Read-only demo' : undefined}
             onClick={() => transition.mutate({ path: { id: data.id }, body: { status: advance } })}
             className="ml-auto rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
           >

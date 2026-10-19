@@ -129,7 +129,7 @@ export type UserResponse = {
 /**
  * RoleDto
  */
-export type RoleDto = 'CUSTOMER' | 'ADMIN';
+export type RoleDto = 'CUSTOMER' | 'ADMIN' | 'VIEWER';
 
 /**
  * AuthResponse
@@ -986,7 +986,7 @@ export type ListAllOrdersErrors = {
      */
     401: unknown;
     /**
-     * Requires ADMIN role
+     * Requires ADMIN or VIEWER role
      */
     403: unknown;
 };
@@ -1078,7 +1078,7 @@ export type ListAdminProductsErrors = {
      */
     401: unknown;
     /**
-     * Requires ADMIN role
+     * Requires ADMIN or VIEWER role
      */
     403: unknown;
 };
@@ -1342,3 +1342,19 @@ export type SimulatePaymentResponses = {
 };
 
 export type SimulatePaymentResponse = SimulatePaymentResponses[keyof SimulatePaymentResponses];
+
+export type DemoLoginData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/demo';
+};
+
+export type DemoLoginResponses = {
+    /**
+     * Signed in as the demo viewer
+     */
+    200: AuthResponse;
+};
+
+export type DemoLoginResponse = DemoLoginResponses[keyof DemoLoginResponses];

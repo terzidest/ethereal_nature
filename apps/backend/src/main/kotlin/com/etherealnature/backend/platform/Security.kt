@@ -45,25 +45,27 @@ fun Application.configureAuthentication() {
 }
 
 private class RoleAuthorizationConfig {
-    var requiredRole: String = ""
+    var allowedRoles: Set<String> = emptySet()
 }
 
 private val RoleAuthorization = createRouteScopedPlugin("RoleAuthorization", ::RoleAuthorizationConfig) {
-    val requiredRole = pluginConfig.requiredRole
+    val allowedRoles = pluginConfig.allowedRoles
     on(AuthenticationChecked) { call ->
         val principal = call.principal<JWTPrincipal>() ?: return@on // authenticate {} already challenged
-        if (principal.payload.getClaim("role").asString() != requiredRole) {
+        if (principal.payload.getClaim("role").asString() !in allowedRoles) {
             call.respond(
                 HttpStatusCode.Forbidden,
-                ErrorResponse(code = "FORBIDDEN", message = "Requires $requiredRole role"),
+                ErrorResponse(code = "FORBIDDEN", message = "Requires one of: ${allowedRoles.joinToString()}"),
             )
         }
     }
 }
 
 /** Route-level role guard: authentication + role check, server-enforced. */
-fun Route.requireRole(role: String, build: Route.() -> Unit): Route =
+fun Route.requireAnyRole(vararg roles: String, build: Route.() -> Unit): Route =
     authenticate(JWT_AUTH) {
-        install(RoleAuthorization) { requiredRole = role }
+        install(RoleAuthorization) { allowedRoles = roles.toSet() }
         build()
     }
+
+fun Route.requireRole(role: String, build: Route.() -> Unit): Route = requireAnyRole(role, build = build)

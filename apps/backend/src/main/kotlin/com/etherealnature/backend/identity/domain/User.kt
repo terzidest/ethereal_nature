@@ -35,7 +35,8 @@ value class PasswordHash(val value: String) {
     override fun toString(): String = "PasswordHash(***)"
 }
 
-enum class Role { CUSTOMER, ADMIN }
+/** VIEWER is the read-only back-office demo role: admin reads, never mutations. */
+enum class Role { CUSTOMER, ADMIN, VIEWER }
 
 data class User(
     val id: UserId,

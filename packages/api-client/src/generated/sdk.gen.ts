@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, DemoLoginData, DemoLoginResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -304,5 +304,16 @@ export const simulatePayment = <ThrowOnError extends boolean = false>(options: O
             'Content-Type': 'application/json',
             ...options.headers
         }
+    });
+};
+
+/**
+ * Sign in as the read-only demo viewer (demo deployments only)
+ * Issues a token for the seeded VIEWER account so visitors can browse the back office without credentials. Admin reads only; every mutation is rejected.
+ */
+export const demoLogin = <ThrowOnError extends boolean = false>(options?: Options<DemoLoginData, ThrowOnError>) => {
+    return (options?.client ?? client).post<DemoLoginResponses, unknown, ThrowOnError>({
+        url: '/auth/demo',
+        ...options
     });
 };

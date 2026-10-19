@@ -7,6 +7,7 @@ import com.etherealnature.backend.catalog.application.ProductSort
 import com.etherealnature.backend.catalog.application.SetProductArchived
 import com.etherealnature.backend.catalog.application.UpdateProduct
 import com.etherealnature.backend.catalog.domain.ProductId
+import com.etherealnature.backend.platform.requireAnyRole
 import com.etherealnature.backend.platform.requireRole
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -32,8 +33,9 @@ fun Route.adminProductRoutes() {
     val updateProduct by inject<UpdateProduct>()
     val setProductArchived by inject<SetProductArchived>()
 
-    requireRole("ADMIN") {
-        route("admin/products") {
+    route("admin/products") {
+        // Reads are open to the demo viewer; every mutation stays ADMIN-only.
+        requireAnyRole("ADMIN", "VIEWER") {
             get({
                 operationId = "listAdminProducts"
                 summary = "Catalog listing for the back office — includes archived products"
@@ -50,7 +52,7 @@ fun Route.adminProductRoutes() {
                         body<ProductListResponse>()
                     }
                     HttpStatusCode.Unauthorized to { description = "Missing or invalid token" }
-                    HttpStatusCode.Forbidden to { description = "Requires ADMIN role" }
+                    HttpStatusCode.Forbidden to { description = "Requires ADMIN or VIEWER role" }
                 }
             }) {
                 val params = call.request.queryParameters
@@ -71,7 +73,9 @@ fun Route.adminProductRoutes() {
                 )
                 call.respond(listProducts(query).toResponse())
             }
+        }
 
+        requireRole("ADMIN") {
             post({
                 operationId = "createProduct"
                 summary = "Create a product"

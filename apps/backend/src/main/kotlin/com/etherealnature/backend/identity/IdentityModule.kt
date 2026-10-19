@@ -1,7 +1,9 @@
 package com.etherealnature.backend.identity
 
 import com.etherealnature.backend.identity.application.AuthenticateUser
-import com.etherealnature.backend.identity.application.EnsureAdminUser
+import com.etherealnature.backend.identity.application.DemoLogin
+import com.etherealnature.backend.identity.application.DemoSettings
+import com.etherealnature.backend.identity.application.EnsureSeedUser
 import com.etherealnature.backend.identity.application.GetUser
 import com.etherealnature.backend.identity.application.ListUsers
 import com.etherealnature.backend.identity.application.PasswordHasher
@@ -17,8 +19,9 @@ import com.etherealnature.backend.identity.infrastructure.JwtTokenIssuer
 import org.koin.dsl.module
 
 /** Composition root for the identity context. */
-fun identityModule(jwtSettings: JwtSettings) = module {
+fun identityModule(jwtSettings: JwtSettings, demoSettings: DemoSettings) = module {
     single { jwtSettings }
+    single { demoSettings }
     single<TransactionRunner> { ExposedTransactionRunner(get()) }
     single<UserRepository> { ExposedUserRepository() }
     single<PasswordHasher> { BcryptPasswordHasher() }
@@ -27,5 +30,6 @@ fun identityModule(jwtSettings: JwtSettings) = module {
     single { AuthenticateUser(get(), get(), get(), get()) }
     single { GetUser(get(), get()) }
     single { ListUsers(get(), get()) }
-    single { EnsureAdminUser(get(), get(), get()) }
+    single { EnsureSeedUser(get(), get(), get()) }
+    single { DemoLogin(get(), get(), get(), get()) }
 }

@@ -11,6 +11,8 @@ import com.etherealnature.backend.ordering.domain.OrderStatus
 import com.etherealnature.backend.platform.JWT_AUTH
 import com.etherealnature.backend.platform.authenticatedUserId
 import com.etherealnature.backend.platform.isAdmin
+import com.etherealnature.backend.platform.isViewer
+import com.etherealnature.backend.platform.requireAnyRole
 import com.etherealnature.backend.platform.requireRole
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -104,15 +106,16 @@ fun Route.orderRoutes() {
                 val order = getOrder(
                     id = orderIdFrom(call.parameters["id"]),
                     requesterId = authenticatedUserId(),
-                    isAdmin = isAdmin(),
+                    canViewAnyOrder = isAdmin() || isViewer(),
                 )
                 call.respond(order.toResponse())
             }
         }
     }
 
-    requireRole("ADMIN") {
-        route("admin/orders") {
+    route("admin/orders") {
+        // Reads are open to the demo viewer; the status transition stays ADMIN-only.
+        requireAnyRole("ADMIN", "VIEWER") {
             get({
                 operationId = "listAllOrders"
                 summary = "All orders (admin), paginated, newest first"
@@ -127,7 +130,7 @@ fun Route.orderRoutes() {
                         body<OrderListResponse>()
                     }
                     HttpStatusCode.Unauthorized to { description = "Missing or invalid token" }
-                    HttpStatusCode.Forbidden to { description = "Requires ADMIN role" }
+                    HttpStatusCode.Forbidden to { description = "Requires ADMIN or VIEWER role" }
                 }
             }) {
                 val params = call.request.queryParameters
@@ -138,7 +141,9 @@ fun Route.orderRoutes() {
                 }
                 call.respond(listOrders(page, pageSize, status).toResponse())
             }
+        }
 
+        requireRole("ADMIN") {
             post("{id}/status", {
                 operationId = "transitionOrderStatus"
                 summary = "Advance an order's fulfillment status (admin)"

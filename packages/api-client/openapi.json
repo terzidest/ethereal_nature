@@ -576,7 +576,7 @@
             "headers": {}
           },
           "403": {
-            "description": "Requires ADMIN role",
+            "description": "Requires ADMIN or VIEWER role",
             "headers": {}
           }
         },
@@ -729,7 +729,7 @@
             "headers": {}
           },
           "403": {
-            "description": "Requires ADMIN role",
+            "description": "Requires ADMIN or VIEWER role",
             "headers": {}
           }
         },
@@ -1110,6 +1110,29 @@
         },
         "deprecated": false
       }
+    },
+    "/auth/demo": {
+      "post": {
+        "tags": [],
+        "summary": "Sign in as the read-only demo viewer (demo deployments only)",
+        "description": "Issues a token for the seeded VIEWER account so visitors can browse the back office without credentials. Admin reads only; every mutation is rejected.",
+        "operationId": "demoLogin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Signed in as the demo viewer",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "components": {
@@ -1297,7 +1320,8 @@
         "type": "string",
         "enum": [
           "CUSTOMER",
-          "ADMIN"
+          "ADMIN",
+          "VIEWER"
         ],
         "title": "RoleDto"
       },

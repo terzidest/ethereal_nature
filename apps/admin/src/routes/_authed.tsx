@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { clearSession, ensureSession } from '../features/auth/session'
+import { isBackOfficeRole } from '../features/auth/viewer'
 
 export const Route = createFileRoute('/_authed')({
   // Never run the auth gate outside the browser: the token lives in
@@ -11,7 +12,7 @@ export const Route = createFileRoute('/_authed')({
     if (!user) {
       throw redirect({ to: '/login', search: { redirect: location.href } })
     }
-    if (user.role !== 'ADMIN') {
+    if (!isBackOfficeRole(user.role)) {
       // UX-level gate only; every admin API call is role-checked server-side.
       clearSession()
       throw redirect({ to: '/login', search: { denied: true } })
@@ -24,6 +25,7 @@ export const Route = createFileRoute('/_authed')({
 function AdminShell() {
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
+  const isViewer = user.role === 'VIEWER'
 
   const signOut = () => {
     clearSession()
@@ -36,7 +38,7 @@ function AdminShell() {
         <Link to="/" className="flex items-baseline gap-2 px-6 py-5">
           <span className="font-bold tracking-tight text-white">Ethereal Nature</span>
           <span className="rounded bg-brand-800 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-200">
-            Admin
+            {isViewer ? 'Demo' : 'Admin'}
           </span>
         </Link>
         <nav className="flex flex-col gap-1 px-3 py-2 text-sm font-medium" aria-label="Admin">
@@ -72,6 +74,12 @@ function AdminShell() {
             Sign out
           </button>
         </header>
+
+        {isViewer && (
+          <aside className="border-b border-amber-200 bg-amber-50 px-6 py-2 text-sm text-amber-900">
+            <strong>Demo mode — read only.</strong> You're browsing as a viewer; changes are disabled.
+          </aside>
+        )}
 
         <Outlet />
       </div>

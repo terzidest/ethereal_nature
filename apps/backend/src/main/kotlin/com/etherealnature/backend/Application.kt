@@ -5,11 +5,14 @@ import com.etherealnature.backend.catalog.api.adminProductRoutes
 import com.etherealnature.backend.catalog.api.productRoutes
 import com.etherealnature.backend.health.healthRoutes
 import com.etherealnature.backend.identity.api.authRoutes
+import com.etherealnature.backend.identity.api.demoAuthRoutes
+import com.etherealnature.backend.identity.application.DemoSettings
+import com.etherealnature.backend.identity.application.EnsureSeedUser
+import com.etherealnature.backend.identity.domain.Role
 import com.etherealnature.backend.ordering.api.orderRoutes
 import com.etherealnature.backend.payments.api.mockPspRoutes
 import com.etherealnature.backend.payments.api.paymentRoutes
 import com.etherealnature.backend.payments.application.PaymentsSettings
-import com.etherealnature.backend.identity.application.EnsureAdminUser
 import com.etherealnature.backend.identity.domain.Email
 import com.etherealnature.backend.identity.domain.RawPassword
 import com.etherealnature.backend.platform.configureAuthentication
@@ -36,7 +39,7 @@ fun Application.module() {
     configureErrorHandling()
     configureAuthentication()
     configureOpenApi()
-    bootstrapAdminUser()
+    bootstrapSeedUsers()
 
     routing {
         route("openapi.json") { openApi() }
@@ -49,13 +52,22 @@ fun Application.module() {
         paymentRoutes()
         val paymentsSettings by inject<PaymentsSettings>()
         if (paymentsSettings.mockPspEnabled) mockPspRoutes()
+        val demoSettings by inject<DemoSettings>()
+        if (demoSettings.loginEnabled) demoAuthRoutes()
     }
 }
 
-private fun Application.bootstrapAdminUser() {
-    val ensureAdminUser by inject<EnsureAdminUser>()
-    ensureAdminUser(
+private fun Application.bootstrapSeedUsers() {
+    val ensureSeedUser by inject<EnsureSeedUser>()
+    ensureSeedUser(
         Email(environment.config.property("admin.email").getString()),
         RawPassword(environment.config.property("admin.password").getString()),
+        Role.ADMIN,
     )
+    // The viewer only exists where the demo endpoint does — never seed a
+    // known-password account in an environment that didn't opt in.
+    val demoSettings by inject<DemoSettings>()
+    if (demoSettings.loginEnabled) {
+        ensureSeedUser(Email(demoSettings.viewerEmail), RawPassword(demoSettings.viewerPassword), Role.VIEWER)
+    }
 }

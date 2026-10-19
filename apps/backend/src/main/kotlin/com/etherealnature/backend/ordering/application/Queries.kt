@@ -17,10 +17,10 @@ class GetOrder(
     private val orders: OrderRepository,
     private val tx: TransactionRunner,
 ) {
-    /** Owners see their own orders; admins see any. Others get a 404, not a 403 — no order-id probing. */
-    operator fun invoke(id: OrderId, requesterId: Uuid, isAdmin: Boolean): Order = tx.run {
+    /** Owners see their own orders; back-office roles see any. Others get a 404, not a 403 — no order-id probing. */
+    operator fun invoke(id: OrderId, requesterId: Uuid, canViewAnyOrder: Boolean): Order = tx.run {
         val order = orders.findById(id) ?: throw OrderingError.OrderNotFound(id)
-        if (!isAdmin && order.userId != requesterId) throw OrderingError.OrderNotFound(id)
+        if (!canViewAnyOrder && order.userId != requesterId) throw OrderingError.OrderNotFound(id)
         order
     }
 }

@@ -1,10 +1,14 @@
 import { createProductMutation } from '@ethereal-nature/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router'
 import { ProductForm, serverErrorMessage } from '../../../features/products/components/ProductForm'
 import { invalidateProductQueries } from '../../../features/products/queries'
 
 export const Route = createFileRoute('/_authed/products/new')({
+  // Deep-link guard: the demo viewer has no business on the create form.
+  beforeLoad: ({ context }) => {
+    if (context.user.role !== 'ADMIN') throw redirect({ to: '/products' })
+  },
   component: NewProductPage,
 })
 

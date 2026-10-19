@@ -4,6 +4,7 @@ import com.etherealnature.backend.cart.cartModule
 import com.etherealnature.backend.catalog.catalogModule
 import com.etherealnature.backend.identity.identityModule
 import com.etherealnature.backend.ordering.orderingModule
+import com.etherealnature.backend.identity.application.DemoSettings
 import com.etherealnature.backend.identity.infrastructure.JwtSettings
 import com.etherealnature.backend.payments.application.PaymentsSettings
 import com.etherealnature.backend.payments.paymentsModule
@@ -44,6 +45,12 @@ fun Application.configureDependencyInjection() {
         expiresInMinutes = config.property("jwt.expiresInMinutes").getString().toLong(),
     )
 
+    val demoSettings = DemoSettings(
+        viewerEmail = config.property("demo.viewerEmail").getString(),
+        viewerPassword = config.property("demo.viewerPassword").getString(),
+        loginEnabled = config.property("demo.loginEnabled").getString().toBoolean(),
+    )
+
     val paymentsSettings = PaymentsSettings(
         webhookSecret = config.property("payments.webhookSecret").getString(),
         mockPspEnabled = config.property("payments.mockPspEnabled").getString().toBoolean(),
@@ -53,7 +60,7 @@ fun Application.configureDependencyInjection() {
         modules(
             platformModule,
             catalogModule,
-            identityModule(jwtSettings),
+            identityModule(jwtSettings, demoSettings),
             cartModule,
             orderingModule,
             paymentsModule(paymentsSettings),
