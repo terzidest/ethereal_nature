@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '../../../components/PageHeader'
+import { useIsViewer } from '../../../features/auth/viewer'
 import { ProductsTable } from '../../../features/products/components/ProductsTable'
 import { categoryLabel } from '../../../features/products/derive'
 import { productsTableQuery } from '../../../features/products/queries'
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/_authed/products/')({
 function ProductsPage() {
   const search = Route.useSearch()
   const navigate = useNavigate({ from: '/products/' })
+  const isViewer = useIsViewer()
   const { data, isFetching } = useQuery(productsTableQuery(search))
 
   return (
@@ -35,12 +37,14 @@ function ProductsPage() {
           </>
         }
         action={
-          <Link
-            to="/products/new"
-            className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
-          >
-            New product
-          </Link>
+          isViewer ? undefined : (
+            <Link
+              to="/products/new"
+              className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            >
+              New product
+            </Link>
+          )
         }
       />
 

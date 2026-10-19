@@ -16,3 +16,7 @@ fun RoutingContext.authenticatedUserId(): Uuid {
 /** Whether the caller's token carries the ADMIN role. */
 fun RoutingContext.isAdmin(): Boolean =
     call.principal<JWTPrincipal>()?.payload?.getClaim("role")?.asString() == "ADMIN"
+
+/** Whether the caller's token carries the read-only back-office VIEWER role. */
+fun RoutingContext.isViewer(): Boolean =
+    call.principal<JWTPrincipal>()?.payload?.getClaim("role")?.asString() == "VIEWER"

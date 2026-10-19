@@ -169,6 +169,35 @@ class OrderRoutesTest {
     }
 
     @Test
+    fun `viewer reads orders but cannot transition status`() = testApplication {
+        loadConfiguredApp()
+        val customer = freshUserToken()
+        putItem(customer, FOREST_BERRY, 1)
+        val orderId = placeOrder(customer, 1250L).json()["id"]!!.jsonPrimitive.content
+        val viewer = client.post("/auth/demo").json()["token"]!!.jsonPrimitive.content
+
+        // Viewer sees the admin list and any order's detail.
+        val list = client.get("/admin/orders") { header(HttpHeaders.Authorization, "Bearer $viewer") }
+        assertEquals(HttpStatusCode.OK, list.status)
+        val detail = client.get("/orders/$orderId") { header(HttpHeaders.Authorization, "Bearer $viewer") }
+        assertEquals(HttpStatusCode.OK, detail.status)
+
+        // But the only order mutation is ADMIN-only.
+        val transition = client.post("/admin/orders/$orderId/status") {
+            header(HttpHeaders.Authorization, "Bearer $viewer")
+            contentType(ContentType.Application.Json)
+            setBody("""{"status":"PAID"}""")
+        }
+        assertEquals(HttpStatusCode.Forbidden, transition.status)
+        // And the order is untouched.
+        assertEquals(
+            "PLACED",
+            client.get("/orders/$orderId") { header(HttpHeaders.Authorization, "Bearer $customer") }
+                .json()["status"]!!.jsonPrimitive.content,
+        )
+    }
+
+    @Test
     fun `catalog price change never alters a placed order`() = testApplication {
         loadConfiguredApp()
         val token = freshUserToken()

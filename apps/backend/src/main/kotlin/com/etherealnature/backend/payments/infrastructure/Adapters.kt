@@ -21,7 +21,7 @@ class OrderingAdapter(
 
     override fun findOwnedOrder(orderId: Uuid, requesterId: Uuid): PayableOrder? =
         try {
-            val order = getOrder(OrderId(orderId), requesterId, isAdmin = false)
+            val order = getOrder(OrderId(orderId), requesterId, canViewAnyOrder = false)
             PayableOrder(
                 orderId = orderId,
                 userId = order.userId,

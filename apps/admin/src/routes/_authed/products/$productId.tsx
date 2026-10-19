@@ -5,6 +5,7 @@ import {
 } from '@ethereal-nature/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useIsViewer } from '../../../features/auth/viewer'
 import { ProductForm, serverErrorMessage } from '../../../features/products/components/ProductForm'
 import { invalidateProductQueries } from '../../../features/products/queries'
 
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/_authed/products/$productId')({
 
 function EditProductPage() {
   const { productId } = Route.useParams()
+  const isViewer = useIsViewer()
   const queryClient = useQueryClient()
   const product = useQuery(getProductOptions({ path: { id: productId } }))
 
@@ -57,7 +59,8 @@ function EditProductPage() {
         )}
         <button
           type="button"
-          disabled={archive.isPending}
+          disabled={isViewer || archive.isPending}
+          title={isViewer ? 'Read-only demo' : undefined}
           onClick={() =>
             archive.mutate({ path: { id: data.id }, body: { archived: !data.archived } })
           }
@@ -80,6 +83,7 @@ function EditProductPage() {
         isPending={update.isPending}
         serverError={update.isError ? serverErrorMessage(update.error) : null}
         onSubmit={(input) => update.mutate({ path: { id: data.id }, body: input })}
+        readOnly={isViewer}
       />
     </main>
   )

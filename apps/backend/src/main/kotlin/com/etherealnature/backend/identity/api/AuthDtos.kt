@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class RoleDto {
-    CUSTOMER, ADMIN;
+    CUSTOMER, ADMIN, VIEWER;
 
     companion object {
         fun from(role: Role): RoleDto = valueOf(role.name)

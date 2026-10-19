@@ -22,6 +22,7 @@ export function ProductForm({
   isPending,
   serverError,
   onSubmit,
+  readOnly = false,
 }: {
   initial?: ProductResponse
   submitLabel: string
@@ -29,6 +30,8 @@ export function ProductForm({
   /** Domain validation message from the backend (StatusPages VALIDATION 400). */
   serverError: string | null
   onSubmit: (input: ProductInputRequest) => void
+  /** Demo-viewer mode: fields visible but inert, submit hidden. */
+  readOnly?: boolean
 }) {
   const [priceError, setPriceError] = useState(false)
 
@@ -55,6 +58,7 @@ export function ProductForm({
         })
       }}
     >
+      <fieldset disabled={readOnly} className="contents">
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
         Name
         <input name="name" required maxLength={200} defaultValue={initial?.name} className={inputClass} />
@@ -117,15 +121,18 @@ export function ProductForm({
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <div>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
-        >
-          {isPending ? 'Saving…' : submitLabel}
-        </button>
-      </div>
+      {!readOnly && (
+        <div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          >
+            {isPending ? 'Saving…' : submitLabel}
+          </button>
+        </div>
+      )}
+      </fieldset>
     </form>
   )
 }

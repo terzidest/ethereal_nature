@@ -45,6 +45,9 @@ class AdminProductRoutesTest {
             setBody("""{"email":"adm-${System.nanoTime()}@example.com","password":"s3cret-pass"}""")
         }.json()["token"]!!.jsonPrimitive.content
 
+    private suspend fun ApplicationTestBuilder.viewerToken(): String =
+        client.post("/auth/demo").json()["token"]!!.jsonPrimitive.content
+
     private fun productBody(name: String, priceMinor: Long = 1200, stock: Int = 7) = """
         {"name":"$name","description":"A test product.","priceMinor":$priceMinor,
          "currency":"EUR","stock":$stock,"category":"HERBS"}
@@ -121,6 +124,53 @@ class AdminProductRoutesTest {
             setBody(productBody("Sneaky Product"))
         }
         assertEquals(HttpStatusCode.Forbidden, forbidden.status)
+    }
+
+    @Test
+    fun `viewer reads the back-office listing but every mutation is rejected`() = testApplication {
+        loadConfiguredApp()
+        val admin = adminToken()
+        val viewer = viewerToken()
+
+        // A product the viewer should see even archived.
+        val name = "Viewer Herb ${System.nanoTime()}"
+        val id = client.post("/admin/products") {
+            header(HttpHeaders.Authorization, "Bearer $admin")
+            contentType(ContentType.Application.Json)
+            setBody(productBody(name))
+        }.json()["id"]!!.jsonPrimitive.content
+        client.put("/admin/products/$id/archive") {
+            header(HttpHeaders.Authorization, "Bearer $admin")
+            contentType(ContentType.Application.Json)
+            setBody("""{"archived":true}""")
+        }
+
+        // Viewer sees the admin listing, archived included.
+        val list = client.get("/admin/products?q=viewer+herb&pageSize=100") {
+            header(HttpHeaders.Authorization, "Bearer $viewer")
+        }
+        assertEquals(HttpStatusCode.OK, list.status)
+        assertTrue(name in list.bodyAsText())
+
+        // Every write is 403 for the viewer.
+        val create = client.post("/admin/products") {
+            header(HttpHeaders.Authorization, "Bearer $viewer")
+            contentType(ContentType.Application.Json)
+            setBody(productBody("Viewer Sneak"))
+        }
+        assertEquals(HttpStatusCode.Forbidden, create.status)
+        val update = client.put("/admin/products/$id") {
+            header(HttpHeaders.Authorization, "Bearer $viewer")
+            contentType(ContentType.Application.Json)
+            setBody(productBody(name, priceMinor = 1))
+        }
+        assertEquals(HttpStatusCode.Forbidden, update.status)
+        val restore = client.put("/admin/products/$id/archive") {
+            header(HttpHeaders.Authorization, "Bearer $viewer")
+            contentType(ContentType.Application.Json)
+            setBody("""{"archived":false}""")
+        }
+        assertEquals(HttpStatusCode.Forbidden, restore.status)
     }
 
     @Test

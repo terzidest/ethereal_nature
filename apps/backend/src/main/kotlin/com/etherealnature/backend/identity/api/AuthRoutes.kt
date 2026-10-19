@@ -1,6 +1,7 @@
 package com.etherealnature.backend.identity.api
 
 import com.etherealnature.backend.identity.application.AuthenticateUser
+import com.etherealnature.backend.identity.application.DemoLogin
 import com.etherealnature.backend.identity.application.GetUser
 import com.etherealnature.backend.identity.application.ListUsers
 import com.etherealnature.backend.identity.application.RegisterUser
@@ -99,6 +100,27 @@ fun Route.authRoutes() {
                 call.respond(UserListResponse(listUsers().map { it.toResponse() }))
             }
         }
+    }
+}
+
+/** Registered only when demo.loginEnabled — absent (404) everywhere else. */
+fun Route.demoAuthRoutes() {
+    val demoLogin by inject<DemoLogin>()
+
+    post("auth/demo", {
+        operationId = "demoLogin"
+        summary = "Sign in as the read-only demo viewer (demo deployments only)"
+        description = "Issues a token for the seeded VIEWER account so visitors can browse the " +
+            "back office without credentials. Admin reads only; every mutation is rejected."
+        response {
+            HttpStatusCode.OK to {
+                description = "Signed in as the demo viewer"
+                body<AuthResponse>()
+            }
+        }
+    }) {
+        val (user, token) = demoLogin()
+        call.respond(authResponse(user, token))
     }
 }
 

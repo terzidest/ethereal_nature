@@ -1,8 +1,9 @@
-import { loginMutation } from '@ethereal-nature/api-client'
+import { demoLoginMutation, loginMutation, type AuthResponse } from '@ethereal-nature/api-client'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { clearSession, establishSession } from '../features/auth/session'
+import { isBackOfficeRole } from '../features/auth/viewer'
 
 interface LoginSearch {
   redirect?: string
@@ -22,17 +23,23 @@ function LoginPage() {
   const navigate = useNavigate()
   const [roleError, setRoleError] = useState(false)
 
+  const signIn = (auth: AuthResponse) => {
+    if (!isBackOfficeRole(auth.user.role)) {
+      clearSession()
+      setRoleError(true)
+      return
+    }
+    establishSession(auth)
+    void navigate({ to: redirectTo ?? '/', reloadDocument: false })
+  }
+
   const mutation = useMutation({
     ...loginMutation({ throwOnError: true }),
-    onSuccess: (auth) => {
-      if (auth.user.role !== 'ADMIN') {
-        clearSession()
-        setRoleError(true)
-        return
-      }
-      establishSession(auth)
-      void navigate({ to: redirectTo ?? '/', reloadDocument: false })
-    },
+    onSuccess: signIn,
+  })
+  const demo = useMutation({
+    ...demoLoginMutation({ throwOnError: true }),
+    onSuccess: signIn,
   })
 
   const error = roleError
@@ -41,7 +48,9 @@ function LoginPage() {
       ? 'Admin access required — sign in with an admin account.'
       : mutation.isError
         ? 'Invalid email or password.'
-        : null
+        : demo.isError
+          ? 'Demo mode is not available.'
+          : null
 
   return (
     <main className="mx-auto flex w-full max-w-sm flex-col gap-6 px-6 py-24">
@@ -89,6 +98,24 @@ function LoginPage() {
           {mutation.isPending ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      <div className="flex items-center gap-3 text-xs text-ink/40">
+        <span className="h-px flex-1 bg-brand-100" />
+        or
+        <span className="h-px flex-1 bg-brand-100" />
+      </div>
+
+      <button
+        type="button"
+        disabled={demo.isPending}
+        onClick={() => demo.mutate({})}
+        className="rounded-full bg-brand-50 px-6 py-2.5 text-sm font-semibold text-brand-900 transition hover:bg-brand-100 disabled:opacity-50"
+      >
+        {demo.isPending ? 'Entering demo…' : 'Explore the demo'}
+      </button>
+      <p className="text-center text-xs text-ink/40">
+        Browse the back office read-only — no account needed.
+      </p>
     </main>
   )
 }

@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createPaymentIntent, createProduct, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updateProduct } from '../sdk.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
+import { createPaymentIntent, createProduct, demoLogin, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updateProduct } from '../sdk.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, DemoLoginData, DemoLoginResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -585,6 +585,24 @@ export const simulatePaymentMutation = (options?: Partial<Options<SimulatePaymen
     const mutationOptions: UseMutationOptions<SimulatePaymentResponse, DefaultError, Options<SimulatePaymentData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await simulatePayment({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Sign in as the read-only demo viewer (demo deployments only)
+ * Issues a token for the seeded VIEWER account so visitors can browse the back office without credentials. Admin reads only; every mutation is rejected.
+ */
+export const demoLoginMutation = (options?: Partial<Options<DemoLoginData>>): UseMutationOptions<DemoLoginResponse, DefaultError, Options<DemoLoginData>> => {
+    const mutationOptions: UseMutationOptions<DemoLoginResponse, DefaultError, Options<DemoLoginData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await demoLogin({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
