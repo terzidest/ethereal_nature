@@ -2,7 +2,21 @@
 
 A small e-shop built to demonstrate clean, scalable architecture — not feature
 breadth. The domain is intentionally shallow (catalog, cart, ordering,
-identity); the structure around it is the point.
+identity, payments); the structure around it is the point.
+
+**Live demo:** [eth-nature.terzidest.com](https://eth-nature.terzidest.com) ·
+[back office](https://eth-nature-admin.terzidest.com) (one-click read-only
+demo — no account needed). Checkout runs a mock payment provider end to end;
+no real money anywhere.
+
+## Screenshots
+
+| Storefront | Back office |
+|---|---|
+| ![Storefront home](docs/screenshots/storefront-home.jpg) | ![Admin dashboard](docs/screenshots/admin-dashboard.jpg) |
+| ![Catalog](docs/screenshots/storefront-catalog.jpg) | ![Admin products](docs/screenshots/admin-products.jpg) |
+| ![Product detail](docs/screenshots/storefront-product.jpg) | ![Admin demo login](docs/screenshots/admin-login.jpg) |
+| ![Cart drawer](docs/screenshots/storefront-cart.jpg) | |
 
 ## Stack
 
