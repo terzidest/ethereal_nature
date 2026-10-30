@@ -1,6 +1,9 @@
 import cors from '@fastify/cors'
 import Fastify, { type FastifyInstance } from 'fastify'
 import type { Kysely } from 'kysely'
+import { catalogAdapter, kyselyCartRepository } from './cart/infrastructure.js'
+import { cartRoutes } from './cart/routes.js'
+import { cartUseCases, type CartUseCases } from './cart/use-cases.js'
 import { kyselyProductRepository } from './catalog/infrastructure.js'
 import { adminProductRoutes, productRoutes } from './catalog/routes.js'
 import { catalogUseCases, type CatalogUseCases } from './catalog/use-cases.js'
@@ -26,6 +29,7 @@ export interface App {
   tokens: TokenService
   identity: IdentityUseCases
   catalog: CatalogUseCases
+  cart: CartUseCases
   /** Seeds the ADMIN (always) and demo VIEWER (when enabled) — bootstrapSeedUsers mirror. */
   seedUsers(): Promise<void>
 }
@@ -61,6 +65,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     demo: config.demo,
   })
   const catalog = catalogUseCases(kyselyProductRepository(tx), tx)
+  const cart = cartUseCases(kyselyCartRepository(tx), catalogAdapter(catalog), tx)
 
   // The contract, served verbatim (ADR-0010): regeneration against this
   // endpoint must reproduce the committed client byte-for-byte.
@@ -75,12 +80,14 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   if (config.demo.loginEnabled) demoAuthRoutes(fastify, identity)
   productRoutes(fastify, catalog)
   adminProductRoutes(fastify, catalog, tokens)
+  cartRoutes(fastify, cart, tokens)
 
   return {
     fastify,
     tokens,
     identity,
     catalog,
+    cart,
     async seedUsers() {
       await identity.ensureSeedUser(parseEmail(config.admin.email), parseRawPassword(config.admin.password), 'ADMIN')
       // The viewer only exists where the demo endpoint does — never seed a

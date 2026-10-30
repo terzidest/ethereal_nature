@@ -10,6 +10,21 @@ export interface DB {
   flyway_schema_history: FlywaySchemaHistoryTable
   users: UsersTable
   products: ProductsTable
+  carts: CartsTable
+  cart_lines: CartLinesTable
+}
+
+export interface CartsTable {
+  user_id: string
+  last_merge_id: string | null
+  updated_at: Generated<Date>
+}
+
+export interface CartLinesTable {
+  user_id: string
+  product_id: string
+  quantity: number
+  position: number
 }
 
 export interface ProductsTable {
