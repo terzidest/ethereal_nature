@@ -38,6 +38,8 @@ export interface App {
   cart: CartUseCases
   ordering: OrderingUseCases
   payments: PaymentsUseCases
+  /** Every registered route (method + fastify path) — the anti-drift gate reads this. */
+  routes: ReadonlyArray<{ method: string; path: string }>
   /** Seeds the ADMIN (always) and demo VIEWER (when enabled) — bootstrapSeedUsers mirror. */
   seedUsers(): Promise<void>
 }
@@ -49,6 +51,13 @@ export interface App {
 export async function buildApp({ config, db }: AppDeps): Promise<App> {
   const fastify = Fastify({
     logger: process.env.NODE_ENV === 'test' ? false : { level: 'info' },
+  })
+
+  const routes: Array<{ method: string; path: string }> = []
+  fastify.addHook('onRoute', (route) => {
+    for (const method of Array.isArray(route.method) ? route.method : [route.method]) {
+      if (method !== 'HEAD' && method !== 'OPTIONS') routes.push({ method, path: route.path })
+    }
   })
 
   await fastify.register(cors, {
@@ -105,6 +114,10 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   paymentRoutes(fastify, payments, tokens)
   if (config.payments.mockPspEnabled) mockPspRoutes(fastify, payments, config.payments, tokens)
 
+  // Load deferred plugins (the webhook's raw-body scope) so the route table
+  // is complete when buildApp returns.
+  await fastify.ready()
+
   return {
     fastify,
     tokens,
@@ -113,6 +126,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     cart,
     ordering,
     payments,
+    routes,
     async seedUsers() {
       await identity.ensureSeedUser(parseEmail(config.admin.email), parseRawPassword(config.admin.password), 'ADMIN')
       // The viewer only exists where the demo endpoint does — never seed a
