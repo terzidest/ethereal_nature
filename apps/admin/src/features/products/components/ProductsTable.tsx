@@ -1,4 +1,5 @@
 import type { ProductResponse, ProductSortDto } from '@ethereal-nature/api-client'
+import { ProductImage } from '@ethereal-nature/ui'
 import { Link } from '@tanstack/react-router'
 import {
   createColumnHelper,
@@ -12,6 +13,21 @@ import { categoryLabel, formatPrice } from '../derive'
 const columnHelper = createColumnHelper<ProductResponse>()
 
 const columns = [
+  columnHelper.display({
+    id: 'image',
+    header: '',
+    cell: (info) => (
+      <div className="h-10 w-10 overflow-hidden rounded-card">
+        <ProductImage
+          imageUrl={info.row.original.imageUrl}
+          name={info.row.original.name}
+          category={info.row.original.category}
+          seed={info.row.original.slug}
+          className="h-full w-full"
+        />
+      </div>
+    ),
+  }),
   columnHelper.accessor('name', {
     header: 'Name',
     cell: (info) => (

@@ -34,6 +34,8 @@ export function ProductForm({
   readOnly?: boolean
 }) {
   const [priceError, setPriceError] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(initial?.imageUrl ?? '')
+  const [previewFailed, setPreviewFailed] = useState(false)
 
   return (
     <form
@@ -116,7 +118,35 @@ export function ProductForm({
 
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
         Image URL <span className="font-normal text-ink/40">(optional)</span>
-        <input name="imageUrl" type="url" defaultValue={initial?.imageUrl ?? ''} className={inputClass} />
+        <input
+          name="imageUrl"
+          type="url"
+          defaultValue={initial?.imageUrl ?? ''}
+          onChange={(event) => {
+            setPreviewUrl(event.target.value)
+            setPreviewFailed(false)
+          }}
+          className={inputClass}
+        />
+        {previewUrl.trim() !== '' && (
+          <span className="mt-1 flex items-center gap-3">
+            <span className="h-16 w-16 shrink-0 overflow-hidden rounded-card border border-brand-100 bg-sand-100">
+              {/* key remounts on URL change so a previous error doesn't stick */}
+              <img
+                key={previewUrl}
+                src={previewUrl}
+                alt="Preview"
+                onError={() => setPreviewFailed(true)}
+                className="h-full w-full object-cover"
+              />
+            </span>
+            {previewFailed && (
+              <span className="font-normal text-red-600">
+                Couldn't load this image — the shop will show generated artwork instead.
+              </span>
+            )}
+          </span>
+        )}
       </label>
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
