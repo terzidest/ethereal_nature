@@ -1,10 +1,14 @@
 // Refreshes the README screenshots from the live deployment.
-// Uses the system Chrome via playwright-core (no browser download):
-//   npm i playwright-core && node docs/screenshots/capture.mjs
+// Uses the system Chrome via playwright-core (no browser download). Run from
+// any scratch directory that has it installed — it is deliberately NOT a repo
+// dependency:
+//   cd $(mktemp -d) && npm i playwright-core && node <repo>/docs/screenshots/capture.mjs
 // Output lands next to this script.
-import { chromium } from 'playwright-core'
-import { dirname } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+const { chromium } = createRequire(join(process.cwd(), 'noop.js'))('playwright-core')
 
 const OUT = dirname(fileURLToPath(import.meta.url))
 const STORE = 'https://eth-nature.terzidest.com'
