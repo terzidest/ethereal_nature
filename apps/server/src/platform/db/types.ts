@@ -14,6 +14,18 @@ export interface DB {
   cart_lines: CartLinesTable
   orders: OrdersTable
   order_lines: OrderLinesTable
+  payment_intents: PaymentIntentsTable
+}
+
+export interface PaymentIntentsTable {
+  id: string
+  order_id: string
+  user_id: string
+  amount_minor: number
+  currency: string
+  status: string
+  created_at: Date
+  settled_event_id: string | null
 }
 
 export interface OrdersTable {
