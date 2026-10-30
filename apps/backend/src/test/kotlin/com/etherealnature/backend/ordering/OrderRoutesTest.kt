@@ -169,6 +169,31 @@ class OrderRoutesTest {
     }
 
     @Test
+    fun `admin list status filter returns only matching orders`() = testApplication {
+        loadConfiguredApp()
+        val customer = freshUserToken()
+        putItem(customer, FOREST_BERRY, 1)
+        val placedId = placeOrder(customer, 1250L).json()["id"]!!.jsonPrimitive.content
+        putItem(customer, FOREST_BERRY, 1)
+        val paidId = placeOrder(customer, 1250L).json()["id"]!!.jsonPrimitive.content
+        val admin = adminToken()
+        client.post("/admin/orders/$paidId/status") {
+            header(HttpHeaders.Authorization, "Bearer $admin")
+            contentType(ContentType.Application.Json)
+            setBody("""{"status":"PAID"}""")
+        }
+
+        val paidPage = client.get("/admin/orders?status=PAID&pageSize=100") {
+            header(HttpHeaders.Authorization, "Bearer $admin")
+        }.json()
+        val statuses = paidPage["items"]!!.jsonArray.map { it.jsonObject["status"]!!.jsonPrimitive.content }.toSet()
+        assertEquals(setOf("PAID"), statuses)
+        val ids = paidPage["items"]!!.jsonArray.map { it.jsonObject["id"]!!.jsonPrimitive.content }
+        assertTrue(paidId in ids)
+        assertTrue(placedId !in ids)
+    }
+
+    @Test
     fun `viewer reads orders but cannot transition status`() = testApplication {
         loadConfiguredApp()
         val customer = freshUserToken()

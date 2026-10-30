@@ -51,8 +51,10 @@ class ExposedOrderRepository : OrderRepository {
         )
 
     override fun findPage(page: Int, pageSize: Int, status: OrderStatus?): Pair<List<Order>, Long> {
-        val base = OrdersTable.selectAll()
-        status?.let { base.where(OrdersTable.status eq it.name) }
+        // where() returns a new query — reassign, or the filter is silently dropped.
+        val base = status
+            ?.let { OrdersTable.selectAll().where(OrdersTable.status eq it.name) }
+            ?: OrdersTable.selectAll()
         val total = base.count()
         val rows = base
             .orderBy(OrdersTable.placedAt to SortOrder.DESC)
