@@ -20,12 +20,15 @@ no real money anywhere.
 
 ## Stack
 
-- **Monorepo:** pnpm + Turborepo (TS side), Gradle (backend) — separate build
-  graphs, joined only by the API contract.
+- **Monorepo:** pnpm + Turborepo, one TypeScript workspace end to end,
+  joined to the backend only by the API contract.
 - **Frontends:** TanStack Start (storefront + admin), TanStack Router, React
   Query, Zustand, Tailwind + headless primitives + TanStack Table.
-- **Backend:** Ktor + Kotlin, Exposed (DSL), kotlinx.serialization, Koin,
-  Flyway, Postgres.
+- **Backend:** Fastify + TypeScript, Kysely (typed SQL), Postgres —
+  originally built in Kotlin/Ktor and migrated behind the frozen OpenAPI
+  contract with a byte-identical regenerated client and zero frontend
+  changes ([ADR-0010](docs/adr/0010-fastify-migration-behind-frozen-contract.md),
+  Kotlin preserved at the `kotlin-final` tag).
 - **Contract:** OpenAPI → generated `packages/api-client`.
 
 ## Layout
@@ -33,7 +36,7 @@ no real money anywhere.
 ```
 apps/storefront    public SSR/prerender store
 apps/admin         authenticated SPA dashboard
-apps/backend       Ktor, bounded contexts
+apps/server        Fastify, bounded contexts
 packages/api-client  generated types + React Query hooks
 packages/ui          shared Tailwind components + tokens
 packages/config      shared lint/ts/tailwind presets

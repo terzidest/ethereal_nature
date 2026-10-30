@@ -7,8 +7,6 @@ node_modules
 **/.turbo
 **/dist
 **/build
-apps/backend/build
-apps/backend/.gradle
 .env
 .env.*
 .idea

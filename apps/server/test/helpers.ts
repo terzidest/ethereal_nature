@@ -6,7 +6,7 @@ import { createDb, createPool } from '../src/platform/db/client.js'
 import { migrate } from '../src/platform/migrate.js'
 import type { DB } from '../src/platform/db/types.js'
 
-const MIGRATIONS_DIR = new URL('../../backend/src/main/resources/db/migration', import.meta.url).pathname
+const MIGRATIONS_DIR = new URL('../migrations', import.meta.url).pathname
 
 export interface TestHarness {
   app: App

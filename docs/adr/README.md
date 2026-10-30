@@ -10,8 +10,9 @@ change a decision, write a new ADR that supersedes the old one.
 | [0002](0002-tanstack-start-both-frontends.md) | TanStack Start for both frontends | Accepted |
 | [0003](0003-tailwind-no-mui.md) | Tailwind + headless primitives, no MUI | Accepted |
 | [0004](0004-openapi-contract-source-of-truth.md) | OpenAPI spec as the FE/BE contract | Accepted |
-| [0005](0005-ktor-over-spring-boot.md) | Ktor over Spring Boot | Accepted |
+| [0005](0005-ktor-over-spring-boot.md) | Ktor over Spring Boot | Superseded by 0010 |
 | [0006](0006-exposed-dsl-and-context-modules.md) | Exposed DSL + package-bounded contexts | Accepted |
 | [0007](0007-cart-and-order-aggregates.md) | Cart as server aggregate, Order as immutable snapshot | Accepted |
 | [0008](0008-frontend-state-ownership.md) | Frontend state ownership boundaries | Accepted |
 | [0009](0009-deferred-decisions-confirmed.md) | Deferred cart/ordering decisions confirmed post-implementation | Accepted |
+| [0010](0010-fastify-migration-behind-frozen-contract.md) | Backend migrated Ktor → Fastify behind the frozen contract | Accepted |
