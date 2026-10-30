@@ -9,6 +9,24 @@ jobs:
   frontend:
     name: TS workspace (Turborepo)
     runs-on: ubuntu-latest
+    # The Fastify server's tests run against a real Postgres, same as the
+    # Gradle job's (shared until the Kotlin backend is decommissioned).
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ethereal
+          POSTGRES_PASSWORD: ethereal
+          POSTGRES_DB: ethereal_nature
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ethereal"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://ethereal:ethereal@localhost:5432/ethereal_nature
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

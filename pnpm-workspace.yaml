@@ -1,7 +1,10 @@
 packages:
   - apps/storefront
   - apps/admin
+  - apps/server
   - packages/*
+allowBuilds:
+  esbuild: true
 minimumReleaseAgeExclude:
   - '@tanstack/react-router@1.170.17'
   - '@tanstack/react-start-client@1.168.15'
