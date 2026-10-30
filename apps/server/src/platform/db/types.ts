@@ -9,6 +9,21 @@ import type { Generated } from 'kysely'
 export interface DB {
   flyway_schema_history: FlywaySchemaHistoryTable
   users: UsersTable
+  products: ProductsTable
+}
+
+export interface ProductsTable {
+  id: string
+  slug: string
+  name: string
+  description: string
+  price_minor: number
+  currency: string
+  stock: number
+  category: string
+  image_url: string | null
+  archived: boolean
+  created_at: Generated<Date>
 }
 
 export interface UsersTable {
