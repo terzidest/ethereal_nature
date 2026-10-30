@@ -1,7 +1,7 @@
 # Deploying to Railway
 
 The whole demo runs on Railway: **Postgres** plus three Docker services —
-`backend` (Ktor), `storefront` (TanStack Start SSR), and `admin` (TanStack Start
+`backend` (Fastify), `storefront` (TanStack Start SSR), and `admin` (TanStack Start
 SPA). Everything is driven from the dashboard; there is intentionally no
 `railway.json` (three one-time service setups don't justify config-as-code).
 
@@ -14,29 +14,26 @@ fails silently at build scheduling, so don't use one.)
 
 | Service | Root directory | `RAILWAY_DOCKERFILE_PATH` |
 |---------|----------------|---------------------------|
-| backend | `/` (repo root) | `Dockerfile.backend` |
+| backend | `/` (repo root) | `Dockerfile.backend-ts` |
 | storefront | `/` (repo root) | `Dockerfile.frontend` |
 | admin | `/` (repo root) | `Dockerfile.frontend` |
 
 Both frontends share one parameterized `Dockerfile.frontend`; the `APP` build
 arg selects which app to build (the pnpm workspace needs `packages/*` and the
-root lockfile in context). The backend's `Dockerfile.backend` runs
-`gradlew installDist` — **not** `buildFatJar`: Flyway discovers its plugins via
-`META-INF/services`, which fat-jar merging breaks (empty `PluginRegister` →
-NPE on boot).
+root lockfile in context). The backend's `Dockerfile.backend-ts` builds the
+Fastify server (`@ethereal-nature/server`) and runs its own Flyway-compatible
+migrator over `apps/server/migrations` on boot.
 
 ## Environment variables
 
 ### backend
 
-Railway's Postgres plugin exposes reference variables but its own `DATABASE_URL`
-is `postgresql://…`, while Ktor needs a **JDBC** URL. Compose it from the
-Postgres service's private networking:
+Railway's Postgres plugin exposes reference variables; compose the URL from
+the private network and keep ALL credentials inside it (pg ignores
+user/password options passed alongside a connection string):
 
 ```
-DATABASE_URL=jdbc:postgresql://${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.PGDATABASE}}
-DATABASE_USER=${{Postgres.PGUSER}}
-DATABASE_PASSWORD=${{Postgres.PGPASSWORD}}
+DATABASE_URL=postgres://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.PGDATABASE}}
 JWT_SECRET=<openssl rand -base64 48>
 ADMIN_EMAIL=<your admin login email>
 ADMIN_PASSWORD=<generated, strong>
@@ -49,7 +46,7 @@ Notes:
 - `MOCK_PSP_ENABLED=true` is deliberate — the mock PSP **is** the demo's payment
   flow. Disabling it removes the only way to pay.
 - If private networking misbehaves, fall back to the public proxy:
-  `jdbc:postgresql://${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}`.
+  `postgres://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}`.
 - `PORT` is injected by Railway; the app already reads it. Netty binds `0.0.0.0`.
 
 ### storefront
@@ -101,15 +98,14 @@ root: `railway up --service <name> --detach`. Watch progress with
 ## Local container check (optional, needs Docker)
 
 ```bash
-docker build -t en-backend -f Dockerfile.backend .
+docker build -t en-backend -f Dockerfile.backend-ts .
 docker build -t en-storefront --build-arg APP=storefront \
   --build-arg VITE_API_URL=http://localhost:8080 -f Dockerfile.frontend .
 docker build -t en-admin --build-arg APP=admin \
   --build-arg VITE_API_URL=http://localhost:8080 -f Dockerfile.frontend .
 
 docker run --rm -p 8080:8080 \
-  -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/ethereal_nature \
-  -e DATABASE_USER=$USER -e DATABASE_PASSWORD= \
+  -e DATABASE_URL=postgres://$USER@host.docker.internal:5432/ethereal_nature \
   -e CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001 \
   en-backend
 docker run --rm -p 3000:3000 -e PORT=3000 en-storefront

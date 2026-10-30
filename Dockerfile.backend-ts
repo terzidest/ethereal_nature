@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 # The Fastify backend. Build context = repo root (pnpm workspace). Selected on
-# Railway via RAILWAY_DOCKERFILE_PATH at cutover; Dockerfile.backend (Kotlin)
-# stays in-tree as the rollback until decommission.
+# Railway via RAILWAY_DOCKERFILE_PATH. (Kotlin-era rollback: the `kotlin-final`
+# tag still carries Dockerfile.backend.)
 #
 # Deliberately unpruned (full workspace node_modules) — reliability over image
-# size for the cutover; pnpm-deploy pruning is a post-cutover optimization.
+# size; pnpm-deploy pruning is a known follow-up.
 FROM node:22-alpine
 RUN npm i -g pnpm@11.9.0 && mkdir /repo && chown node:node /repo
 USER node
@@ -16,7 +16,6 @@ COPY --chown=node:node . .
 RUN pnpm install --frozen-lockfile --offline && pnpm --filter @ethereal-nature/server build
 
 ENV NODE_ENV=production
-# The SQL migrations still live in the Kotlin tree until decommission.
-ENV MIGRATIONS_DIR=/repo/apps/backend/src/main/resources/db/migration
+ENV MIGRATIONS_DIR=/repo/apps/server/migrations
 EXPOSE 8080
 CMD ["node", "apps/server/dist/server.js"]

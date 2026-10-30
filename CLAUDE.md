@@ -2,7 +2,7 @@
 
 Operating rules for AI agents working in this repo. Read `ARCHITECTURE.md` first;
 this file is the enforcement layer on top of it. The backend has its own
-`apps/backend/CLAUDE.md` with rules specific to the Kotlin side.
+`apps/server/CLAUDE.md` with rules specific to the Fastify side.
 
 ## What this project is
 
@@ -55,15 +55,16 @@ over cleverness.
   aggregate split.
 - Introducing a new dependency, especially anything that competes with the
   settled stack (no MUI, no alternative data-fetching lib, no second router).
-- Promoting a context to its own Gradle subproject.
+- Promoting a context to its own package or service.
 - Anything that would make a frontend aware of backend internals.
 
 ## Stack (settled — do not substitute without an ADR)
 
-- Monorepo: pnpm + Turborepo (TS), Gradle (backend), separate build graphs.
+- Monorepo: pnpm + Turborepo, one TypeScript workspace (ADR-0010).
 - Frontends: TanStack Start (both), TanStack Router, React Query, Zustand.
 - Styling: Tailwind + headless primitives + TanStack Table. **No MUI.**
-- Backend: Ktor, Exposed (DSL), kotlinx.serialization, Koin, Flyway, Postgres.
+- Backend: Fastify, Kysely (typed SQL — no ORM/active-record), zod (env
+  config only), Postgres; migrations are plain V*.sql (Flyway-compatible).
 - Contract: OpenAPI → generated `api-client`.
 
 ## When unsure

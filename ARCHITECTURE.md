@@ -1,5 +1,14 @@
 # Architecture
 
+> **Implementation note (ADR-0010):** the backend described here was
+> originally Kotlin/Ktor and is now Fastify/TypeScript (`apps/server`),
+> migrated behind the frozen OpenAPI contract. Every architectural rule in
+> this document carried over 1:1; read with this mapping: Exposed → Kysely,
+> Koin → plain composition root (`app.ts`), StatusPages → platform error
+> handler, `transaction {}` → ambient AsyncLocalStorage transactions,
+> Flyway → `platform/migrate.ts` over the same `V*.sql` files. The Kotlin
+> implementation is preserved at the `kotlin-final` tag.
+
 `ethereal_nature` is a deliberately small e-shop, built to demonstrate a clean,
 scalable architecture rather than feature breadth. The domain is intentionally
 shallow (catalog, cart, ordering, identity); the structure around it is the
