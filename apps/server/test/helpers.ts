@@ -22,6 +22,7 @@ export async function startTestApp(env: NodeJS.ProcessEnv = {}): Promise<TestHar
   await migrate(pool, MIGRATIONS_DIR)
   const db = createDb(pool)
   const app = await buildApp({ config, db })
+  await app.seedUsers()
   return {
     app,
     db,

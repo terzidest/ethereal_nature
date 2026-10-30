@@ -13,7 +13,9 @@ const pool = createPool(config)
 const applied = await migrate(pool, MIGRATIONS_DIR)
 const db = createDb(pool)
 
-const { fastify } = await buildApp({ config, db })
+const app = await buildApp({ config, db })
+const { fastify } = app
 if (applied > 0) fastify.log.info(`applied ${applied} migrations`)
+await app.seedUsers()
 
 await fastify.listen({ port: config.port, host: '0.0.0.0' })

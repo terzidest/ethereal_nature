@@ -8,6 +8,15 @@ import type { Generated } from 'kysely'
 
 export interface DB {
   flyway_schema_history: FlywaySchemaHistoryTable
+  users: UsersTable
+}
+
+export interface UsersTable {
+  id: string
+  email: string
+  password_hash: string
+  role: string
+  created_at: Generated<Date>
 }
 
 export interface FlywaySchemaHistoryTable {

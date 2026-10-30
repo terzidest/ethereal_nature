@@ -1,8 +1,13 @@
 import cors from '@fastify/cors'
 import Fastify, { type FastifyInstance } from 'fastify'
 import type { Kysely } from 'kysely'
+import { parseEmail, parseRawPassword } from './identity/domain.js'
+import { bcryptPasswordHasher, jwtTokenIssuer, kyselyUserRepository } from './identity/infrastructure.js'
+import { authRoutes, demoAuthRoutes } from './identity/routes.js'
+import { identityUseCases, type IdentityUseCases } from './identity/use-cases.js'
 import type { AppConfig } from './platform/config.js'
 import { contractDocument, registerContractSchemas } from './platform/contract.js'
+import { createAmbientTransactions } from './platform/db/transaction.js'
 import type { DB } from './platform/db/types.js'
 import { registerErrorHandler } from './platform/errors.js'
 import { createTokenService, type TokenService } from './platform/security.js'
@@ -16,6 +21,9 @@ export interface AppDeps {
 export interface App {
   fastify: FastifyInstance
   tokens: TokenService
+  identity: IdentityUseCases
+  /** Seeds the ADMIN (always) and demo VIEWER (when enabled) — bootstrapSeedUsers mirror. */
+  seedUsers(): Promise<void>
 }
 
 /**
@@ -38,6 +46,17 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
 
   const tokens = createTokenService(config.jwt)
 
+  // Composition: one ambient transaction runner shared by every context —
+  // the JOIN semantics the cross-context flows rely on depend on this.
+  const tx = createAmbientTransactions(db)
+  const identity = identityUseCases({
+    users: kyselyUserRepository(tx),
+    hasher: bcryptPasswordHasher(),
+    tokens: jwtTokenIssuer(tokens),
+    tx,
+    demo: config.demo,
+  })
+
   // The contract, served verbatim (ADR-0010): regeneration against this
   // endpoint must reproduce the committed client byte-for-byte.
   const document = contractDocument({
@@ -47,6 +66,24 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   fastify.get('/openapi.json', () => document)
 
   healthRoutes(fastify, db)
+  authRoutes(fastify, identity, tokens)
+  if (config.demo.loginEnabled) demoAuthRoutes(fastify, identity)
 
-  return { fastify, tokens }
+  return {
+    fastify,
+    tokens,
+    identity,
+    async seedUsers() {
+      await identity.ensureSeedUser(parseEmail(config.admin.email), parseRawPassword(config.admin.password), 'ADMIN')
+      // The viewer only exists where the demo endpoint does — never seed a
+      // known-password account in an environment that didn't opt in.
+      if (config.demo.loginEnabled) {
+        await identity.ensureSeedUser(
+          parseEmail(config.demo.viewerEmail),
+          parseRawPassword(config.demo.viewerPassword),
+          'VIEWER',
+        )
+      }
+    },
+  }
 }
