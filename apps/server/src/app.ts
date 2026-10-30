@@ -7,6 +7,9 @@ import { cartUseCases, type CartUseCases } from './cart/use-cases.js'
 import { kyselyProductRepository } from './catalog/infrastructure.js'
 import { adminProductRoutes, productRoutes } from './catalog/routes.js'
 import { catalogUseCases, type CatalogUseCases } from './catalog/use-cases.js'
+import { cartGatewayAdapter, catalogGatewayAdapter, kyselyOrderRepository } from './ordering/infrastructure.js'
+import { orderRoutes } from './ordering/routes.js'
+import { orderingUseCases, type OrderingUseCases } from './ordering/use-cases.js'
 import { parseEmail, parseRawPassword } from './identity/domain.js'
 import { bcryptPasswordHasher, jwtTokenIssuer, kyselyUserRepository } from './identity/infrastructure.js'
 import { authRoutes, demoAuthRoutes } from './identity/routes.js'
@@ -30,6 +33,7 @@ export interface App {
   identity: IdentityUseCases
   catalog: CatalogUseCases
   cart: CartUseCases
+  ordering: OrderingUseCases
   /** Seeds the ADMIN (always) and demo VIEWER (when enabled) — bootstrapSeedUsers mirror. */
   seedUsers(): Promise<void>
 }
@@ -66,6 +70,12 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   })
   const catalog = catalogUseCases(kyselyProductRepository(tx), tx)
   const cart = cartUseCases(kyselyCartRepository(tx), catalogAdapter(catalog), tx)
+  const ordering = orderingUseCases(
+    cartGatewayAdapter(cart),
+    catalogGatewayAdapter(catalog),
+    kyselyOrderRepository(tx),
+    tx,
+  )
 
   // The contract, served verbatim (ADR-0010): regeneration against this
   // endpoint must reproduce the committed client byte-for-byte.
@@ -81,6 +91,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   productRoutes(fastify, catalog)
   adminProductRoutes(fastify, catalog, tokens)
   cartRoutes(fastify, cart, tokens)
+  orderRoutes(fastify, ordering, tokens)
 
   return {
     fastify,
@@ -88,6 +99,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     identity,
     catalog,
     cart,
+    ordering,
     async seedUsers() {
       await identity.ensureSeedUser(parseEmail(config.admin.email), parseRawPassword(config.admin.password), 'ADMIN')
       // The viewer only exists where the demo endpoint does — never seed a
