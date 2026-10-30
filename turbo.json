@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["DATABASE_URL", "DATABASE_USER", "DATABASE_PASSWORD"],
   "tasks": {
     "build": {
       "dependsOn": [
