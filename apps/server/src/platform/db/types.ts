@@ -12,6 +12,25 @@ export interface DB {
   products: ProductsTable
   carts: CartsTable
   cart_lines: CartLinesTable
+  orders: OrdersTable
+  order_lines: OrderLinesTable
+}
+
+export interface OrdersTable {
+  id: string
+  user_id: string
+  status: string
+  placed_at: Date
+}
+
+export interface OrderLinesTable {
+  order_id: string
+  product_id: string
+  name: string
+  quantity: number
+  unit_price_minor: number
+  currency: string
+  position: number
 }
 
 export interface CartsTable {
