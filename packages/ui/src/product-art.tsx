@@ -4,7 +4,7 @@
  * client, so SSR output is stable. When a product has a real imageUrl the
  * consumer should prefer it and use this as the fallback.
  */
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
 export type ArtCategory = 'OILS' | 'HERBS' | 'CRYSTALS' | 'TEAS'
 
@@ -160,7 +160,11 @@ export function ProductArt({
   )
 }
 
-/** Prefers a real product photo, falls back to branded artwork. */
+/**
+ * Prefers a real product photo, falls back to branded artwork — both when no
+ * imageUrl is set and when the image fails to load (dead external link).
+ * SSR-safe: the server renders the <img>; the error swap is client-only state.
+ */
 export function ProductImage({
   imageUrl,
   name,
@@ -174,8 +178,18 @@ export function ProductImage({
   seed: string
   className?: string
 }) {
-  if (imageUrl) {
-    return <img src={imageUrl} alt={name} loading="lazy" className={`object-cover ${className}`} />
+  const [failed, setFailed] = useState(false)
+
+  if (!imageUrl || failed) {
+    return <ProductArt category={category} seed={seed} className={className} />
   }
-  return <ProductArt category={category} seed={seed} className={className} />
+  return (
+    <img
+      src={imageUrl}
+      alt={name}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className={`bg-sand-100 object-cover ${className}`}
+    />
+  )
 }
