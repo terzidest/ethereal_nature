@@ -15,6 +15,13 @@ export interface DB {
   orders: OrdersTable
   order_lines: OrderLinesTable
   payment_intents: PaymentIntentsTable
+  pages: PagesTable
+}
+
+export interface PagesTable {
+  slug: string
+  config: unknown
+  updated_at: Generated<Date>
 }
 
 export interface PaymentIntentsTable {

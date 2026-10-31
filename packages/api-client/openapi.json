@@ -1133,6 +1133,119 @@
         },
         "deprecated": false
       }
+    },
+    "/pages/{slug}": {
+      "get": {
+        "tags": [],
+        "summary": "A page's block config by slug",
+        "description": "Public content configs rendered by the storefront (blockprint). The config shape is validated structurally on write; block-level props are validated by the renderer's registry schemas.",
+        "operationId": "getPage",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Page slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such page"
+          }
+        }
+      }
+    },
+    "/admin/pages": {
+      "get": {
+        "tags": [],
+        "summary": "All editable pages (back office)",
+        "operationId": "listPages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Page summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token"
+          },
+          "403": {
+            "description": "Requires ADMIN or VIEWER role"
+          }
+        }
+      }
+    },
+    "/admin/pages/{slug}": {
+      "put": {
+        "tags": [],
+        "summary": "Replace a page's block config (admin)",
+        "description": "Save = live. The config must be an array of { type, props?, id? } entries; unknown block types are allowed (the storefront renderer falls back gracefully).",
+        "operationId": "updatePage",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "description": "Page slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Structurally invalid config"
+          },
+          "401": {
+            "description": "Missing or invalid token"
+          },
+          "403": {
+            "description": "Requires ADMIN role"
+          },
+          "404": {
+            "description": "No such page"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2046,6 +2159,63 @@
           "outcome"
         ],
         "title": "SimulatePaymentRequest"
+      },
+      "PageResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "config": {},
+          "updatedAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "config",
+          "slug",
+          "updatedAtEpochSeconds"
+        ]
+      },
+      "UpdatePageRequest": {
+        "type": "object",
+        "properties": {
+          "config": {}
+        },
+        "required": [
+          "config"
+        ]
+      },
+      "PageSummary": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "updatedAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "slug",
+          "updatedAtEpochSeconds"
+        ]
+      },
+      "PageListResponse": {
+        "type": "object",
+        "properties": {
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageSummary"
+            }
+          }
+        },
+        "required": [
+          "pages"
+        ]
       }
     },
     "examples": {}

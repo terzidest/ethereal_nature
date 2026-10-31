@@ -614,6 +614,25 @@ export type SimulatePaymentRequest = {
     outcome: SimulatedOutcomeDto;
 };
 
+export type PageResponse = {
+    slug: string;
+    config: unknown;
+    updatedAtEpochSeconds: number;
+};
+
+export type UpdatePageRequest = {
+    config: unknown;
+};
+
+export type PageSummary = {
+    slug: string;
+    updatedAtEpochSeconds: number;
+};
+
+export type PageListResponse = {
+    pages: Array<PageSummary>;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -1362,3 +1381,98 @@ export type DemoLoginResponses = {
 };
 
 export type DemoLoginResponse = DemoLoginResponses[keyof DemoLoginResponses];
+
+export type GetPageData = {
+    body?: never;
+    path: {
+        /**
+         * Page slug
+         */
+        slug: string;
+    };
+    query?: never;
+    url: '/pages/{slug}';
+};
+
+export type GetPageErrors = {
+    /**
+     * No such page
+     */
+    404: unknown;
+};
+
+export type GetPageResponses = {
+    /**
+     * The page
+     */
+    200: PageResponse;
+};
+
+export type GetPageResponse = GetPageResponses[keyof GetPageResponses];
+
+export type ListPagesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/admin/pages';
+};
+
+export type ListPagesErrors = {
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN or VIEWER role
+     */
+    403: unknown;
+};
+
+export type ListPagesResponses = {
+    /**
+     * Page summaries
+     */
+    200: PageListResponse;
+};
+
+export type ListPagesResponse = ListPagesResponses[keyof ListPagesResponses];
+
+export type UpdatePageData = {
+    body: UpdatePageRequest;
+    path: {
+        /**
+         * Page slug
+         */
+        slug: string;
+    };
+    query?: never;
+    url: '/admin/pages/{slug}';
+};
+
+export type UpdatePageErrors = {
+    /**
+     * Structurally invalid config
+     */
+    400: unknown;
+    /**
+     * Missing or invalid token
+     */
+    401: unknown;
+    /**
+     * Requires ADMIN role
+     */
+    403: unknown;
+    /**
+     * No such page
+     */
+    404: unknown;
+};
+
+export type UpdatePageResponses = {
+    /**
+     * The updated page
+     */
+    200: PageResponse;
+};
+
+export type UpdatePageResponse = UpdatePageResponses[keyof UpdatePageResponses];
