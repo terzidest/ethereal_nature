@@ -5,7 +5,7 @@ import {
   type CartResponse,
 } from '@ethereal-nature/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ProductArt } from '@ethereal-nature/ui'
+import { ProductImage } from '@ethereal-nature/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
@@ -104,7 +104,7 @@ function ServerCart() {
         {cart.lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
-              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+              <ProductImage imageUrl={line.imageUrl} name={line.name} category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
             </div>
             <div className="flex flex-1 flex-col">
               <Link
@@ -173,7 +173,7 @@ function GuestCart() {
         {lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
-              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+              <ProductImage imageUrl={line.imageUrl} name={line.name} category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
             </div>
             <div className="flex flex-1 flex-col">
               <Link

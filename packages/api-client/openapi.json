@@ -1397,6 +1397,13 @@
             "type": "string",
             "title": "String"
           },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
           "quantity": {
             "type": "integer",
             "format": "int32",

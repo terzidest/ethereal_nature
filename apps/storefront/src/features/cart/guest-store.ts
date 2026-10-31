@@ -12,6 +12,8 @@ export interface GuestCartLine {
   name: string
   /** Display metadata for artwork; older persisted carts may lack it. */
   category?: string
+  /** Display metadata for the thumbnail; older persisted carts may lack it. */
+  imageUrl?: string | null
   quantity: number
   priceSnapshotMinor: number
   currency: string

@@ -35,6 +35,7 @@ export interface PricedLine {
   productId: string
   name: string
   category: string
+  imageUrl: string | null
   quantity: number
   unitPriceMinor: number
   currency: string
@@ -59,6 +60,7 @@ export function snapshotOf(lines: readonly CartLine[], products: ReadonlyMap<str
       productId: line.productId,
       name: info.name,
       category: info.category,
+      imageUrl: info.imageUrl,
       quantity: line.quantity,
       unitPriceMinor: info.priceMinor,
       currency: info.currency,

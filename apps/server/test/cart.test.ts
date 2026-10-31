@@ -7,6 +7,7 @@ import { startTestApp, type TestHarness } from './helpers.js'
 const info = (overrides: Partial<ProductInfo> = {}): ProductInfo => ({
   name: 'Herb',
   category: 'HERBS',
+  imageUrl: null,
   priceMinor: 1000,
   currency: 'EUR',
   stock: 10,
@@ -195,5 +196,26 @@ describe('cart routes (ported from CartRoutesTest)', () => {
     expect(removed.statusCode).toBe(200)
     expect(removed.json().lines).toEqual([])
     expect(removed.json().subtotalMinor).toBe(0)
+  })
+
+  it('cart lines carry imageUrl when set and omit the key when absent', async () => {
+    const token = await freshCustomer()
+    const headers = { authorization: `Bearer ${token}` }
+    // An in-stock seed product with a curated photo (V8) — search to skip test junk.
+    const catalog = await inject({ method: 'GET', url: '/products?q=essential+oil&pageSize=100' })
+    const withImage = (catalog.json().items as Array<{ id: string; imageUrl?: string; stock: number }>).find(
+      (p) => p.imageUrl && p.stock > 0,
+    )!.id
+    await inject({ method: 'PUT', url: '/cart/items', headers, payload: { productId: withImage, quantity: 1 } })
+    // Admin-created test product: no image.
+    const withoutImage = await adminCreateProduct(5)
+    await inject({ method: 'PUT', url: '/cart/items', headers, payload: { productId: withoutImage, quantity: 1 } })
+
+    const cart = await inject({ method: 'GET', url: '/cart', headers })
+    const lines = cart.json().lines as Array<Record<string, unknown>>
+    const imaged = lines.find((l) => l.productId === withImage)!
+    const bare = lines.find((l) => l.productId === withoutImage)!
+    expect(typeof imaged.imageUrl).toBe('string')
+    expect('imageUrl' in bare).toBe(false)
   })
 })

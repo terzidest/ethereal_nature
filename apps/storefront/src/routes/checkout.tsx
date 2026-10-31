@@ -3,7 +3,7 @@ import {
   placeOrderMutation,
   type CheckoutRejectionResponse,
 } from '@ethereal-nature/api-client'
-import { ProductArt } from '@ethereal-nature/ui'
+import { ProductImage } from '@ethereal-nature/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -109,7 +109,7 @@ function CheckoutPage() {
         {cart.lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-card">
-              <ProductArt category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
+              <ProductImage imageUrl={line.imageUrl} name={line.name} category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
             </div>
             <span className="flex-1">
               {line.name} <span className="text-ink/50">× {line.quantity}</span>

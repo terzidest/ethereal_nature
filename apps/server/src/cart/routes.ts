@@ -12,7 +12,11 @@ function parseUuid(raw: string, what: string): string {
   return raw.toLowerCase()
 }
 
-const toCartResponse = (cart: CartSnapshot) => cart
+/** Null-omission: a line without an image omits the key (never null on the wire). */
+const toCartResponse = (cart: CartSnapshot) => ({
+  ...cart,
+  lines: cart.lines.map((line) => ({ ...line, imageUrl: line.imageUrl ?? undefined })),
+})
 const toAdjustmentsResponse = (adjustments: Adjustments) => adjustments
 
 interface MergeDto {
