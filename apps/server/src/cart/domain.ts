@@ -32,6 +32,7 @@ export function makeGuestLine(productId: string, quantity: number, priceSnapshot
 export interface ProductInfo {
   name: string
   category: string
+  imageUrl: string | null
   priceMinor: number
   currency: string
   stock: number

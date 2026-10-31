@@ -1,5 +1,5 @@
 import { getCartQueryKey, setCartItemMutation, type CartResponse } from '@ethereal-nature/api-client'
-import { ProductArt } from '@ethereal-nature/ui'
+import { ProductImage } from '@ethereal-nature/ui'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
@@ -83,6 +83,7 @@ function LineRow({
   productId,
   name,
   category,
+  imageUrl,
   quantity,
   priceLabel,
   onRemove,
@@ -90,6 +91,7 @@ function LineRow({
   productId: string
   name: string
   category: string | undefined
+  imageUrl: string | null | undefined
   quantity: number
   priceLabel: string
   onRemove: () => void
@@ -98,7 +100,7 @@ function LineRow({
   return (
     <li className="flex items-center gap-3 py-3">
       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-card">
-        <ProductArt category={artCategory(category)} seed={productId} className="h-full w-full" />
+        <ProductImage imageUrl={imageUrl} name={name} category={artCategory(category)} seed={productId} className="h-full w-full" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <Link
@@ -144,6 +146,7 @@ function ServerLines() {
           productId={line.productId}
           name={line.name}
           category={line.category}
+          imageUrl={line.imageUrl}
           quantity={line.quantity}
           priceLabel={formatPrice(line.lineTotalMinor, line.currency)}
           onRemove={() => mutation.mutate({ body: { productId: line.productId, quantity: 0 } })}
@@ -165,6 +168,7 @@ function GuestLines() {
           productId={line.productId}
           name={line.name}
           category={line.category}
+          imageUrl={line.imageUrl}
           quantity={line.quantity}
           priceLabel={formatPrice(line.priceSnapshotMinor * line.quantity, line.currency)}
           onRemove={() => setQuantity(line.productId, 0)}

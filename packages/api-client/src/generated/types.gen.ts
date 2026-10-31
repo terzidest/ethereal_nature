@@ -187,6 +187,10 @@ export type CartLineResponse = {
      */
     category: string;
     /**
+     * String
+     */
+    imageUrl?: null | string;
+    /**
      * Int
      */
     quantity: number;

@@ -72,6 +72,7 @@ export function catalogAdapter(catalog: CatalogUseCases): ProductCatalogPort {
         out.set(id, {
           name: product.name,
           category: product.category,
+          imageUrl: product.imageUrl,
           priceMinor: product.price.amountMinor,
           currency: product.price.currency,
           stock: product.stock,

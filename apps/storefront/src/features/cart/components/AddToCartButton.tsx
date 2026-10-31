@@ -47,6 +47,7 @@ export function AddToCartButton({ product, quantity = 1 }: { product: ProductRes
           productId: product.id,
           name: product.name,
           category: product.category,
+          imageUrl: product.imageUrl ?? null,
           priceSnapshotMinor: product.priceMinor,
           currency: product.currency,
         },
