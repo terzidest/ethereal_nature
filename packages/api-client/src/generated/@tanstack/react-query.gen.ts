@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createPaymentIntent, createProduct, demoLogin, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updateProduct } from '../sdk.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, DemoLoginData, DemoLoginResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
+import { createPaymentIntent, createProduct, demoLogin, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPage, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listPages, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updatePage, updateProduct } from '../sdk.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, DemoLoginData, DemoLoginResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPageData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListPagesData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdatePageData, UpdatePageResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -603,6 +603,65 @@ export const demoLoginMutation = (options?: Partial<Options<DemoLoginData>>): Us
     const mutationOptions: UseMutationOptions<DemoLoginResponse, DefaultError, Options<DemoLoginData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await demoLogin({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getPageQueryKey = (options: Options<GetPageData>) => createQueryKey('getPage', options);
+
+/**
+ * A page's block config by slug
+ * Public content configs rendered by the storefront (blockprint). The config shape is validated structurally on write; block-level props are validated by the renderer's registry schemas.
+ */
+export const getPageOptions = (options: Options<GetPageData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await getPage({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: getPageQueryKey(options)
+    });
+};
+
+export const listPagesQueryKey = (options?: Options<ListPagesData>) => createQueryKey('listPages', options);
+
+/**
+ * All editable pages (back office)
+ */
+export const listPagesOptions = (options?: Options<ListPagesData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await listPages({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listPagesQueryKey(options)
+    });
+};
+
+/**
+ * Replace a page's block config (admin)
+ * Save = live. The config must be an array of { type, props?, id? } entries; unknown block types are allowed (the storefront renderer falls back gracefully).
+ */
+export const updatePageMutation = (options?: Partial<Options<UpdatePageData>>): UseMutationOptions<UpdatePageResponse, DefaultError, Options<UpdatePageData>> => {
+    const mutationOptions: UseMutationOptions<UpdatePageResponse, DefaultError, Options<UpdatePageData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updatePage({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

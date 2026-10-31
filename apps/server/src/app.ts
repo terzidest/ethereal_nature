@@ -4,6 +4,9 @@ import type { Kysely } from 'kysely'
 import { catalogAdapter, kyselyCartRepository } from './cart/infrastructure.js'
 import { cartRoutes } from './cart/routes.js'
 import { cartUseCases, type CartUseCases } from './cart/use-cases.js'
+import { kyselyPageRepository } from './content/infrastructure.js'
+import { contentRoutes } from './content/routes.js'
+import { contentUseCases, type ContentUseCases } from './content/use-cases.js'
 import { kyselyProductRepository } from './catalog/infrastructure.js'
 import { adminProductRoutes, productRoutes } from './catalog/routes.js'
 import { catalogUseCases, type CatalogUseCases } from './catalog/use-cases.js'
@@ -38,6 +41,7 @@ export interface App {
   cart: CartUseCases
   ordering: OrderingUseCases
   payments: PaymentsUseCases
+  content: ContentUseCases
   /** Every registered route (method + fastify path) — the anti-drift gate reads this. */
   routes: ReadonlyArray<{ method: string; path: string }>
   /** Seeds the ADMIN (always) and demo VIEWER (when enabled) — bootstrapSeedUsers mirror. */
@@ -89,6 +93,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     kyselyOrderRepository(tx),
     tx,
   )
+  const content = contentUseCases(kyselyPageRepository(tx), tx)
   const payments = paymentsUseCases(
     orderingGatewayAdapter(ordering),
     kyselyPaymentIntentRepository(tx),
@@ -112,6 +117,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
   cartRoutes(fastify, cart, tokens)
   orderRoutes(fastify, ordering, tokens)
   paymentRoutes(fastify, payments, tokens)
+  contentRoutes(fastify, content, tokens)
   if (config.payments.mockPspEnabled) mockPspRoutes(fastify, payments, config.payments, tokens)
 
   // Load deferred plugins (the webhook's raw-body scope) so the route table
@@ -126,6 +132,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     cart,
     ordering,
     payments,
+    content,
     routes,
     async seedUsers() {
       await identity.ensureSeedUser(parseEmail(config.admin.email), parseRawPassword(config.admin.password), 'ADMIN')

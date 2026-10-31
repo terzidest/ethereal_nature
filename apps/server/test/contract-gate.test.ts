@@ -36,7 +36,7 @@ describe('contract ↔ route bijection', () => {
     const registered = new Set(harness.app.routes.map((r) => `${r.method} ${r.path}`))
     const missing = specOperations().filter((op) => !registered.has(`${op.method} ${op.path}`))
     expect(missing).toEqual([])
-    expect(specOperations()).toHaveLength(24)
+    expect(specOperations()).toHaveLength(27)
   })
 
   it('every registered route (minus infrastructure) is in the spec', () => {

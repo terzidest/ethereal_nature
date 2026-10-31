@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, DemoLoginData, DemoLoginResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, DemoLoginData, DemoLoginResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPageData, GetPageErrors, GetPageResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListPagesData, ListPagesErrors, ListPagesResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdatePageData, UpdatePageErrors, UpdatePageResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -315,5 +315,41 @@ export const demoLogin = <ThrowOnError extends boolean = false>(options?: Option
     return (options?.client ?? client).post<DemoLoginResponses, unknown, ThrowOnError>({
         url: '/auth/demo',
         ...options
+    });
+};
+
+/**
+ * A page's block config by slug
+ * Public content configs rendered by the storefront (blockprint). The config shape is validated structurally on write; block-level props are validated by the renderer's registry schemas.
+ */
+export const getPage = <ThrowOnError extends boolean = false>(options: Options<GetPageData, ThrowOnError>) => {
+    return (options.client ?? client).get<GetPageResponses, GetPageErrors, ThrowOnError>({
+        url: '/pages/{slug}',
+        ...options
+    });
+};
+
+/**
+ * All editable pages (back office)
+ */
+export const listPages = <ThrowOnError extends boolean = false>(options?: Options<ListPagesData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListPagesResponses, ListPagesErrors, ThrowOnError>({
+        url: '/admin/pages',
+        ...options
+    });
+};
+
+/**
+ * Replace a page's block config (admin)
+ * Save = live. The config must be an array of { type, props?, id? } entries; unknown block types are allowed (the storefront renderer falls back gracefully).
+ */
+export const updatePage = <ThrowOnError extends boolean = false>(options: Options<UpdatePageData, ThrowOnError>) => {
+    return (options.client ?? client).put<UpdatePageResponses, UpdatePageErrors, ThrowOnError>({
+        url: '/admin/pages/{slug}',
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
     });
 };
