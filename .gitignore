@@ -1,25 +1,23 @@
-# OS
-.DS_Store
 
-# Node / TS
-node_modules/
-dist/
-.turbo/
-.output/
-.nitro/
-.tanstack/
-*.tsbuildinfo
-
+!.env.example
 # Env
+# IDE
+# Local agent settings
+# Node / TS
+# OS
+*.iml
+*.tsbuildinfo
+.DS_Store
+.claude/settings.local.json
 .env
 .env.*
-!.env.example
-
-
-# IDE
+.gradle/
 .idea/
-*.iml
+.nitro/
+.output/
+.tanstack/
+.turbo/
 .vscode/
-
-# Local agent settings
-.claude/settings.local.json
+apps/backend/
+dist/
+node_modules/
