@@ -1,23 +1,29 @@
-
-!.env.example
-# Env
-# IDE
-# Local agent settings
-# Node / TS
 # OS
-*.iml
-*.tsbuildinfo
 .DS_Store
-.claude/settings.local.json
+
+# Node / TS
+node_modules/
+dist/
+.turbo/
+.output/
+.nitro/
+.tanstack/
+*.tsbuildinfo
+
+# Env
 .env
 .env.*
-.gradle/
+!.env.example
+
+
+# IDE
 .idea/
-.nitro/
-.output/
-.tanstack/
-.turbo/
+*.iml
 .vscode/
+
+# Local agent settings
+.claude/settings.local.json
+
+# Decommissioned Kotlin backend leftovers (kotlin-final tag)
 apps/backend/
-dist/
-node_modules/
+.gradle/
