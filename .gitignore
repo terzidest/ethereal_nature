@@ -23,3 +23,7 @@ dist/
 
 # Local agent settings
 .claude/settings.local.json
+
+# Decommissioned Kotlin backend leftovers (kotlin-final tag)
+apps/backend/
+.gradle/
