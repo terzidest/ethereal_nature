@@ -2,20 +2,27 @@
 # The Fastify backend. Build context = repo root (pnpm workspace). Selected on
 # Railway via RAILWAY_DOCKERFILE_PATH. (Kotlin-era rollback: the `kotlin-final`
 # tag still carries Dockerfile.backend.)
-#
-# Deliberately unpruned (full workspace node_modules) — reliability over image
-# size; pnpm-deploy pruning is a known follow-up.
-FROM node:22-alpine
-RUN npm i -g pnpm@11.9.0 && mkdir /repo && chown node:node /repo
-USER node
+
+# --- build ---
+FROM node:22-alpine AS build
+# Pin pnpm via npm (not corepack); matches the root packageManager field.
+RUN npm i -g pnpm@11.9.0
 WORKDIR /repo
 # Lockfile-only fetch: a cached layer that survives source changes.
-COPY --chown=node:node pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm fetch
-COPY --chown=node:node . .
-RUN pnpm install --frozen-lockfile --offline && pnpm --filter @ethereal-nature/server build
+COPY . .
+RUN pnpm install --frozen-lockfile --offline \
+  && pnpm --filter @ethereal-nature/server build \
+  && pnpm --filter @ethereal-nature/server deploy --prod --legacy /deploy
 
+# --- runtime: the pruned pnpm-deploy artifact (~30MB of node_modules) ---
+FROM node:22-alpine
 ENV NODE_ENV=production
-ENV MIGRATIONS_DIR=/repo/apps/server/migrations
+WORKDIR /app
+COPY --from=build --chown=node:node /deploy .
+USER node
+# migrations/ ships inside the deployed package.
+ENV MIGRATIONS_DIR=/app/migrations
 EXPOSE 8080
-CMD ["node", "apps/server/dist/server.js"]
+CMD ["node", "dist/server.js"]
