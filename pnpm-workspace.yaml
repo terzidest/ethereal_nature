@@ -21,3 +21,4 @@ minimumReleaseAgeExclude:
   - '@tanstack/start-storage-context@1.167.16'
   - nitro-nightly@3.0.1-20260701-161626-1f1e52d7
   - vite@8.1.3
+  - blockprint@0.2.0
