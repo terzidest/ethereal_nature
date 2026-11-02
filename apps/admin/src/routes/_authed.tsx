@@ -45,6 +45,7 @@ function AdminShell() {
           <NavItem to="/" label="Dashboard" exact />
           <NavItem to="/products" label="Products" />
           <NavItem to="/orders" label="Orders" />
+          <NavItem to="/pages" label="Pages" />
         </nav>
         <div className="mt-auto border-t border-brand-800 px-6 py-4 text-sm">
           <p className="truncate text-brand-200/80" title={user.email}>
@@ -69,6 +70,9 @@ function AdminShell() {
             <Link to="/orders" className="hover:text-brand-700 [&.active]:text-brand-700">
               Orders
             </Link>
+            <Link to="/pages" className="hover:text-brand-700 [&.active]:text-brand-700">
+              Pages
+            </Link>
           </nav>
           <button type="button" onClick={signOut} className="ml-auto font-medium text-brand-700 hover:text-brand-900">
             Sign out
@@ -87,7 +91,7 @@ function AdminShell() {
   )
 }
 
-function NavItem({ to, label, exact }: { to: '/' | '/products' | '/orders'; label: string; exact?: boolean }) {
+function NavItem({ to, label, exact }: { to: '/' | '/products' | '/orders' | '/pages'; label: string; exact?: boolean }) {
   return (
     <Link
       to={to}
