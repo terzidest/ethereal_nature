@@ -20,6 +20,10 @@ ARG APP
 # must be present now — a runtime env var would be too late.
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+# Admin-only: where "View on site" points (falls back to localhost in code).
+# Railway only forwards service variables to the build for declared ARGs.
+ARG VITE_STOREFRONT_URL
+ENV VITE_STOREFRONT_URL=$VITE_STOREFRONT_URL
 RUN pnpm --filter "@ethereal-nature/${APP}" build
 
 # --- runtime ---
