@@ -66,6 +66,19 @@ over cleverness.
 - Backend: Fastify, Kysely (typed SQL — no ORM/active-record), zod (env
   config only), Postgres; migrations are plain V*.sql (Flyway-compatible).
 - Contract: OpenAPI → generated `api-client`.
+- Content blocks: blockprint (our own library) renders `pages.config`;
+  server validates structure only via `blockprint/config` (ADR-0011).
+
+## Process & further knowledge
+
+- **Every change branches off fresh `main` and lands via PR**; CI runs the
+  gate, Railway deploys `main` after CI (watch-path scoped).
+- Workflows with sharp edges have skills in `.claude/skills/`:
+  `add-block` (new page-builder block), `contract-change` (spec-first
+  endpoint work), `verify-and-ship` (the forced gate + PR process).
+- Runbooks: `docs/DEVELOPMENT.md` (local ports, DB quirks, accounts),
+  `docs/DEPLOY.md` (Railway: env vars, build ARGs, watch paths).
+- Design direction for the upcoming redesign: `docs/design/redesign-spec.md`.
 
 ## When unsure
 

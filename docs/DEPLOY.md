@@ -63,12 +63,37 @@ VITE_API_URL=https://<backend-domain>
 APP=admin
 RAILWAY_DOCKERFILE_PATH=Dockerfile.frontend
 VITE_API_URL=https://<backend-domain>
+VITE_STOREFRONT_URL=https://<storefront-domain>
 ```
 
-> **`VITE_API_URL` is baked in at build time** (it is `import.meta.env`, inlined
-> into the bundle). Changing the backend domain means **rebuilding** the
-> frontends, not just restarting them. Railway forwards service variables to the
-> build only for the `ARG`s declared in the Dockerfile (`APP`, `VITE_API_URL`).
+> **`VITE_*` variables are baked in at build time** (they are `import.meta.env`,
+> inlined into the bundle). Changing one means **rebuilding** the frontends, not
+> just restarting them. Railway forwards service variables to the build **only
+> for the `ARG`s declared in the Dockerfile** (`APP`, `VITE_API_URL`,
+> `VITE_STOREFRONT_URL`) — a new `VITE_` variable silently does nothing until a
+> matching `ARG`/`ENV` pair is added to `Dockerfile.frontend` (learned the hard
+> way in PR #14).
+
+## Push-to-deploy (how deploys actually happen day to day)
+
+Each service is connected to `terzidest/ethereal_nature` `main` with
+**Wait for CI** enabled — a merge deploys only after GitHub Actions is green.
+Watch paths scope which merges rebuild which service:
+
+| Service | Watch paths |
+|---------|-------------|
+| backend | `/apps/server/**`, `/packages/**`, `/Dockerfile.backend-ts` |
+| storefront | `/apps/storefront/**`, `/packages/**`, `/Dockerfile.frontend`, `/pnpm-lock.yaml` |
+| admin | `/apps/admin/**`, `/packages/**`, `/Dockerfile.frontend`, `/pnpm-lock.yaml` |
+
+Notes:
+- A deploy takes a few minutes after merge (CI ≈1.5 min + build). Verify the
+  artifact actually changed before debugging "it didn't work".
+- Railway CLI sessions expire after ~10 idle days; `railway login` is
+  interactive, so run it yourself (an agent can't).
+- Live domains: `eth-nature.terzidest.com` (storefront),
+  `eth-nature-admin.terzidest.com` (admin); the backend keeps its
+  `*.up.railway.app` domain.
 
 ## Deploying from the CLI
 
