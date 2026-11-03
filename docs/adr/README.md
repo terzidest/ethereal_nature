@@ -16,3 +16,4 @@ change a decision, write a new ADR that supersedes the old one.
 | [0008](0008-frontend-state-ownership.md) | Frontend state ownership boundaries | Accepted |
 | [0009](0009-deferred-decisions-confirmed.md) | Deferred cart/ordering decisions confirmed post-implementation | Accepted |
 | [0010](0010-fastify-migration-behind-frozen-contract.md) | Backend migrated Ktor → Fastify behind the frozen contract | Accepted |
+| [0011](0011-content-context-blockprint.md) | Content context + blockprint page builder (opaque config, save = live) | Accepted |
