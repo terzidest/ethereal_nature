@@ -5,7 +5,7 @@ import {
   type CartResponse,
 } from '@ethereal-nature/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ProductImage } from '@ethereal-nature/ui'
+import { ProductImage, Art } from '@ethereal-nature/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useSession } from '../features/account/session'
 import { formatPrice } from '../features/catalog/derive'
@@ -33,13 +33,15 @@ function CartPage() {
 
 function EmptyCart() {
   return (
-    <div className="flex flex-col items-start gap-4 py-8">
-      <p className="text-ink/60">Your cart is empty.</p>
+    <div className="flex flex-col items-center gap-2 py-12 text-center">
+      <Art name="plate-sage" className="w-28" />
+      <p className="mt-2 font-display text-2xl font-semibold text-heading">Your basket is resting</p>
+      <p className="text-ink-soft">Nothing in it yet. The herbs are a good place to start.</p>
       <Link
         to="/products"
-        className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
+        className="mt-3 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
       >
-        Browse the shop
+        Back to the shop
       </Link>
     </div>
   )

@@ -1,3 +1,7 @@
 export { StatusPill } from './status-pill'
 export { Button, ButtonLink, buttonClasses } from './button'
 export { ProductArt, ProductImage, type ArtCategory } from './product-art'
+export { Art, type ArtName } from './art/art'
+export { BrandMark } from './art/mark'
+export { CategoryGlyph } from './art/glyphs'
+export { useMagnetic, usePointerEffects, useSpotlight, useTilt } from './motion/pointer'

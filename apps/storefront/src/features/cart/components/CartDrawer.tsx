@@ -1,5 +1,5 @@
 import { getCartQueryKey, setCartItemMutation, type CartResponse } from '@ethereal-nature/api-client'
-import { ProductImage } from '@ethereal-nature/ui'
+import { ProductImage, Art } from '@ethereal-nature/ui'
 import * as Dialog from '@radix-ui/react-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
@@ -66,14 +66,17 @@ export function CartDrawer() {
 function EmptyDrawer() {
   const { closeDrawer } = useCartUi()
   return (
-    <div className="flex flex-col items-center gap-3 py-16 text-center">
-      <p className="text-ink/60">Your cart is empty.</p>
+    <div className="flex flex-col items-center gap-2 py-12 text-center">
+      <Art name="plate-sage" className="w-24" />
+      <p className="mt-2 font-display text-xl font-semibold text-heading">Your basket is resting</p>
+      <p className="text-sm text-ink-soft">The herbs are a good place to start.</p>
       <Link
         to="/products"
+        search={{ category: 'HERBS' }}
         onClick={closeDrawer}
-        className="text-sm font-medium text-brand hover:text-heading"
+        className="mt-2 text-sm font-medium text-brand hover:text-heading"
       >
-        Browse the shop →
+        Browse herbs →
       </Link>
     </div>
   )

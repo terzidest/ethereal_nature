@@ -3,7 +3,7 @@ import { getHealthOptions } from '@ethereal-nature/api-client'
 import { StatusPill } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LeafMark } from './LeafMark'
+import { BrandMark } from '@ethereal-nature/ui'
 
 const heading = 'pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-brand'
 const link = 'py-2 text-ink-soft transition hover:text-heading md:py-0'
@@ -15,7 +15,7 @@ export function SiteFooter() {
         <div className="flex flex-col justify-between gap-8 md:flex-row md:gap-12">
           <div className="flex max-w-xs flex-col gap-3.5">
             <span className="flex items-center gap-3 font-display text-[22px] font-semibold text-heading md:text-2xl">
-              <LeafMark className="h-8 w-8" />
+              <BrandMark className="h-8 w-8" />
               Ethereal Nature
             </span>
             <p className="text-sm leading-relaxed text-ink-soft">

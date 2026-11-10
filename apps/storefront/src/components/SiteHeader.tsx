@@ -5,7 +5,7 @@ import { useSession } from '../features/account/session'
 import { useCartSummary } from '../features/cart/useCartSummary'
 import { useCartUi } from '../features/cart/ui-store'
 import { SearchIcon } from './icons'
-import { LeafMark } from './LeafMark'
+import { BrandMark } from '@ethereal-nature/ui'
 import { ThemeSwitch } from './ThemeSwitch'
 
 const CATEGORY_LABELS: Record<(typeof CATEGORIES)[number], string> = {
@@ -31,7 +31,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-30 px-3 pt-2.5 md:px-6 md:pt-[18px]">
       <div className="mx-auto flex h-[60px] max-w-[1240px] items-center gap-7 rounded-[22px] border border-line bg-glass pl-3 pr-2 shadow-nav backdrop-blur-[16px] backdrop-saturate-[1.4] md:h-auto md:rounded-full md:py-2.5 md:pl-5 md:pr-2.5">
         <Link to="/" className="flex min-w-0 items-center gap-2.5" aria-label="Ethereal Nature home">
-          <LeafMark className="h-[34px] w-[34px] shrink-0" />
+          <BrandMark className="h-[34px] w-[34px] shrink-0" />
           <span className="whitespace-nowrap font-display text-[19px] font-semibold tracking-tight text-heading md:text-xl">
             Ethereal Nature
           </span>
