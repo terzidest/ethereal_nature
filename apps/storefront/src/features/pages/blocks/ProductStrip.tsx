@@ -1,11 +1,16 @@
 import { listProductsOptions } from '@ethereal-nature/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { useRef } from 'react'
 import { z } from 'zod'
-import { CATEGORIES, SORTS } from '../../catalog/search'
+import { QuickAddButton } from '../../cart/components/QuickAddButton'
 import { ProductCard } from '../../catalog/components/ProductCard'
+import { CATEGORIES, SORTS } from '../../catalog/search'
+import { SectionHeading } from '../emphasis'
 
 export const productStripSchema = z.object({
+  eyebrow: z.string().optional(),
+  /** `*words*` render italic. */
   title: z.string(),
   category: z.enum(CATEGORIES).optional(),
   sort: z.enum(SORTS).default('newest'),
@@ -25,24 +30,64 @@ export function productStripQuery(props: ProductStripProps) {
   })
 }
 
+/** A scroll-snap row: 4 cards across on desktop with prev/next, a swipe row (next card peeks) on mobile. */
 export function ProductStrip(props: ProductStripProps) {
   const { data } = useQuery(productStripQuery(props))
+  const row = useRef<HTMLUListElement>(null)
+  const pageBy = (direction: 1 | -1) =>
+    row.current?.scrollBy({ left: direction * row.current.clientWidth, behavior: 'smooth' })
+  const scrollable = (data?.items.length ?? 0) > 4
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 pb-14">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-2xl font-semibold text-heading">{props.title}</h2>
-        <Link
-          to="/products"
-          search={props.category ? { category: props.category } : {}}
-          className="text-sm font-medium text-brand hover:text-heading"
-        >
-          View all →
-        </Link>
+    <section className="mx-auto w-full max-w-[1240px] py-12 md:py-20">
+      <div className="flex items-end justify-between gap-6 px-5 md:px-6">
+        <SectionHeading eyebrow={props.eyebrow} heading={props.title} />
+        <div className="flex shrink-0 items-center gap-3 pb-1 md:pb-2">
+          <Link
+            to="/products"
+            search={props.category ? { category: props.category } : {}}
+            className="text-[15px] font-medium text-brand transition hover:text-heading"
+          >
+            View all →
+          </Link>
+          {scrollable && (
+            <span className="hidden gap-2 md:flex">
+              <ArrowButton direction={-1} onClick={() => pageBy(-1)} />
+              <ArrowButton direction={1} onClick={() => pageBy(1)} />
+            </span>
+          )}
+        </div>
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {data?.items.map((product) => <ProductCard key={product.id} product={product} />)}
-      </div>
+
+      <ul
+        ref={row}
+        className="mt-8 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] md:mt-12 md:scroll-px-6 md:gap-5 md:px-6 [&::-webkit-scrollbar]:hidden"
+      >
+        {data?.items.map((product, i) => (
+          <li
+            key={product.id}
+            className="rise w-[232px] shrink-0 snap-start md:w-[calc((100%-3*1.25rem)/4)]"
+            style={{ animationDelay: `${Math.min(i, 4) * 80}ms` }}
+          >
+            <ProductCard product={product} quickAdd={<QuickAddButton product={product} />} />
+          </li>
+        ))}
+      </ul>
     </section>
+  )
+}
+
+function ArrowButton({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={direction === 1 ? 'Next products' : 'Previous products'}
+      className="grid h-11 w-11 place-items-center rounded-full border border-line-strong text-heading transition hover:border-brand hover:text-brand"
+    >
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d={direction === 1 ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} />
+      </svg>
+    </button>
   )
 }

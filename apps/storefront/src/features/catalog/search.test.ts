@@ -35,4 +35,12 @@ describe('validateCatalogSearch', () => {
     expect(validateCatalogSearch({ q: '  ' }).q).toBeUndefined()
     expect(validateCatalogSearch({ q: ' tea ' }).q).toBe('tea')
   })
+
+  it('keeps a positive whole price ceiling and drops anything else', () => {
+    expect(validateCatalogSearch({ maxPrice: '1500' }).maxPrice).toBe(1500)
+    expect(validateCatalogSearch({ maxPrice: 1500.7 }).maxPrice).toBe(1500)
+    expect(validateCatalogSearch({ maxPrice: '0' }).maxPrice).toBeUndefined()
+    expect(validateCatalogSearch({ maxPrice: '-5' }).maxPrice).toBeUndefined()
+    expect(validateCatalogSearch({ maxPrice: 'cheap' }).maxPrice).toBeUndefined()
+  })
 })

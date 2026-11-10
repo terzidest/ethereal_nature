@@ -1,6 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { CATEGORIES, SORTS, sortOf, type CatalogSearch } from '../search'
-import { categoryLabel } from '../derive'
+import { categoryLabel, formatPrice } from '../derive'
 
 const sortLabels: Record<(typeof SORTS)[number], string> = {
   newest: 'Newest',
@@ -26,6 +26,17 @@ export function CatalogControls({ search }: { search: CatalogSearch }) {
           />
         ))}
       </nav>
+
+      {search.maxPrice !== undefined && (
+        <Link
+          to="/products"
+          search={{ ...search, maxPrice: undefined, page: undefined }}
+          className="rounded-full bg-amber-wash px-4 py-1.5 text-sm font-medium text-amber-text ring-1 ring-amber-line transition hover:bg-amber-wash/70"
+          aria-label={`Remove price filter: under ${formatPrice(search.maxPrice, 'EUR')}`}
+        >
+          Under {formatPrice(search.maxPrice, 'EUR')} <span aria-hidden="true">×</span>
+        </Link>
+      )}
 
       <form
         className="ml-auto flex items-center gap-2"

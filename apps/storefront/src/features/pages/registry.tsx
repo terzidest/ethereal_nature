@@ -1,7 +1,9 @@
 import { createRegistry } from 'blockprint'
 import { CategoryTiles, categoryTilesSchema } from './blocks/CategoryTiles'
 import { Hero, heroSchema } from './blocks/Hero'
+import { Newsletter, newsletterSchema } from './blocks/Newsletter'
 import { ProductStrip, productStripSchema } from './blocks/ProductStrip'
+import { UspTicker, uspTickerSchema } from './blocks/UspTicker'
 import { ValueProps, valuePropsSchema } from './blocks/ValueProps'
 
 /**
@@ -20,6 +22,8 @@ export const homeRegistry = createRegistry({
   categoryTiles: { component: CategoryTiles, schema: categoryTilesSchema },
   productStrip: { component: ProductStrip, schema: productStripSchema },
   valueProps: { component: ValueProps, schema: valuePropsSchema },
+  uspTicker: { component: UspTicker, schema: uspTickerSchema },
+  newsletter: { component: Newsletter, schema: newsletterSchema },
 })
 
 export const blockSchemas = {
@@ -27,6 +31,8 @@ export const blockSchemas = {
   categoryTiles: categoryTilesSchema,
   productStrip: productStripSchema,
   valueProps: valuePropsSchema,
+  uspTicker: uspTickerSchema,
+  newsletter: newsletterSchema,
 } as const
 
 export { productStripQuery, productStripSchema } from './blocks/ProductStrip'

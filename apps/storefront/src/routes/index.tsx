@@ -2,6 +2,7 @@ import { getPageOptions } from '@ethereal-nature/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Renderer } from 'blockprint'
+import { categoryCountsQuery } from '../features/catalog/queries'
 import { productStripQuery, productStripSchema } from '../features/pages/blocks/ProductStrip'
 import { homeRegistry } from '../features/pages/registry'
 
@@ -15,17 +16,21 @@ function configEntries(config: unknown): Array<{ type?: unknown; props?: unknown
 }
 
 export const Route = createFileRoute('/')({
-  // Config-driven SSR: fetch the page, then prefetch whatever product strips
-  // the config asks for, so first paint ships real product HTML.
+  // Config-driven SSR: fetch the page, then prefetch the data its blocks ask
+  // for (product strips, tile counts), so first paint ships real HTML.
   loader: async ({ context }) => {
     const page = await context.queryClient.ensureQueryData(homePageQuery())
-    await Promise.all(
-      configEntries(page.config)
+    const entries = configEntries(page.config)
+    await Promise.all([
+      ...entries
         .filter((entry) => entry.type === 'productStrip')
         .map((entry) => productStripSchema.safeParse(entry.props))
         .filter((parsed) => parsed.success)
         .map((parsed) => context.queryClient.ensureQueryData(productStripQuery(parsed.data))),
-    )
+      ...(entries.some((entry) => entry.type === 'categoryTiles')
+        ? [context.queryClient.ensureQueryData(categoryCountsQuery())]
+        : []),
+    ])
   },
   head: () => ({
     meta: [
