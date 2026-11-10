@@ -4,6 +4,7 @@ import {
   type AuthResponse,
   type UserResponse,
 } from '@ethereal-nature/api-client'
+import { restoreFailureAction } from './restore'
 
 const TOKEN_KEY = 'ethereal-nature.admin.token'
 
@@ -23,15 +24,27 @@ export function ensureSession(): Promise<UserResponse | null> {
     const token = localStorage.getItem(TOKEN_KEY)
     if (!token) return null
     setApiAuthToken(token)
+    let status: number | undefined
     try {
-      const { data } = await getCurrentUser({ throwOnError: true })
-      currentUser = data
+      const result = await getCurrentUser()
+      if (result.data) {
+        currentUser = result.data
+        return currentUser
+      }
+      status = result.response.status
     } catch {
-      localStorage.removeItem(TOKEN_KEY)
-      setApiAuthToken(null)
-      currentUser = null
+      // no response at all: aborted (e.g. reload mid-request) or offline
     }
-    return currentUser
+    // Only a 401 invalidates the token. On any other failure keep it stored
+    // and drop the memo so the next guard check retries the restore.
+    if (restoreFailureAction(status) === 'clear') {
+      localStorage.removeItem(TOKEN_KEY)
+    } else {
+      restorePromise = null
+    }
+    setApiAuthToken(null)
+    currentUser = null
+    return null
   })()
   return restorePromise
 }

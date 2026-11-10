@@ -6,6 +6,7 @@ import {
 } from '@ethereal-nature/api-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { restoreFailureAction } from './restore'
 
 const TOKEN_KEY = 'ethereal-nature.token'
 
@@ -35,13 +36,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = localStorage.getItem(TOKEN_KEY)
       if (!token) return null
       setApiAuthToken(token)
+      let status: number | undefined
       try {
-        return (await getCurrentUser({ throwOnError: true })).data
+        const result = await getCurrentUser()
+        if (result.data) return result.data
+        status = result.response.status
       } catch {
-        localStorage.removeItem(TOKEN_KEY)
-        setApiAuthToken(null)
-        return null
+        // no response at all: aborted (e.g. reload mid-request) or offline
       }
+      // Only a 401 invalidates the token. On any other failure keep it stored
+      // so the next visit retries, but browse anonymously for now so the UI
+      // and the API agree on who the shopper is.
+      if (restoreFailureAction(status) === 'clear') localStorage.removeItem(TOKEN_KEY)
+      setApiAuthToken(null)
+      return null
     }
     void restore().then((restored) => {
       if (cancelled) return
