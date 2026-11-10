@@ -1,13 +1,18 @@
-/** Brand mark: a two-tone leaf in a soft circle. */
+/** Brand mark: a line-drawn branch in a soft circle (works down to 16px). */
 export function LeafMark({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <circle cx="16" cy="16" r="16" className="fill-brand-soft" />
-      <path
-        d="M22.5 8.5c-7.5 1-11.6 5.2-12.9 13.9 8.7-1.3 12.9-5.4 13.9-12.9l-1-1z"
-        className="fill-brand"
-      />
-      <path d="M10.5 21.5c3.4-4.3 6.9-7.8 11-10.5" className="stroke-surface" strokeWidth="1.2" fill="none" />
+      <svg x="9.5" y="5.5" width="13" height="21" viewBox="26 12 66 110">
+        <path
+          d="M40 116C44 90 52 60 74 22M44.5 93.1Q46 75.8 27.7 68.3Q27.8 88.1 44.5 93.1M44.5 93.1Q39 82.7 31.4 73.8M48.7 78.1Q65.6 82.5 76.1 65.7Q56.5 62.5 48.7 78.1M48.7 78.1Q59.9 74.5 70 68.4M54.4 62.1Q58 46.7 42.4 37.9Q40.1 55.7 54.4 62.1M54.4 62.1Q50.8 52.1 45 43.2M61.4 46Q74.3 51.5 84.4 39Q69.1 34.2 61.4 46M61.4 46Q70.7 44.3 79.3 40.6M74 22Q84.7 17.2 82.8 4Q71.2 10.6 74 22M74 22Q78.2 15.4 80.9 8"
+          className="stroke-brand"
+          fill="none"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </svg>
   )
 }

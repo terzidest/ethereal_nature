@@ -5,59 +5,69 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { LeafMark } from './LeafMark'
 
+const heading = 'pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-brand'
+const link = 'py-2 text-ink-soft transition hover:text-heading md:py-0'
+
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-line bg-sand-100/60">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="flex flex-col gap-3">
-          <span className="flex items-center gap-2">
-            <LeafMark className="h-6 w-6" />
-            <span className="font-display text-lg font-semibold text-heading">Ethereal Nature</span>
-          </span>
-          <p className="text-sm leading-relaxed text-ink/60">
-            Small-batch botanicals, oils, crystals, and teas — sourced with care, shipped with intention.
-          </p>
+    <footer className="mt-auto border-t border-line bg-sand-100 px-5 pb-7 pt-10 md:px-6 md:pb-10 md:pt-16">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-8 md:gap-14">
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:gap-12">
+          <div className="flex max-w-xs flex-col gap-3.5">
+            <span className="flex items-center gap-3 font-display text-[22px] font-semibold text-heading md:text-2xl">
+              <LeafMark className="h-8 w-8" />
+              Ethereal Nature
+            </span>
+            <p className="text-sm leading-relaxed text-ink-soft">
+              Small-batch essential oils, dried herbs, crystals and loose-leaf teas, sourced with care.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 text-sm md:flex md:gap-[72px]">
+            <nav className="flex flex-col md:gap-3" aria-label="Shop">
+              <span className={heading}>Shop</span>
+              <Link to="/products" search={{ category: 'OILS' }} className={link}>
+                Essential oils
+              </Link>
+              <Link to="/products" search={{ category: 'HERBS' }} className={link}>
+                Herbs
+              </Link>
+              <Link to="/products" search={{ category: 'CRYSTALS' }} className={link}>
+                Crystals
+              </Link>
+              <Link to="/products" search={{ category: 'TEAS' }} className={link}>
+                Teas
+              </Link>
+            </nav>
+            <nav className="flex flex-col md:gap-3" aria-label="Account">
+              <span className={heading}>Account</span>
+              <Link to="/login" className={link}>
+                Sign in
+              </Link>
+              <Link to="/account" className={link}>
+                Orders
+              </Link>
+              <Link to="/cart" className={link}>
+                Cart
+              </Link>
+            </nav>
+          </div>
         </div>
 
-        <nav className="flex flex-col gap-2 text-sm" aria-label="Shop">
-          <span className="font-semibold text-ink">Shop</span>
-          <Link to="/products" search={{ category: 'OILS' }} className="text-ink/60 hover:text-brand">
-            Essential oils
-          </Link>
-          <Link to="/products" search={{ category: 'HERBS' }} className="text-ink/60 hover:text-brand">
-            Herbs
-          </Link>
-          <Link to="/products" search={{ category: 'CRYSTALS' }} className="text-ink/60 hover:text-brand">
-            Crystals
-          </Link>
-          <Link to="/products" search={{ category: 'TEAS' }} className="text-ink/60 hover:text-brand">
-            Teas
-          </Link>
-        </nav>
-
-        <nav className="flex flex-col gap-2 text-sm" aria-label="Account">
-          <span className="font-semibold text-ink">Account</span>
-          <Link to="/account" className="text-ink/60 hover:text-brand">
-            Your account
-          </Link>
-          <Link to="/cart" className="text-ink/60 hover:text-brand">
-            Cart
-          </Link>
-          <Link to="/register" className="text-ink/60 hover:text-brand">
-            Create account
-          </Link>
-        </nav>
-
-        <div className="flex flex-col gap-3 text-sm">
-          <span className="font-semibold text-ink">About this shop</span>
-          <p className="text-ink/60">
-            A demo storefront showcasing clean architecture. No real orders, no payments.
-          </p>
-          <ApiHealth />
+        <div
+          className="overflow-hidden whitespace-nowrap font-display text-[62px] font-semibold leading-[0.85] tracking-[-0.04em] text-brand/[0.08] md:text-[168px]"
+          aria-hidden="true"
+        >
+          Ethereal Nature
         </div>
-      </div>
-      <div className="border-t border-line py-4 text-center text-xs text-ink/40">
-        © {new Date().getFullYear()} Ethereal Nature — demo project
+
+        <div className="flex flex-col gap-3 text-[13px] text-ink-soft md:flex-row md:items-center md:justify-between">
+          <span>© Ethereal Nature</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-mono text-xs">Demo store · mock payments only</span>
+            <ApiHealth />
+          </div>
+        </div>
       </div>
     </footer>
   )
