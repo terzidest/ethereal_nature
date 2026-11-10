@@ -142,7 +142,7 @@ function CheckoutPage() {
           <ReviewItems lines={basket.lines} changed={changed} forceOpen={rejection !== null} />
 
           <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
-            <InfoCard label="Account" title="Signed in" detail={user.email} icon="user" />
+            <InfoCard label="Account" title="Signed in" detail={user.email} icon="user" truncate />
             <InfoCard label="Payment" title="Ethereal Pay" detail="Demo provider — no real money moves." icon="card" />
           </div>
         </div>
@@ -274,7 +274,20 @@ function ReviewItems({ lines, changed, forceOpen }: { lines: BasketLine[]; chang
   )
 }
 
-function InfoCard({ label, title, detail, icon }: { label: string; title: string; detail: string; icon: 'user' | 'card' }) {
+function InfoCard({
+  label,
+  title,
+  detail,
+  icon,
+  truncate = false,
+}: {
+  label: string
+  title: string
+  detail: string
+  icon: 'user' | 'card'
+  /** One line with an ellipsis (an email); otherwise the text wraps. */
+  truncate?: boolean
+}) {
   return (
     <div className="flex gap-3.5 rounded-[22px] border border-line bg-surface-raised p-[18px] md:p-5">
       <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-brand-soft text-brand" aria-hidden="true">
@@ -295,7 +308,7 @@ function InfoCard({ label, title, detail, icon }: { label: string; title: string
       <div className="flex min-w-0 flex-col gap-1 text-sm">
         <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brand">{label}</span>
         <span className="font-semibold text-heading">{title}</span>
-        <span className="truncate text-ink-soft">{detail}</span>
+        <span className={truncate ? 'truncate text-ink-soft' : 'text-ink-soft'}>{detail}</span>
       </div>
     </div>
   )
