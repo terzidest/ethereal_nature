@@ -4,8 +4,11 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { AuthForm, errorMessage } from '../features/account/components/AuthForm'
 import { useSession } from '../features/account/session'
 import { mergeGuestCartAfterLogin } from '../features/cart/merge'
+import { safeRedirect } from '../features/checkout/flow'
 
 export const Route = createFileRoute('/register')({
+  // Where to go after creating the account (e.g. back to /checkout); same-site paths only.
+  validateSearch: (input: Record<string, unknown>): { redirect?: string } => ({ redirect: safeRedirect(input.redirect) }),
   head: () => ({ meta: [{ title: 'Create account | Ethereal Nature' }] }),
   component: RegisterPage,
 })
@@ -13,19 +16,26 @@ export const Route = createFileRoute('/register')({
 function RegisterPage() {
   const session = useSession()
   const navigate = useNavigate()
+  const { redirect } = Route.useSearch()
   const queryClient = useQueryClient()
   const mutation = useMutation({
     ...registerMutation({ throwOnError: true }),
     onSuccess: async (auth) => {
       session.login(auth)
       const merged = await mergeGuestCartAfterLogin(queryClient).catch(() => false)
-      void navigate({ to: merged ? '/cart' : '/account' })
+      if (redirect) void navigate({ href: redirect })
+      else void navigate({ to: merged ? '/cart' : '/account' })
     },
   })
 
   return (
     <AuthForm
-      title="Create account"
+      eyebrow="Create an account"
+      title="Join the"
+      emphasis="garden."
+      intro="Keep your order history in one place, and a basket that follows you from device to device."
+      art="plate-chamomile"
+      mode="register"
       submitLabel="Create account"
       isPending={mutation.isPending}
       error={mutation.isError ? errorMessage(mutation.error) : null}
@@ -33,7 +43,7 @@ function RegisterPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-brand hover:text-heading">
+          <Link to="/login" search={{ redirect }} className="font-medium text-brand hover:text-heading">
             Sign in
           </Link>
         </>

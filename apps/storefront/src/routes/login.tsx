@@ -30,7 +30,12 @@ function LoginPage() {
 
   return (
     <AuthForm
-      title="Sign in"
+      eyebrow="Sign in"
+      title="Welcome"
+      emphasis="back."
+      intro="Your basket comes with you — we combine it with your account when you sign in."
+      art="plate-eucalyptus"
+      mode="sign-in"
       submitLabel="Sign in"
       isPending={mutation.isPending}
       error={mutation.isError ? errorMessage(mutation.error) : null}
@@ -38,7 +43,7 @@ function LoginPage() {
       footer={
         <>
           New here?{' '}
-          <Link to="/register" className="font-medium text-brand hover:text-heading">
+          <Link to="/register" search={{ redirect }} className="font-medium text-brand hover:text-heading">
             Create an account
           </Link>
         </>
