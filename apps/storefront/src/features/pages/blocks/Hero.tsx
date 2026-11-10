@@ -13,27 +13,27 @@ export const heroSchema = z.object({
 
 export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta }: z.output<typeof heroSchema>) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-50 via-surface to-sand-100">
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-soft via-surface to-sand-100">
       <div className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-10 px-6 py-16 md:flex-row md:py-24">
         <div className="flex max-w-xl flex-col items-start gap-6">
-          <span className="rounded-full bg-brand-100 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-brand-800">
+          <span className="rounded-full bg-brand-soft px-4 py-1 text-xs font-semibold uppercase tracking-widest text-heading">
             {eyebrow}
           </span>
-          <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight text-brand-900 sm:text-5xl">
+          <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight text-heading sm:text-5xl">
             {title}
           </h1>
           <p className="text-lg leading-relaxed text-ink/70">{subtitle}</p>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/products"
-              className="rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white shadow-card transition hover:bg-brand-700"
+              className="rounded-full bg-brand px-8 py-3 text-sm font-semibold text-on-brand shadow-card transition hover:bg-brand-deep"
             >
               {primaryCta.label}
             </Link>
             <Link
               to="/products"
               search={secondaryCta.sort ? { sort: secondaryCta.sort } : {}}
-              className="rounded-full bg-surface-raised px-8 py-3 text-sm font-semibold text-brand-900 shadow-card transition hover:bg-brand-50"
+              className="rounded-full bg-surface-raised px-8 py-3 text-sm font-semibold text-heading shadow-card transition hover:bg-brand-soft"
             >
               {secondaryCta.label}
             </Link>

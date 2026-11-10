@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { SiteFooter } from '../components/SiteFooter'
 import { SiteHeader } from '../components/SiteHeader'
+import { ThemeProvider, themeBootScript } from '../components/theme'
 import { AuthProvider } from '../features/account/session'
 import { CartDrawer } from '../features/cart/components/CartDrawer'
 import { useGuestCart } from '../features/cart/guest-store'
@@ -35,17 +36,22 @@ function RootDocument({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <html lang="en">
+    // data-theme is rewritten by themeBootScript before hydration, hence the
+    // suppressed warning on this one element.
+    <html lang="en" data-theme="system" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <HeadContent />
       </head>
       <body className="flex min-h-screen flex-col bg-surface font-sans text-ink antialiased">
-        <AuthProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
-          <CartDrawer />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+            <CartDrawer />
+          </AuthProvider>
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

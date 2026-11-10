@@ -53,11 +53,11 @@ function CheckoutPage() {
   if (!user) {
     return (
       <main className="mx-auto flex max-w-2xl flex-col items-start gap-4 px-6 py-24">
-        <h1 className="text-2xl font-bold text-brand-900">Sign in to check out</h1>
+        <h1 className="text-2xl font-bold text-heading">Sign in to check out</h1>
         <p className="text-ink/70">Your guest cart comes with you — we merge it when you sign in.</p>
         <Link
           to="/login"
-          className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+          className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
         >
           Sign in
         </Link>
@@ -72,8 +72,8 @@ function CheckoutPage() {
   if (!cart || cart.lines.length === 0) {
     return (
       <main className="mx-auto flex max-w-2xl flex-col items-start gap-4 px-6 py-24">
-        <h1 className="text-2xl font-bold text-brand-900">Nothing to check out</h1>
-        <Link to="/products" className="text-sm font-medium text-brand-700 hover:text-brand-900">
+        <h1 className="text-2xl font-bold text-heading">Nothing to check out</h1>
+        <Link to="/products" className="text-sm font-medium text-brand hover:text-heading">
           ← Back to the shop
         </Link>
       </main>
@@ -84,10 +84,10 @@ function CheckoutPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Checkout</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-heading">Checkout</h1>
 
       {rejection && (
-        <aside className="flex flex-col gap-2 rounded-card border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <aside className="flex flex-col gap-2 rounded-card border border-amber-line bg-amber-wash p-4 text-sm text-amber-text">
           <strong>Your cart changed while you were checking out — please review and confirm again.</strong>
           <ul className="list-disc pl-5">
             {rejection.issues.map((issue) => (
@@ -105,7 +105,7 @@ function CheckoutPage() {
         </aside>
       )}
 
-      <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
+      <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
         {cart.lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-card">
@@ -113,7 +113,7 @@ function CheckoutPage() {
             </div>
             <span className="flex-1">
               {line.name} <span className="text-ink/50">× {line.quantity}</span>
-              {!line.available && <span className="ml-2 text-sm text-red-600">unavailable</span>}
+              {!line.available && <span className="ml-2 text-sm text-danger">unavailable</span>}
             </span>
             <span className="font-medium">{formatPrice(line.lineTotalMinor, line.currency)}</span>
           </li>
@@ -122,7 +122,7 @@ function CheckoutPage() {
 
       <div className="flex items-baseline justify-between px-1">
         <span className="text-ink/70">Total</span>
-        <span className="text-2xl font-bold text-brand-900">
+        <span className="text-2xl font-bold text-heading">
           {formatPrice(cart.subtotalMinor, cart.currency)}
         </span>
       </div>
@@ -132,18 +132,18 @@ function CheckoutPage() {
           type="button"
           disabled={mutation.isPending || startPayment.isPending || unavailable}
           onClick={() => mutation.mutate({ body: { expectedTotalMinor: cart.subtotalMinor } })}
-          className="rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          className="rounded-full bg-brand px-8 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-deep disabled:opacity-50"
         >
           {mutation.isPending || startPayment.isPending
             ? 'Placing order…'
             : `Place order · ${formatPrice(cart.subtotalMinor, cart.currency)}`}
         </button>
-        <Link to="/cart" className="text-sm font-medium text-brand-700 hover:text-brand-900">
+        <Link to="/cart" className="text-sm font-medium text-brand hover:text-heading">
           Back to cart
         </Link>
       </div>
       {unavailable && (
-        <p className="text-sm text-red-600">Remove unavailable items in your cart before checking out.</p>
+        <p className="text-sm text-danger">Remove unavailable items in your cart before checking out.</p>
       )}
       <p className="text-xs text-ink/40">Demo shop — payment is simulated on the next step.</p>
     </main>

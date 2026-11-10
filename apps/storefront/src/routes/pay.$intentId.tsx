@@ -46,8 +46,8 @@ function PayPage() {
   if (!user || intent.isError || !intent.data) {
     return (
       <main className="mx-auto flex max-w-md flex-col items-start gap-4 px-6 py-24">
-        <h1 className="text-2xl font-bold text-brand-900">Payment not found</h1>
-        <Link to="/account" className="text-sm font-medium text-brand-700 hover:text-brand-900">
+        <h1 className="text-2xl font-bold text-heading">Payment not found</h1>
+        <Link to="/account" className="text-sm font-medium text-brand hover:text-heading">
           ← Your account
         </Link>
       </main>
@@ -60,24 +60,24 @@ function PayPage() {
   return (
     <main className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
       {/* Styled as the provider's hosted page — deliberately not shop chrome. */}
-      <div className="flex flex-col gap-5 rounded-tile border border-brand-100 bg-white p-8 shadow-card">
+      <div className="flex flex-col gap-5 rounded-tile border border-line bg-surface-raised p-8 shadow-card">
         <div className="flex items-center justify-between">
-          <span className="font-display text-lg font-semibold text-brand-900">Ethereal Pay</span>
+          <span className="font-display text-lg font-semibold text-heading">Ethereal Pay</span>
           <span className="rounded-full bg-sand-100 px-2.5 py-0.5 text-xs font-medium text-ink/60">
             demo provider
           </span>
         </div>
 
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-bold tracking-tight text-brand-900">{copy.heading}</h1>
+          <h1 className="text-xl font-bold tracking-tight text-heading">{copy.heading}</h1>
           <p className="text-sm text-ink/60">{copy.note}</p>
         </div>
 
-        <div className="flex items-baseline justify-between rounded-card bg-brand-50/60 px-4 py-3">
+        <div className="flex items-baseline justify-between rounded-card bg-brand-soft px-4 py-3">
           <span className="text-sm text-ink/70">
             Order <code>{data.orderId.slice(0, 8)}</code>
           </span>
-          <span className="text-2xl font-bold text-brand-900">
+          <span className="text-2xl font-bold text-heading">
             {formatPrice(data.amountMinor, data.currency)}
           </span>
         </div>
@@ -88,7 +88,7 @@ function PayPage() {
               type="button"
               disabled={simulate.isPending}
               onClick={() => simulate.mutate({ path: { id: data.id }, body: { outcome: 'PAY' } })}
-              className="flex-1 rounded-full bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+              className="flex-1 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-deep disabled:opacity-50"
             >
               {simulate.isPending ? 'Processing…' : `Pay ${formatPrice(data.amountMinor, data.currency)}`}
             </button>
@@ -105,7 +105,7 @@ function PayPage() {
           <Link
             to="/orders/$orderId"
             params={{ orderId: data.orderId }}
-            className="rounded-full bg-brand-600 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-brand-700"
+            className="rounded-full bg-brand px-6 py-3 text-center text-sm font-semibold text-on-brand transition hover:bg-brand-deep"
           >
             Back to your order
           </Link>

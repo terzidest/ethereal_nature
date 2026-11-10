@@ -29,7 +29,7 @@ export function AddToCartButton({ product, quantity = 1 }: { product: ProductRes
       <button
         type="button"
         disabled
-        className="rounded-full bg-gray-100 px-6 py-2.5 text-sm font-semibold text-gray-400"
+        className="rounded-full bg-sand-100 px-6 py-2.5 text-sm font-semibold text-ink/40"
       >
         Out of stock
       </button>
@@ -62,7 +62,7 @@ export function AddToCartButton({ product, quantity = 1 }: { product: ProductRes
       type="button"
       onClick={add}
       disabled={mutation.isPending}
-      className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+      className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-deep disabled:opacity-50"
     >
       {mutation.isPending ? 'Adding…' : 'Add to cart'}
     </button>

@@ -33,7 +33,7 @@ function LoginPage() {
       footer={
         <>
           New here?{' '}
-          <Link to="/register" className="font-medium text-brand-700 hover:text-brand-900">
+          <Link to="/register" className="font-medium text-brand hover:text-heading">
             Create an account
           </Link>
         </>

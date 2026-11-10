@@ -31,11 +31,11 @@ export function ProductStrip(props: ProductStripProps) {
   return (
     <section className="mx-auto w-full max-w-6xl px-6 pb-14">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-2xl font-semibold text-brand-900">{props.title}</h2>
+        <h2 className="font-display text-2xl font-semibold text-heading">{props.title}</h2>
         <Link
           to="/products"
           search={props.category ? { category: props.category } : {}}
-          className="text-sm font-medium text-brand-700 hover:text-brand-900"
+          className="text-sm font-medium text-brand hover:text-heading"
         >
           View all →
         </Link>

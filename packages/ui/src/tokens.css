@@ -1,6 +1,86 @@
-/* Design tokens shared by storefront and admin (Tailwind v4 @theme). */
+/* Design tokens shared by storefront and admin (Tailwind v4 @theme).
+ *
+ * Two themes, Daylight and Night garden (docs/design/redesign-spec.md §1).
+ * Every themed colour is one light-dark(day, night) value; the scheme comes
+ * from <html data-theme>: "system" follows the device, "light" / "dark" pin
+ * it. Without the attribute (the admin) everything stays light. */
+:root {
+  color-scheme: light;
+}
+:root[data-theme='system'] {
+  color-scheme: light dark;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* dark: utilities follow the same switch as the tokens. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where([data-theme='system'], [data-theme='system'] *) {
+      @slot;
+    }
+  }
+}
+
 @theme {
-  /* Brand greens */
+  /* Surfaces and text */
+  --color-surface: light-dark(#faf8f2, #0a130f);
+  --color-surface-raised: light-dark(#ffffff, #17261e);
+  --color-sand-100: light-dark(#f2eee3, #13211a);
+  --color-sand-200: light-dark(#e9e3d3, #1b2b23);
+  --color-ink: light-dark(#1e2b24, #e6eee8);
+  --color-ink-soft: light-dark(#56645b, #a3b4a9);
+  --color-heading: light-dark(#173a28, #f1f6f2);
+
+  /* Brand */
+  --color-brand: light-dark(#2b7049, #7dd3a0);
+  --color-brand-deep: light-dark(#1f5637, #5fb884);
+  --color-brand-soft: light-dark(#e3f1e8, rgb(125 211 160 / 0.14));
+  --color-brand-soft-strong: light-dark(#d3e9db, rgb(125 211 160 / 0.24));
+  --color-on-brand: light-dark(#ffffff, #0a130f);
+
+  /* Amber: badges, stock, notices */
+  --color-amber-accent: light-dark(#e8b04f, #f0be68);
+  --color-on-amber: #2a1d05;
+  --color-amber-wash: light-dark(#fbf0da, rgb(240 190 104 / 0.12));
+  --color-amber-line: light-dark(rgb(200 140 30 / 0.3), rgb(240 190 104 / 0.3));
+  --color-amber-text: light-dark(#7a4f06, #f5cf8c);
+
+  /* Errors */
+  --color-danger: light-dark(#b42318, #f5a097);
+  --color-danger-wash: light-dark(#fbe9e7, rgb(245 160 151 / 0.14));
+
+  /* Lines and layers */
+  --color-line: light-dark(rgb(23 58 40 / 0.1), rgb(220 240 228 / 0.1));
+  --color-line-strong: light-dark(rgb(23 58 40 / 0.18), rgb(220 240 228 / 0.18));
+  --color-glass: light-dark(rgb(250 248 242 / 0.78), rgb(14 24 19 / 0.72));
+  --color-scrim: light-dark(rgb(12 26 18 / 0.72), rgb(0 0 0 / 0.75));
+  --color-deep: light-dark(#163a27, #12281c);
+  --color-skeleton: light-dark(#eee8da, #16231c);
+  --color-art-ink: light-dark(#22402c, rgb(170 215 188 / 0.55));
+  --color-toast: light-dark(#173a28, #eef4ef);
+  --color-on-toast: light-dark(#eef4ef, #0a130f);
+
+  /* Crystal accent */
+  --color-crystal: light-dark(#8a6cc0, #b59be6);
+  --color-crystal-text: light-dark(#6b4fa0, #c9b3f0);
+
+  /* Per category: photo placeholder (also the blur-up colour) and icon tint */
+  --color-ph-oils: light-dark(#efddbe, #2a2216);
+  --color-ph-herbs: light-dark(#d3e3c8, #18261b);
+  --color-ph-crystals: light-dark(#e2d8ee, #221d2c);
+  --color-ph-teas: light-dark(#e8d6c2, #28201a);
+  --color-ico-oils: light-dark(#b0761f, #f0c27a);
+  --color-ico-herbs: light-dark(#3c6834, #9fd89a);
+  --color-ico-crystals: light-dark(#6a4e96, #c7b3ee);
+  --color-ico-teas: light-dark(#9c5a3c, #e8a682);
+
+  /* Legacy green scale — the admin and anything not yet restyled. Fixed
+     (not themed): new storefront work uses the semantic names above. */
   --color-brand-50: oklch(0.97 0.02 155);
   --color-brand-100: oklch(0.93 0.04 155);
   --color-brand-200: oklch(0.87 0.06 155);
@@ -11,23 +91,26 @@
   --color-brand-800: oklch(0.34 0.09 155);
   --color-brand-900: oklch(0.28 0.07 155);
 
-  /* Warm neutrals — the shop should feel like paper, not plastic */
-  --color-surface: oklch(0.985 0.006 95);
-  --color-surface-raised: oklch(1 0 0);
-  --color-sand-100: oklch(0.95 0.015 90);
-  --color-sand-200: oklch(0.91 0.02 90);
-  --color-ink: oklch(0.24 0.02 155);
-  --color-ink-soft: oklch(0.45 0.02 155);
-
-  /* Accent for warmth (amber resin) */
-  --color-amber-accent: oklch(0.75 0.12 75);
-
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --radius-card: 0.75rem;
   --radius-tile: 1.25rem;
 
-  --shadow-card: 0 1px 2px oklch(0.28 0.07 155 / 0.06), 0 4px 16px oklch(0.28 0.07 155 / 0.07);
-  --shadow-lifted: 0 2px 4px oklch(0.28 0.07 155 / 0.08), 0 12px 32px oklch(0.28 0.07 155 / 0.12);
+  /* Night garden shadows carry a 1px ring: drop shadows don't read on near-black. */
+  --shadow-card:
+    0 0 0 1px light-dark(transparent, rgb(220 240 228 / 0.1)),
+    0 1px 2px light-dark(rgb(23 58 40 / 0.06), transparent),
+    0 8px 24px light-dark(rgb(23 58 40 / 0.08), rgb(0 0 0 / 0.4));
+  --shadow-lifted:
+    0 0 0 1px light-dark(transparent, rgb(220 240 228 / 0.14)),
+    0 4px 8px light-dark(rgb(23 58 40 / 0.08), transparent),
+    0 28px 60px light-dark(rgb(23 58 40 / 0.18), rgb(0 0 0 / 0.55));
+  --shadow-nav: 0 8px 32px light-dark(rgb(23 58 40 / 0.08), rgb(0 0 0 / 0.35));
+  --shadow-glow:
+    0 0 0 1px light-dark(transparent, rgb(125 211 160 / 0.4)),
+    0 10px 30px light-dark(rgb(43 112 73 / 0.35), rgb(125 211 160 / 0.35));
+
+  --ease-grow: cubic-bezier(0.2, 0.7, 0.2, 1);
 }

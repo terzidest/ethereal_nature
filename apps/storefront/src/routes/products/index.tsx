@@ -25,7 +25,7 @@ function CatalogPage() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12">
       <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Shop</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-heading">Shop</h1>
         <p className="text-ink/70">Essential oils, herbs, crystals, and teas.</p>
       </header>
 
@@ -69,11 +69,11 @@ function CatalogPage() {
 function ProductCardSkeleton() {
   return (
     <div className="flex animate-pulse flex-col overflow-hidden rounded-tile bg-surface-raised shadow-card" aria-hidden>
-      <div className="aspect-square bg-brand-50" />
+      <div className="aspect-square bg-brand-soft" />
       <div className="flex flex-col gap-2 px-4 py-3.5">
-        <div className="h-3 w-16 rounded bg-brand-100" />
-        <div className="h-5 w-3/4 rounded bg-brand-100" />
-        <div className="h-6 w-20 rounded bg-brand-50" />
+        <div className="h-3 w-16 rounded bg-skeleton" />
+        <div className="h-5 w-3/4 rounded bg-skeleton" />
+        <div className="h-6 w-20 rounded bg-brand-soft" />
       </div>
     </div>
   )
@@ -95,7 +95,7 @@ function PageLink({
     <Link
       to="/products"
       search={{ ...search, page: page === 1 ? undefined : page }}
-      className="text-sm font-medium text-brand-700 hover:text-brand-900"
+      className="text-sm font-medium text-brand hover:text-heading"
     >
       {label}
     </Link>

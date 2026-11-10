@@ -28,7 +28,7 @@ export function AdjustmentsBanner() {
   ]
 
   return (
-    <aside className="flex flex-col gap-2 rounded-card border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+    <aside className="flex flex-col gap-2 rounded-card border border-amber-line bg-amber-wash p-4 text-sm text-amber-text">
       <div className="flex items-baseline justify-between gap-4">
         <strong>
           {messages.length === 1 ? 'One item was updated' : `${messages.length} items were updated`} when your
