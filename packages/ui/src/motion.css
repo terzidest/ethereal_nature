@@ -1,0 +1,184 @@
+/* Motion for the redesign (docs/design/redesign-spec.md §4).
+ *
+ * Rules: animate only transform and opacity; everything is visible without
+ * JavaScript; under prefers-reduced-motion ambient loops stop and the rest is
+ * instant. Pointer effects (tilt, magnet, spotlight) live in ./motion/*.ts and
+ * switch themselves off for touch and reduced motion. */
+
+@keyframes en-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes en-grow {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes en-word-up {
+  from { transform: translateY(110%); }
+  to { transform: none; }
+}
+@keyframes en-breathe {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes en-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(14px, -22px); }
+}
+@keyframes en-spin { to { transform: rotate(360deg); } }
+@keyframes en-marquee { to { transform: translateX(-50%); } }
+@keyframes en-blur-up {
+  from { filter: blur(18px) saturate(0.6); transform: scale(1.06); }
+  to { filter: none; transform: none; }
+}
+@keyframes en-shimmer {
+  from { background-position: -200px 0; }
+  to { background-position: 200px 0; }
+}
+@keyframes en-shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+@keyframes en-pop {
+  0% { transform: scale(0.9); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+@keyframes en-roll {
+  from { opacity: 0; transform: translateY(60%); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes en-draw { to { stroke-dashoffset: 0; } }
+
+@utility rise {
+  animation: en-rise 0.8s var(--ease-grow) both;
+}
+@utility rise-1 { animation-delay: 80ms; }
+@utility rise-2 { animation-delay: 160ms; }
+@utility rise-3 { animation-delay: 240ms; }
+@utility rise-4 { animation-delay: 320ms; }
+
+/* Masked word reveal: <span class="word-mask"><span>Word</span></span> */
+@utility word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+  & > span {
+    display: inline-block;
+    animation: en-word-up 0.9s var(--ease-grow) both;
+  }
+}
+
+@utility aurora {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(60px);
+  animation: en-breathe 10s ease-in-out infinite;
+  @media (max-width: 767px) {
+    filter: blur(40px);
+  }
+}
+@utility mote {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: en-drift 9s ease-in-out infinite;
+}
+@utility spin-slow { animation: en-spin 24s linear infinite; }
+@utility marquee {
+  display: flex;
+  width: max-content;
+  animation: en-marquee 38s linear infinite;
+}
+@utility blur-up { animation: en-blur-up 1.1s var(--ease-grow) both; }
+@utility shimmer {
+  background-image: linear-gradient(90deg, transparent 0, rgb(255 255 255 / 0.35) 50%, transparent 100%);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  animation: en-shimmer 1.2s linear infinite;
+}
+@utility shake { animation: en-shake 0.4s ease-in-out; }
+@utility pop { animation: en-pop 0.4s ease-out; }
+@utility roll { animation: en-roll 0.4s ease-out; }
+/* Line draw: give the path pathLength="1". */
+@utility draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: en-draw 1.6s var(--ease-grow) forwards;
+}
+
+/* Botanical art (packages/ui/src/art): leaves unfurl, stems rise. The Art
+   component only mounts the SVG once it is near the viewport, so these run
+   as the piece scrolls in. */
+.art .grow {
+  transform-origin: 0 0;
+  animation: en-grow 0.9s var(--ease-grow) both;
+}
+.art .rise {
+  animation: en-rise 0.8s ease-out both;
+}
+
+/* Category icon micro-motion, on hover/focus of an ancestor with .art-hover. */
+.art .m-sway { transform-origin: 32px 56px; }
+.art .m-drop,
+.art .m-ripple,
+.art .m-spark,
+.art .m-sheen { transform-box: fill-box; transform-origin: center; }
+.art .m-ripple { opacity: 0.5; }
+.art .m-spark { transform: scale(0.5); opacity: 0.4; }
+.art .m-sheen { opacity: 0; }
+.art .m-steam { opacity: 0.35; }
+@keyframes en-sway {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-7deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-2deg); }
+}
+@keyframes en-fall {
+  0% { transform: translateY(-6px); opacity: 0; }
+  15% { opacity: 1; transform: translateY(-6px); }
+  60% { transform: translateY(12px); opacity: 1; }
+  70%, 100% { transform: translateY(14px) scale(1.3, 0.4); opacity: 0; }
+}
+@keyframes en-ring {
+  0%, 60% { transform: scale(0.4); opacity: 0; }
+  70% { opacity: 0.9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@keyframes en-spark {
+  0%, 100% { transform: scale(0.4) rotate(0); opacity: 0.3; }
+  40% { transform: scale(1.25) rotate(45deg); opacity: 1; }
+  60% { transform: scale(0.9) rotate(60deg); opacity: 0.8; }
+}
+@keyframes en-sheen {
+  0%, 20% { transform: translateX(-30px); opacity: 0; }
+  35% { opacity: 0.9; }
+  60%, 100% { transform: translateX(34px); opacity: 0; }
+}
+@keyframes en-steam {
+  0% { transform: translateY(5px); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateY(-9px); opacity: 0; }
+}
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-sway { animation: en-sway 2.4s ease-in-out infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-drop { animation: en-fall 1.8s cubic-bezier(0.5, 0, 0.8, 0.6) infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-ripple { animation: en-ring 1.8s ease-out infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-spark { animation: en-spark 2.2s ease-in-out infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-sheen { animation: en-sheen 2.2s ease-in-out infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-steam { animation: en-steam 2s ease-out infinite; }
+:where(.art-hover:hover, .art-hover:focus-visible) .art .m-steam.b { animation-delay: 0.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@ethereal-nature/ui/fonts.css';
 @import '@ethereal-nature/ui/tokens.css';
+@import '@ethereal-nature/ui/motion.css';
 
 @source '../../../packages/ui/src';

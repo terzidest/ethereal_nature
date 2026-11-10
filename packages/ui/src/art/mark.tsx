@@ -1,5 +1,5 @@
 /** Brand mark: a line-drawn branch in a soft circle (works down to 16px). */
-export function LeafMark({ className = '' }: { className?: string }) {
+export function BrandMark({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <circle cx="16" cy="16" r="16" className="fill-brand-soft" />
