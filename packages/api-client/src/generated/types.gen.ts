@@ -73,6 +73,40 @@ export type ProductResponse = {
      * Long
      */
     createdAtEpochSeconds: number;
+    /**
+     * String
+     */
+    summary?: null | string;
+    /**
+     * String
+     */
+    origin?: null | string;
+    /**
+     * String
+     */
+    size?: null | string;
+    /**
+     * String
+     */
+    weight?: null | string;
+    /**
+     * ArrayList<ProductImageResponse>
+     */
+    images: Array<ProductImageResponse>;
+};
+
+/**
+ * ProductImageResponse
+ */
+export type ProductImageResponse = {
+    /**
+     * String
+     */
+    url: string;
+    /**
+     * String
+     */
+    label?: null | string;
 };
 
 /**
@@ -541,7 +575,38 @@ export type ProductInputRequest = {
     /**
      * String
      */
-    imageUrl?: null | string;
+    summary?: null | string;
+    /**
+     * String
+     */
+    origin?: null | string;
+    /**
+     * String
+     */
+    size?: null | string;
+    /**
+     * String
+     */
+    weight?: null | string;
+    /**
+     * ArrayList<ProductImageRequest>
+     * The gallery in display order; the first image is the main photo. Omitted = no images.
+     */
+    images?: Array<ProductImageRequest>;
+};
+
+/**
+ * ProductImageRequest
+ */
+export type ProductImageRequest = {
+    /**
+     * String
+     */
+    url: string;
+    /**
+     * String
+     */
+    label?: null | string;
 };
 
 /**

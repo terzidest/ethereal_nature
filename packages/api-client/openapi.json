@@ -1388,6 +1388,41 @@
             "type": "integer",
             "format": "int64",
             "title": "Long"
+          },
+          "summary": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "origin": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "size": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "weight": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductImageResponse"
+            },
+            "title": "ArrayList<ProductImageResponse>"
           }
         },
         "required": [
@@ -1397,12 +1432,33 @@
           "currency",
           "description",
           "id",
+          "images",
           "name",
           "priceMinor",
           "slug",
           "stock"
         ],
         "title": "ProductResponse"
+      },
+      "ProductImageResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "String"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "ProductImageResponse"
       },
       "ProductListResponse": {
         "type": "object",
@@ -2090,12 +2146,41 @@
           "category": {
             "$ref": "#/components/schemas/ProductCategoryDto"
           },
-          "imageUrl": {
+          "summary": {
             "type": [
               "null",
               "string"
             ],
             "title": "String"
+          },
+          "origin": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "size": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "weight": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductImageRequest"
+            },
+            "title": "ArrayList<ProductImageRequest>",
+            "description": "The gallery in display order; the first image is the main photo. Omitted = no images."
           }
         },
         "required": [
@@ -2107,6 +2192,26 @@
           "stock"
         ],
         "title": "ProductInputRequest"
+      },
+      "ProductImageRequest": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "String"
+          },
+          "label": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "title": "String"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "ProductImageRequest"
       },
       "ArchiveProductRequest": {
         "type": "object",

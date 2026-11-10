@@ -10,6 +10,7 @@ export interface DB {
   flyway_schema_history: FlywaySchemaHistoryTable
   users: UsersTable
   products: ProductsTable
+  product_images: ProductImagesTable
   carts: CartsTable
   cart_lines: CartLinesTable
   orders: OrdersTable
@@ -75,8 +76,19 @@ export interface ProductsTable {
   stock: number
   category: string
   image_url: string | null
+  summary: string | null
+  origin: string | null
+  size: string | null
+  weight: string | null
   archived: boolean
   created_at: Generated<Date>
+}
+
+export interface ProductImagesTable {
+  product_id: string
+  position: number
+  url: string
+  label: string | null
 }
 
 export interface UsersTable {

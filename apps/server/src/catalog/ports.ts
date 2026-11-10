@@ -40,6 +40,7 @@ export interface ProductRepository {
   findPage(query: ProductQuery): Promise<ProductPage>
   findById(id: string): Promise<Product | null>
   findByIds(ids: readonly string[]): Promise<Product[]>
+  /** Writes are whole-product: insert/update also replace the gallery. */
   /** Active (non-archived) products per category; categories with none are absent. */
   countActiveByCategory(): Promise<Map<ProductCategory, number>>
   /** Guarded decrement: false when stock is insufficient (no change made). */
