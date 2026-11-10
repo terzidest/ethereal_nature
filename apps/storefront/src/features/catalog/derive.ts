@@ -21,3 +21,10 @@ export function isNewProduct(createdAtEpochSeconds: number, nowMs: number = Date
 export const LOW_STOCK_AT = 10
 
 export const isLowStock = (stock: number) => stock > 0 && stock <= LOW_STOCK_AT
+
+/** "Amethyst Cluster" → ["Amethyst", "Cluster"]: the product page sets everything after the first word in italic. */
+export function splitName(name: string): [string, string] {
+  const trimmed = name.trim()
+  const space = trimmed.indexOf(' ')
+  return space === -1 ? [trimmed, ''] : [trimmed.slice(0, space), trimmed.slice(space + 1)]
+}

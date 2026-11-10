@@ -6,6 +6,8 @@ import { BagIcon, HomeIcon, SearchIcon, ShopIcon, UserIcon } from './icons'
 
 /** Routes that bring their own sticky action bar, so no tab bar there. */
 const FOCUSED_PREFIXES = ['/checkout', '/pay/']
+/** A product page (/products/<id>): its sticky buy bar replaces the tab bar. */
+const PRODUCT_PAGE = /^\/products\/[^/]+\/?$/
 
 const tabBase = 'flex h-16 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium text-ink-soft'
 const tab = `${tabBase} data-[status=active]:font-semibold data-[status=active]:text-heading`
@@ -15,7 +17,7 @@ export function MobileTabBar() {
   const { user } = useSession()
   const { itemCount } = useCartSummary()
 
-  if (FOCUSED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return null
+  if (FOCUSED_PREFIXES.some((prefix) => pathname.startsWith(prefix)) || PRODUCT_PAGE.test(pathname)) return null
 
   return (
     <nav

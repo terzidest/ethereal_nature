@@ -29,3 +29,16 @@ export const SORT_OPTIONS = [
   { value: 'price-asc', label: 'Price ↑' },
   { value: 'price-desc', label: 'Price ↓' },
 ] as const
+
+/** Store-wide photos on the R2 media domain (plan §4.2) — the same for every product page. */
+export const SITE_PHOTOS = {
+  packingBand: 'https://img.terzidest.com/site/packing-band.webp',
+  packagingShipping: 'https://img.terzidest.com/site/packaging-shipping.jpg',
+} as const
+
+/** Product page copy that is the same for every product (static until site settings exist, plan §4.6). */
+export const PRODUCT_COPY = {
+  perks: ['Sourced with care', 'Plastic-free post', 'Secure checkout'],
+  packaging: 'Plastic-free post — recycled boxes, paper tape, no fillers.',
+  dispatch: 'Packed and sent within 1–2 working days.',
+} as const
