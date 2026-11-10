@@ -2,6 +2,7 @@ import type { ProductInputRequest, ProductResponse } from '@ethereal-nature/api-
 import { useState } from 'react'
 import { categoryLabel } from '../derive'
 import { CATEGORIES } from '../search'
+import { GalleryEditor, galleryRow, toImageRequests, type GalleryRow } from './GalleryEditor'
 
 /**
  * Price is entered in euros and converted to minor units at the edge —
@@ -34,8 +35,11 @@ export function ProductForm({
   readOnly?: boolean
 }) {
   const [priceError, setPriceError] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState(initial?.imageUrl ?? '')
-  const [previewFailed, setPreviewFailed] = useState(false)
+  // Form draft: local component state (admin CLAUDE.md state table).
+  const [gallery, setGallery] = useState<GalleryRow[]>(() =>
+    (initial?.images ?? []).map((image) => galleryRow(image.url, image.label ?? '')),
+  )
+  const text = (form: FormData, field: string) => form.get(field)?.toString().trim() || null
 
   return (
     <form
@@ -56,7 +60,11 @@ export function ProductForm({
           currency: 'EUR',
           stock: Math.max(0, Math.trunc(Number(form.get('stock')) || 0)),
           category: (form.get('category')?.toString() ?? 'HERBS') as ProductInputRequest['category'],
-          imageUrl: form.get('imageUrl')?.toString().trim() || null,
+          summary: text(form, 'summary'),
+          origin: text(form, 'origin'),
+          size: text(form, 'size'),
+          weight: text(form, 'weight'),
+          images: toImageRequests(gallery),
         })
       }}
     >
@@ -117,37 +125,26 @@ export function ProductForm({
       </label>
 
       <label className="flex flex-col gap-1 text-sm font-medium text-ink">
-        Image URL <span className="font-normal text-ink/40">(optional)</span>
-        <input
-          name="imageUrl"
-          type="url"
-          defaultValue={initial?.imageUrl ?? ''}
-          onChange={(event) => {
-            setPreviewUrl(event.target.value)
-            setPreviewFailed(false)
-          }}
-          className={inputClass}
-        />
-        {previewUrl.trim() !== '' && (
-          <span className="mt-1 flex items-center gap-3">
-            <span className="h-16 w-16 shrink-0 overflow-hidden rounded-card border border-brand-100 bg-sand-100">
-              {/* key remounts on URL change so a previous error doesn't stick */}
-              <img
-                key={previewUrl}
-                src={previewUrl}
-                alt="Preview"
-                onError={() => setPreviewFailed(true)}
-                className="h-full w-full object-cover"
-              />
-            </span>
-            {previewFailed && (
-              <span className="font-normal text-red-600">
-                Couldn't load this image — the shop will show generated artwork instead.
-              </span>
-            )}
-          </span>
-        )}
+        Summary <span className="font-normal text-ink/40">(optional — one line under the price)</span>
+        <input name="summary" maxLength={300} defaultValue={initial?.summary ?? ''} className={inputClass} />
       </label>
+
+      <div className="grid grid-cols-3 gap-4">
+        <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+          Origin
+          <input name="origin" maxLength={100} placeholder="Brazil" defaultValue={initial?.origin ?? ''} className={inputClass} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+          Size
+          <input name="size" maxLength={100} placeholder="Roughly fist-sized" defaultValue={initial?.size ?? ''} className={inputClass} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm font-medium text-ink">
+          Weight
+          <input name="weight" maxLength={100} placeholder="250 g" defaultValue={initial?.weight ?? ''} className={inputClass} />
+        </label>
+      </div>
+
+      <GalleryEditor rows={gallery} onChange={setGallery} />
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 

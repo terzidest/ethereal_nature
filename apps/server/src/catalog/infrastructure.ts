@@ -2,12 +2,12 @@ import { sql } from 'kysely'
 import type { SelectQueryBuilder } from 'kysely'
 import type { AmbientTransactions } from '../platform/db/transaction.js'
 import type { DB, ProductsTable } from '../platform/db/types.js'
-import { makeProduct, type Product, type ProductCategory } from './domain.js'
+import { makeProduct, type Product, type ProductCategory, type ProductImage } from './domain.js'
 import type { ProductQuery, ProductRepository, ProductSort } from './ports.js'
 
 type ProductRow = Omit<ProductsTable, 'created_at'> & { created_at: Date }
 
-function toProduct(row: ProductRow): Product {
+function toProduct(row: ProductRow, images: ProductImage[]): Product {
   return makeProduct({
     id: row.id,
     slug: row.slug,
@@ -16,7 +16,8 @@ function toProduct(row: ProductRow): Product {
     price: { amountMinor: row.price_minor, currency: row.currency },
     stock: row.stock,
     category: row.category as ProductCategory,
-    imageUrl: row.image_url,
+    specs: { summary: row.summary, origin: row.origin, size: row.size, weight: row.weight },
+    images,
     archived: row.archived,
     createdAt: row.created_at,
   })
@@ -58,6 +59,42 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
     return out
   }
 
+  /** Galleries for a set of products in one query, keyed by product id. */
+  const imagesFor = async (ids: readonly string[]) => {
+    const byProduct = new Map<string, ProductImage[]>()
+    if (ids.length === 0) return byProduct
+    const rows = await tx
+      .getExecutor()
+      .selectFrom('product_images')
+      .select(['product_id', 'url', 'label'])
+      .where('product_id', 'in', ids)
+      .orderBy('product_id')
+      .orderBy('position')
+      .execute()
+    for (const row of rows) {
+      const list = byProduct.get(row.product_id) ?? []
+      list.push({ url: row.url, label: row.label })
+      byProduct.set(row.product_id, list)
+    }
+    return byProduct
+  }
+
+  const withImages = async (rows: ProductRow[]) => {
+    const images = await imagesFor(rows.map((row) => row.id))
+    return rows.map((row) => toProduct(row, images.get(row.id) ?? []))
+  }
+
+  /** The gallery is replaced wholesale; runs inside the caller's transaction. */
+  const replaceImages = async (product: Product) => {
+    const executor = tx.getExecutor()
+    await executor.deleteFrom('product_images').where('product_id', '=', product.id).execute()
+    if (product.images.length === 0) return
+    await executor
+      .insertInto('product_images')
+      .values(product.images.map((image, position) => ({ product_id: product.id, position, ...image })))
+      .execute()
+  }
+
   return {
     async findPage(query) {
       const executor = tx.getExecutor()
@@ -73,18 +110,18 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
         .offset((query.page - 1) * query.pageSize)
         .execute()
 
-      return { items: rows.map(toProduct), page: query.page, pageSize: query.pageSize, totalItems: counted.n }
+      return { items: await withImages(rows), page: query.page, pageSize: query.pageSize, totalItems: counted.n }
     },
 
     async findById(id) {
       const row = await tx.getExecutor().selectFrom('products').selectAll().where('id', '=', id).executeTakeFirst()
-      return row ? toProduct(row) : null
+      return row ? (await withImages([row]))[0]! : null
     },
 
     async findByIds(ids) {
       if (ids.length === 0) return []
       const rows = await tx.getExecutor().selectFrom('products').selectAll().where('id', 'in', ids).execute()
-      return rows.map(toProduct)
+      return withImages(rows)
     },
 
     async countActiveByCategory() {
@@ -128,10 +165,12 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
           stock: product.stock,
           category: product.category,
           image_url: product.imageUrl,
+          ...product.specs,
           archived: product.archived,
           created_at: product.createdAt,
         })
         .execute()
+      await replaceImages(product)
     },
 
     async update(product) {
@@ -147,10 +186,12 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
           stock: product.stock,
           category: product.category,
           image_url: product.imageUrl,
+          ...product.specs,
           archived: product.archived,
         })
         .where('id', '=', product.id)
         .execute()
+      await replaceImages(product)
     },
   }
 }

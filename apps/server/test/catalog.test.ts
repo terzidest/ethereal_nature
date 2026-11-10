@@ -1,6 +1,6 @@
 import type { InjectOptions } from 'fastify'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { categoryCounts, parseMoney, parseStock, slugify } from '../src/catalog/domain.js'
+import { categoryCounts, makeProduct, parseImages, parseMoney, parseSpecs, parseStock, slugify } from '../src/catalog/domain.js'
 import { makeProductQuery, totalPages } from '../src/catalog/ports.js'
 import { startTestApp, type TestHarness } from './helpers.js'
 
@@ -65,6 +65,51 @@ describe('product domain (ported from ProductDomainTest)', () => {
       { category: 'CRYSTALS', productCount: 0 },
       { category: 'TEAS', productCount: 3 },
     ])
+  })
+
+  it('the main photo is always the first gallery image', () => {
+    const base = {
+      id: '00000000-0000-4000-8000-000000000001',
+      slug: 'sage',
+      name: 'Sage',
+      description: 'd',
+      price: { amountMinor: 100, currency: 'EUR' },
+      stock: 1,
+      category: 'HERBS' as const,
+      specs: { summary: null, origin: null, size: null, weight: null },
+      archived: false,
+      createdAt: new Date(),
+    }
+    expect(makeProduct({ ...base, images: [] }).imageUrl).toBeNull()
+    const product = makeProduct({
+      ...base,
+      images: [
+        { url: ' https://img.test/a.jpg ', label: '  ' },
+        { url: 'https://img.test/b.jpg', label: 'Back' },
+      ],
+    })
+    expect(product.imageUrl).toBe('https://img.test/a.jpg')
+    expect(product.images).toEqual([
+      { url: 'https://img.test/a.jpg', label: null },
+      { url: 'https://img.test/b.jpg', label: 'Back' },
+    ])
+  })
+
+  it('gallery rules: at most 8 images, http(s) URLs only', () => {
+    const image = { url: 'https://img.test/a.jpg', label: null }
+    expect(() => parseImages(Array.from({ length: 9 }, () => image))).toThrow(/at most 8/)
+    expect(() => parseImages([{ url: 'javascript:alert(1)', label: null }])).toThrow(/http/)
+    expect(() => parseImages([{ url: 'img.test/a.jpg', label: null }])).toThrow(/http/)
+  })
+
+  it('specs: blank means unset, text is trimmed and capped', () => {
+    expect(parseSpecs({ summary: '  ', origin: ' Brazil ', size: null, weight: '' })).toEqual({
+      summary: null,
+      origin: 'Brazil',
+      size: null,
+      weight: null,
+    })
+    expect(() => parseSpecs({ summary: 'x'.repeat(301), origin: null, size: null, weight: null })).toThrow(/summary/)
   })
 
   it('totalPages rounds up and is zero when empty', () => {
@@ -304,6 +349,61 @@ describe('admin product routes (ported from AdminProductRoutesTest)', () => {
       const res = await inject({ ...attempt, headers: { authorization: `Bearer ${viewer}` } })
       expect(res.statusCode).toBe(403)
     }
+  })
+
+  it('stores the gallery in order with specs; the first image is imageUrl', async () => {
+    const admin = await adminToken()
+    const created = await createProduct(admin, `Gallery Gentian ${stamp()}`, {
+      summary: 'Bitter root, dried whole.',
+      origin: 'Alps',
+      weight: '50 g',
+      images: [
+        { url: 'https://img.test/front.jpg', label: 'Front view' },
+        { url: 'https://img.test/hand.jpg' },
+      ],
+    })
+    expect(created.imageUrl).toBe('https://img.test/front.jpg')
+    expect(created.images).toEqual([{ url: 'https://img.test/front.jpg', label: 'Front view' }, { url: 'https://img.test/hand.jpg' }])
+    expect(created).toMatchObject({ summary: 'Bitter root, dried whole.', origin: 'Alps', weight: '50 g' })
+    expect('size' in created).toBe(false)
+
+    const listed = (await inject({ method: 'GET', url: `/products?q=${encodeURIComponent(created.name)}` })).json()
+    expect(listed.items[0].images).toHaveLength(2)
+
+    // PUT replaces the gallery wholesale: reorder, then clear.
+    const reordered = await inject({
+      method: 'PUT',
+      url: `/admin/products/${created.id}`,
+      headers: { authorization: `Bearer ${admin}` },
+      payload: productBody(created.name, { images: [{ url: 'https://img.test/hand.jpg' }, { url: 'https://img.test/front.jpg' }] }),
+    })
+    expect(reordered.json().imageUrl).toBe('https://img.test/hand.jpg')
+    expect(reordered.json().images.map((i: { url: string }) => i.url)).toEqual([
+      'https://img.test/hand.jpg',
+      'https://img.test/front.jpg',
+    ])
+    expect('summary' in reordered.json()).toBe(false)
+
+    const cleared = await inject({
+      method: 'PUT',
+      url: `/admin/products/${created.id}`,
+      headers: { authorization: `Bearer ${admin}` },
+      payload: productBody(created.name),
+    })
+    expect(cleared.json().images).toEqual([])
+    expect('imageUrl' in cleared.json()).toBe(false)
+  })
+
+  it('rejects a gallery URL that is not http(s) with a 400', async () => {
+    const admin = await adminToken()
+    const res = await inject({
+      method: 'POST',
+      url: '/admin/products',
+      headers: { authorization: `Bearer ${admin}` },
+      payload: productBody('Bad Gallery', { images: [{ url: 'ftp://img.test/a.jpg' }] }),
+    })
+    expect(res.statusCode).toBe(400)
+    expect(res.json().code).toBe('VALIDATION')
   })
 
   it('omits imageUrl entirely when unset (explicitNulls=false parity)', async () => {

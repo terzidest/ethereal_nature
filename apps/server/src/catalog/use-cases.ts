@@ -9,6 +9,8 @@ import {
   type CategoryCount,
   type Product,
   type ProductCategory,
+  type ProductImage,
+  type ProductSpecs,
 } from './domain.js'
 import type { ProductPage, ProductQuery, ProductRepository, TransactionRunner } from './ports.js'
 
@@ -23,7 +25,8 @@ export interface ProductInput {
   currency: string
   stock: number
   category: ProductCategory
-  imageUrl: string | null
+  specs: ProductSpecs
+  images: ProductImage[]
 }
 
 export interface StockDecrement {
@@ -65,7 +68,8 @@ export function catalogUseCases(products: ProductRepository, tx: TransactionRunn
           price: parseMoney(input.priceMinor, input.currency),
           stock: parseStock(input.stock),
           category: input.category,
-          imageUrl: input.imageUrl,
+          specs: input.specs,
+          images: input.images,
           archived: false,
           createdAt: new Date(),
         })
@@ -85,7 +89,8 @@ export function catalogUseCases(products: ProductRepository, tx: TransactionRunn
           price: parseMoney(input.priceMinor, input.currency),
           stock: parseStock(input.stock),
           category: input.category,
-          imageUrl: input.imageUrl,
+          specs: input.specs,
+          images: input.images,
         })
         await products.update(updated)
         return updated

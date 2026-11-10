@@ -28,6 +28,11 @@ function toProductResponse(product: Product) {
     imageUrl: product.imageUrl ?? undefined,
     archived: product.archived,
     createdAtEpochSeconds: Math.floor(product.createdAt.getTime() / 1000),
+    summary: product.specs.summary ?? undefined,
+    origin: product.specs.origin ?? undefined,
+    size: product.specs.size ?? undefined,
+    weight: product.specs.weight ?? undefined,
+    images: product.images.map((image) => ({ url: image.url, label: image.label ?? undefined })),
   }
 }
 
@@ -89,7 +94,10 @@ function parseListQuery(query: ListQuery, defaultPageSize: number, includeArchiv
   })
 }
 
+const optionalString = (value: unknown) => (typeof value === 'string' ? value : null)
+
 function toProductInput(dto: Record<string, unknown>): ProductInput {
+  const images = Array.isArray(dto.images) ? (dto.images as Array<Record<string, unknown>>) : []
   return {
     name: String(dto.name),
     description: String(dto.description),
@@ -97,7 +105,13 @@ function toProductInput(dto: Record<string, unknown>): ProductInput {
     currency: String(dto.currency),
     stock: Number(dto.stock),
     category: dto.category as ProductCategory,
-    imageUrl: (dto.imageUrl as string | null | undefined) ?? null,
+    specs: {
+      summary: optionalString(dto.summary),
+      origin: optionalString(dto.origin),
+      size: optionalString(dto.size),
+      weight: optionalString(dto.weight),
+    },
+    images: images.map((image) => ({ url: String(image.url), label: optionalString(image.label) })),
   }
 }
 
