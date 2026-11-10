@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { clearSession, establishSession } from '../features/auth/session'
 import { isBackOfficeRole } from '../features/auth/viewer'
+import { whenShellHydrated } from '../shellHydration'
 
 interface LoginSearch {
   redirect?: string
@@ -15,6 +16,8 @@ export const Route = createFileRoute('/login')({
     redirect: typeof input.redirect === 'string' ? input.redirect : undefined,
     denied: input.denied === true || undefined,
   }),
+  // Keep the shell's pending state until it has hydrated (see shellHydration.ts).
+  beforeLoad: () => whenShellHydrated(),
   component: LoginPage,
 })
 

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/react-router'
 import { clearSession, ensureSession } from '../features/auth/session'
 import { isBackOfficeRole } from '../features/auth/viewer'
+import { whenShellHydrated } from '../shellHydration'
 
 export const Route = createFileRoute('/_authed')({
   // Never run the auth gate outside the browser: the token lives in
@@ -8,6 +9,9 @@ export const Route = createFileRoute('/_authed')({
   // spurious redirect) into the shell served for every route.
   ssr: false,
   beforeLoad: async ({ location }) => {
+    // A signed-out redirect settles in microtasks; don't let it land before
+    // the SPA shell has hydrated (see shellHydration.ts).
+    await whenShellHydrated()
     const user = await ensureSession()
     if (!user) {
       throw redirect({ to: '/login', search: { redirect: location.href } })
