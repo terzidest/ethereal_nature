@@ -11,6 +11,9 @@ export interface ProductQuery {
   category: ProductCategory | null
   search: string | null
   sort: ProductSort
+  /** Inclusive price bounds in minor units; null = unbounded. */
+  minPriceMinor: number | null
+  maxPriceMinor: number | null
   /** Admin listings see archived products; the public catalog never does. */
   includeArchived: boolean
 }
@@ -37,6 +40,8 @@ export interface ProductRepository {
   findPage(query: ProductQuery): Promise<ProductPage>
   findById(id: string): Promise<Product | null>
   findByIds(ids: readonly string[]): Promise<Product[]>
+  /** Active (non-archived) products per category; categories with none are absent. */
+  countActiveByCategory(): Promise<Map<ProductCategory, number>>
   /** Guarded decrement: false when stock is insufficient (no change made). */
   decrementStock(id: string, quantity: number): Promise<boolean>
   slugExists(slug: string): Promise<boolean>

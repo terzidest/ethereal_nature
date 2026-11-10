@@ -27,6 +27,7 @@ function toProductResponse(product: Product) {
     category: product.category,
     imageUrl: product.imageUrl ?? undefined,
     archived: product.archived,
+    createdAtEpochSeconds: Math.floor(product.createdAt.getTime() / 1000),
   }
 }
 
@@ -58,6 +59,15 @@ interface ListQuery {
   category?: string
   q?: string
   sort?: string
+  minPriceMinor?: string
+  maxPriceMinor?: string
+}
+
+/** Lenient like the rest: anything but a non-negative integer means "no bound". */
+function priceBoundFrom(raw: string | undefined): number | null {
+  if (raw === undefined || !/^\d+$/.test(raw)) return null
+  const value = Number(raw)
+  return Number.isSafeInteger(value) ? value : null
 }
 
 function parseListQuery(query: ListQuery, defaultPageSize: number, includeArchived: boolean) {
@@ -72,6 +82,9 @@ function parseListQuery(query: ListQuery, defaultPageSize: number, includeArchiv
     category: category as ProductCategory | null,
     search: query.q ?? null,
     sort: sortMap[query.sort ?? ''] ?? 'NEWEST',
+    // Price bounds are a public-catalog parameter only (not in the admin spec).
+    minPriceMinor: includeArchived ? null : priceBoundFrom(query.minPriceMinor),
+    maxPriceMinor: includeArchived ? null : priceBoundFrom(query.maxPriceMinor),
     includeArchived,
   })
 }
@@ -92,6 +105,10 @@ export function productRoutes(app: FastifyInstance, catalog: CatalogUseCases): v
   app.get('/products', { schema: lenientQuerySchema(opSchema('/products', 'get')) }, async (request) =>
     toListResponse(await catalog.listProducts(parseListQuery(request.query as ListQuery, 12, false))),
   )
+
+  app.get('/categories', { schema: opSchema('/categories', 'get') }, async () => ({
+    categories: await catalog.listCategories(),
+  }))
 
   app.get(
     fastifyPath('/products/{id}'),

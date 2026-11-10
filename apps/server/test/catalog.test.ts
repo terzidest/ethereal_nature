@@ -1,6 +1,6 @@
 import type { InjectOptions } from 'fastify'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { parseMoney, parseStock, slugify } from '../src/catalog/domain.js'
+import { categoryCounts, parseMoney, parseStock, slugify } from '../src/catalog/domain.js'
 import { makeProductQuery, totalPages } from '../src/catalog/ports.js'
 import { startTestApp, type TestHarness } from './helpers.js'
 
@@ -45,10 +45,26 @@ describe('product domain (ported from ProductDomainTest)', () => {
   })
 
   it('query enforces pagination bounds', () => {
-    const base = { category: null, search: null, sort: 'NEWEST' as const, includeArchived: false }
+    const base = {
+      category: null,
+      search: null,
+      sort: 'NEWEST' as const,
+      minPriceMinor: null,
+      maxPriceMinor: null,
+      includeArchived: false,
+    }
     expect(() => makeProductQuery({ page: 0, pageSize: 10, ...base })).toThrow(/page/)
     expect(() => makeProductQuery({ page: 1, pageSize: 0, ...base })).toThrow(/pageSize/)
     expect(() => makeProductQuery({ page: 1, pageSize: 101, ...base })).toThrow(/pageSize/)
+  })
+
+  it('categoryCounts lists every category in catalog order, zero-filled', () => {
+    expect(categoryCounts(new Map([['TEAS', 3], ['OILS', 4]]))).toEqual([
+      { category: 'OILS', productCount: 4 },
+      { category: 'HERBS', productCount: 0 },
+      { category: 'CRYSTALS', productCount: 0 },
+      { category: 'TEAS', productCount: 3 },
+    ])
   })
 
   it('totalPages rounds up and is zero when empty', () => {
@@ -119,6 +135,53 @@ describe('public product routes (ported from ProductRoutesTest)', () => {
     const names = res.json().items.map((p: { name: string }) => p.name)
     expect(names).toContain(name)
     expect(names.some((n: string) => n.startsWith('Hidden Verbena'))).toBe(false)
+  })
+
+  it('filters by inclusive price bounds; malformed bounds are ignored', async () => {
+    const admin = await adminToken()
+    const tag = stamp()
+    for (const priceMinor of [499, 500, 1500, 1501]) {
+      await createProduct(admin, `Priced Parsley ${tag} ${priceMinor}`, { priceMinor })
+    }
+    const prices = async (query: string) =>
+      (await inject({ method: 'GET', url: `/products?q=priced parsley ${tag}&pageSize=100${query}` }))
+        .json()
+        .items.map((p: { priceMinor: number }) => p.priceMinor)
+        .sort((a: number, b: number) => a - b)
+
+    expect(await prices('&minPriceMinor=500&maxPriceMinor=1500')).toEqual([500, 1500])
+    expect(await prices('&maxPriceMinor=1500')).toEqual([499, 500, 1500])
+    expect(await prices('&minPriceMinor=-5&maxPriceMinor=abc')).toEqual([499, 500, 1500, 1501])
+  })
+
+  it('exposes createdAtEpochSeconds', async () => {
+    const admin = await adminToken()
+    const before = Math.floor(Date.now() / 1000)
+    const created = await createProduct(admin, `Fresh Fennel ${stamp()}`)
+    expect(created.createdAtEpochSeconds).toBeGreaterThanOrEqual(before - 1)
+    const res = await inject({ method: 'GET', url: `/products/${created.id}` })
+    expect(res.json().createdAtEpochSeconds).toBe(created.createdAtEpochSeconds)
+  })
+
+  it('counts active products per category, archived excluded', async () => {
+    const count = async (category: string) => {
+      const res = await inject({ method: 'GET', url: '/categories' })
+      expect(res.statusCode).toBe(200)
+      const categories = res.json().categories as Array<{ category: string; productCount: number }>
+      expect(categories.map((c) => c.category)).toEqual(['OILS', 'HERBS', 'CRYSTALS', 'TEAS'])
+      return categories.find((c) => c.category === category)!.productCount
+    }
+    const admin = await adminToken()
+    const before = await count('TEAS')
+    const tea = await createProduct(admin, `Counted Tea ${stamp()}`, { category: 'TEAS' })
+    expect(await count('TEAS')).toBe(before + 1)
+    await inject({
+      method: 'PUT',
+      url: `/admin/products/${tea.id}/archive`,
+      headers: { authorization: `Bearer ${admin}` },
+      payload: { archived: true },
+    })
+    expect(await count('TEAS')).toBe(before)
   })
 
   it('sorts by price ascending', async () => {

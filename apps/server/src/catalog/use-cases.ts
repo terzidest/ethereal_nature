@@ -1,10 +1,12 @@
 import { randomUUID } from 'node:crypto'
 import {
+  categoryCounts,
   makeProduct,
   parseMoney,
   parseStock,
   ProductNotFound,
   slugify,
+  type CategoryCount,
   type Product,
   type ProductCategory,
 } from './domain.js'
@@ -35,6 +37,10 @@ export function catalogUseCases(products: ProductRepository, tx: TransactionRunn
       return tx.run(() => products.findPage(query))
     },
 
+    async listCategories(): Promise<CategoryCount[]> {
+      return categoryCounts(await tx.run(() => products.countActiveByCategory()))
+    },
+
     async getProduct(id: string): Promise<Product> {
       const product = await tx.run(() => products.findById(id))
       if (!product) throw new ProductNotFound(id)
@@ -61,6 +67,7 @@ export function catalogUseCases(products: ProductRepository, tx: TransactionRunn
           category: input.category,
           imageUrl: input.imageUrl,
           archived: false,
+          createdAt: new Date(),
         })
         await products.insert(product)
         return product

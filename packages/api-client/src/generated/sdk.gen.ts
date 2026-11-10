@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, DemoLoginData, DemoLoginResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPageData, GetPageErrors, GetPageResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListPagesData, ListPagesErrors, ListPagesResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdatePageData, UpdatePageErrors, UpdatePageResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentErrors, CreatePaymentIntentResponses, CreateProductData, CreateProductErrors, CreateProductResponses, DemoLoginData, DemoLoginResponses, GetCartData, GetCartErrors, GetCartResponses, GetCurrentUserData, GetCurrentUserErrors, GetCurrentUserResponses, GetHealthData, GetHealthResponses, GetMyOrdersData, GetMyOrdersErrors, GetMyOrdersResponses, GetOrderData, GetOrderErrors, GetOrderResponses, GetPageData, GetPageErrors, GetPageResponses, GetPaymentIntentData, GetPaymentIntentErrors, GetPaymentIntentResponses, GetProductData, GetProductErrors, GetProductResponses, HandlePaymentWebhookData, HandlePaymentWebhookErrors, HandlePaymentWebhookResponses, ListAdminProductsData, ListAdminProductsErrors, ListAdminProductsResponses, ListAllOrdersData, ListAllOrdersErrors, ListAllOrdersResponses, ListCategoriesData, ListCategoriesResponses, ListPagesData, ListPagesErrors, ListPagesResponses, ListProductsData, ListProductsResponses, ListUsersData, ListUsersErrors, ListUsersResponses, LoginData, LoginErrors, LoginResponses, MergeCartData, MergeCartErrors, MergeCartResponses, PlaceOrderData, PlaceOrderErrors, PlaceOrderResponses, RegisterData, RegisterErrors, RegisterResponses, SetCartItemData, SetCartItemErrors, SetCartItemResponses, SetProductArchivedData, SetProductArchivedErrors, SetProductArchivedResponses, SimulatePaymentData, SimulatePaymentErrors, SimulatePaymentResponses, TransitionOrderStatusData, TransitionOrderStatusErrors, TransitionOrderStatusResponses, UpdatePageData, UpdatePageErrors, UpdatePageResponses, UpdateProductData, UpdateProductErrors, UpdateProductResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -46,6 +46,17 @@ export const listProducts = <ThrowOnError extends boolean = false>(options?: Opt
 export const getProduct = <ThrowOnError extends boolean = false>(options: Options<GetProductData, ThrowOnError>) => {
     return (options.client ?? client).get<GetProductResponses, GetProductErrors, ThrowOnError>({
         url: '/products/{id}',
+        ...options
+    });
+};
+
+/**
+ * List categories
+ * Every category with its count of active (non-archived) products, in catalog order. Categories with no products are included with a count of 0.
+ */
+export const listCategories = <ThrowOnError extends boolean = false>(options?: Options<ListCategoriesData, ThrowOnError>) => {
+    return (options?.client ?? client).get<ListCategoriesResponses, unknown, ThrowOnError>({
+        url: '/categories',
         ...options
     });
 };
