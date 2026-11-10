@@ -1,223 +1,151 @@
-import {
-  getCartQueryKey,
-  setCartItemMutation,
-  type CartLineResponse,
-  type CartResponse,
-} from '@ethereal-nature/api-client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ProductImage, Art } from '@ethereal-nature/ui'
+import { Art, useMagnetic } from '@ethereal-nature/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useSession } from '../features/account/session'
+import { useCallback, useState } from 'react'
 import { formatPrice } from '../features/catalog/derive'
-import { artCategory } from '../features/cart/art'
+import { PRODUCT_COPY } from '../features/catalog/copy'
+import { AddOns } from '../features/cart/components/AddOns'
 import { AdjustmentsBanner } from '../features/cart/components/AdjustmentsBanner'
-import { useGuestCart } from '../features/cart/guest-store'
-import { useCartSummary } from '../features/cart/useCartSummary'
+import { BasketLines } from '../features/cart/components/BasketLines'
+import { UndoToast } from '../features/cart/components/UndoToast'
+import { shelfChanges, useBasket, type BasketLine } from '../features/cart/useBasket'
+import { Rolling, SummaryPanel } from '../features/checkout/components/SummaryPanel'
+import { StepProgress } from '../features/checkout/components/CheckoutSteps'
+import { ArrowIcon, LockIcon } from '../features/checkout/components/icons'
 
 export const Route = createFileRoute('/cart')({
-  head: () => ({ meta: [{ title: 'Cart | Ethereal Nature' }] }),
-  component: CartPage,
+  head: () => ({ meta: [{ title: 'Basket | Ethereal Nature' }] }),
+  component: BasketPage,
 })
 
-function CartPage() {
-  const { user } = useSession()
+/** Step 1 of 4 (Cart / Mobile Cart boards). */
+function BasketPage() {
+  const basket = useBasket()
+  const [removed, setRemoved] = useState<BasketLine | null>(null)
+  const closeToast = useCallback(() => setRemoved(null), [])
+  const magnet = useMagnetic(10)
+
+  const countLabel = `${basket.itemCount} ${basket.itemCount === 1 ? 'item' : 'items'}`
+  const subtotal = formatPrice(basket.subtotalMinor, basket.currency)
+  const empty = !basket.isLoading && basket.lines.length === 0
+  const blocked = basket.lines.some((l) => !l.available)
+
+  const remove = (line: BasketLine) => {
+    basket.setQuantity(line.productId, 0)
+    setRemoved(line)
+  }
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-heading">Your cart</h1>
-      <AdjustmentsBanner />
-      {user ? <ServerCart /> : <GuestCart />}
+    <main className="relative mx-auto w-full max-w-[1240px] px-5 pb-10 pt-[18px] md:px-6 md:pb-[120px] md:pt-16">
+      <div className="rise flex flex-col gap-3.5">
+        <StepProgress current={0} label={countLabel} />
+        <h1 className="font-display text-[38px] font-semibold leading-[1.02] tracking-[-0.03em] text-heading md:text-[76px] md:leading-none">
+          Your <em className="font-normal italic md:text-brand">basket.</em>
+        </h1>
+      </div>
+
+      {basket.isError ? (
+        <p className="mt-10 text-danger">Could not load your basket.</p>
+      ) : empty ? (
+        <EmptyBasket />
+      ) : (
+        <div className="mt-6 grid items-start gap-6 md:mt-11 md:grid-cols-[minmax(0,1fr)_360px] md:gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <div className="flex flex-col gap-5">
+            <AdjustmentsBanner shelf={shelfChanges(basket.lines)} />
+            {basket.isLoading ? (
+              <div className="shimmer h-60 rounded-[28px] bg-skeleton" aria-busy="true" aria-label="Loading your basket" />
+            ) : (
+              <BasketLines
+                lines={basket.lines}
+                disabled={basket.isUpdating}
+                onQuantity={(line, quantity) => basket.setQuantity(line.productId, quantity)}
+                onRemove={remove}
+              />
+            )}
+            <AddOns inBasket={new Set(basket.lines.map((l) => l.productId))} />
+          </div>
+
+          <aside aria-label="Order summary" className="hidden flex-col gap-4 md:sticky md:top-28 md:flex">
+            <SummaryPanel eyebrow="Summary" itemCount={basket.itemCount} itemsTotal={subtotal} total={subtotal}>
+              <Link
+                to="/checkout"
+                disabled={blocked}
+                {...magnet.bind}
+                style={magnet.style}
+                className="relative flex h-[60px] items-center justify-center gap-2.5 rounded-full bg-[#7DD3A0] font-semibold text-[#0A130F] shadow-[0_10px_30px_rgb(125_211_160/0.35)] transition-[background-color] hover:bg-[#8fdcae] aria-disabled:opacity-50"
+              >
+                Continue to checkout
+                <ArrowIcon />
+              </Link>
+              {!basket.isAuthenticated && (
+                <span className="relative flex items-center gap-2 text-xs text-[#EEF4EF]/60">
+                  <LockIcon />
+                  Sign in at the next step — your basket comes with you.
+                </span>
+              )}
+            </SummaryPanel>
+            <ul className="grid grid-cols-3 gap-2.5 text-xs text-ink-soft">
+              {PRODUCT_COPY.perks.map((perk) => (
+                <li key={perk} className="flex flex-col gap-1.5 rounded-2xl bg-sand-100 p-3">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-brand" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  {perk}
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          {/* Phones: summary detail in the page; the total rides in the sticky bar. */}
+          <div className="flex flex-col gap-2.5 rounded-[22px] bg-sand-100 p-[18px] text-sm md:hidden">
+            <div className="flex justify-between">
+              <span className="text-ink-soft">Items ({basket.itemCount})</span>
+              <span className="text-heading">{subtotal}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-ink-soft">Packaging</span>
+              <span className="text-heading">Plastic-free</span>
+            </div>
+            {!basket.isAuthenticated && (
+              <span className="pt-1 text-xs text-ink-soft">Sign in at the next step — your basket comes with you.</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!empty && (
+        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3.5 border-t border-line bg-glass px-4 pb-[max(env(safe-area-inset-bottom),22px)] pt-3 backdrop-blur-[16px] backdrop-saturate-[1.4] md:hidden">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs text-ink-soft">Total</span>
+            <Rolling value={subtotal} height="h-7" className="font-display text-[22px] font-semibold leading-7 text-heading" />
+          </div>
+          <Link
+            to="/checkout"
+            disabled={blocked}
+            className="flex h-[52px] flex-1 items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-semibold text-on-brand shadow-glow transition active:scale-[0.97] aria-disabled:opacity-50"
+          >
+            Continue
+            <ArrowIcon />
+          </Link>
+        </div>
+      )}
+
+      {removed && <UndoToast name={removed.name} onUndo={() => (basket.restore(removed), setRemoved(null))} onClose={closeToast} />}
     </main>
   )
 }
 
-function EmptyCart() {
+function EmptyBasket() {
   return (
-    <div className="flex flex-col items-center gap-2 py-12 text-center">
-      <Art name="plate-sage" className="w-28" />
-      <p className="mt-2 font-display text-2xl font-semibold text-heading">Your basket is resting</p>
+    <div className="mt-8 flex flex-col items-center gap-3 rounded-[28px] border border-line bg-surface-raised px-6 pb-16 pt-10 text-center shadow-card md:mt-11">
+      <Art name="plate-sage" className="w-[130px] md:w-[160px]" />
+      <p className="font-display text-[26px] font-semibold text-heading md:text-[30px]">Your basket is resting</p>
       <p className="text-ink-soft">Nothing in it yet. The herbs are a good place to start.</p>
       <Link
         to="/products"
-        className="mt-3 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
+        className="mt-1.5 inline-flex h-12 items-center rounded-full bg-brand px-6 font-semibold text-on-brand transition hover:bg-brand-deep"
       >
         Back to the shop
       </Link>
-    </div>
-  )
-}
-
-function QuantityControls({
-  quantity,
-  onChange,
-  max,
-  disabled,
-}: {
-  quantity: number
-  onChange: (next: number) => void
-  max?: number
-  disabled?: boolean
-}) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange(quantity - 1)}
-        aria-label="Decrease quantity"
-        className="h-7 w-7 rounded-full bg-brand-soft font-semibold text-heading hover:bg-brand-soft-strong disabled:opacity-40"
-      >
-        −
-      </button>
-      <span className="w-6 text-center text-sm">{quantity}</span>
-      <button
-        type="button"
-        disabled={disabled || (max !== undefined && quantity >= max)}
-        onClick={() => onChange(quantity + 1)}
-        aria-label="Increase quantity"
-        className="h-7 w-7 rounded-full bg-brand-soft font-semibold text-heading hover:bg-brand-soft-strong disabled:opacity-40"
-      >
-        +
-      </button>
-    </span>
-  )
-}
-
-function ServerCart() {
-  const queryClient = useQueryClient()
-  const { serverCart } = useCartSummary()
-  const mutation = useMutation({
-    ...setCartItemMutation({ throwOnError: true }),
-    onSuccess: (cart: CartResponse) => queryClient.setQueryData(getCartQueryKey(), cart),
-  })
-
-  if (serverCart.isPending) return <p className="text-ink/50">Loading your cart…</p>
-  if (serverCart.isError) return <p className="text-danger">Could not load your cart.</p>
-
-  const cart = serverCart.data
-  if (cart.lines.length === 0) return <EmptyCart />
-
-  const setQuantity = (line: CartLineResponse, quantity: number) =>
-    mutation.mutate({ body: { productId: line.productId, quantity } })
-
-  return (
-    <div className="flex flex-col gap-4">
-      <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
-        {cart.lines.map((line) => (
-          <li key={line.productId} className="flex items-center gap-4 p-4">
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
-              <ProductImage imageUrl={line.imageUrl} name={line.name} category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
-            </div>
-            <div className="flex flex-1 flex-col">
-              <Link
-                to="/products/$productId"
-                params={{ productId: line.productId }}
-                className="font-medium text-ink hover:text-brand"
-              >
-                {line.name}
-              </Link>
-              <span className="text-sm text-ink/60">
-                {formatPrice(line.unitPriceMinor, line.currency)} each
-                {!line.available && <span className="ml-2 text-danger">— currently unavailable</span>}
-              </span>
-            </div>
-            <QuantityControls
-              quantity={line.quantity}
-              max={line.stock}
-              disabled={mutation.isPending || !line.available}
-              onChange={(next) => setQuantity(line, next)}
-            />
-            <span className="w-20 text-right font-medium">
-              {formatPrice(line.lineTotalMinor, line.currency)}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantity(line, 0)}
-              disabled={mutation.isPending}
-              className="text-sm text-ink/40 hover:text-danger"
-              aria-label={`Remove ${line.name}`}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
-      <div className="flex items-baseline justify-between px-1">
-        <span className="text-ink/70">Subtotal</span>
-        <span className="text-xl font-bold text-heading">
-          {formatPrice(cart.subtotalMinor, cart.currency)}
-        </span>
-      </div>
-      <div className="flex justify-end">
-        <Link
-          to="/checkout"
-          className="rounded-full bg-brand px-8 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-deep"
-        >
-          Proceed to checkout
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-function GuestCart() {
-  const { lines, setQuantity } = useGuestCart()
-
-  if (lines.length === 0) return <EmptyCart />
-
-  // Display-only math from snapshots; the server recomputes at merge/checkout.
-  const estimatedTotal = lines.reduce((sum, line) => sum + line.priceSnapshotMinor * line.quantity, 0)
-  const currency = lines[0]?.currency ?? 'EUR'
-
-  return (
-    <div className="flex flex-col gap-4">
-      <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
-        {lines.map((line) => (
-          <li key={line.productId} className="flex items-center gap-4 p-4">
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
-              <ProductImage imageUrl={line.imageUrl} name={line.name} category={artCategory(line.category)} seed={line.productId} className="h-full w-full" />
-            </div>
-            <div className="flex flex-1 flex-col">
-              <Link
-                to="/products/$productId"
-                params={{ productId: line.productId }}
-                className="font-medium text-ink hover:text-brand"
-              >
-                {line.name}
-              </Link>
-              <span className="text-sm text-ink/60">
-                {formatPrice(line.priceSnapshotMinor, line.currency)} when added
-              </span>
-            </div>
-            <QuantityControls
-              quantity={line.quantity}
-              onChange={(next) => setQuantity(line.productId, next)}
-            />
-            <span className="w-20 text-right font-medium">
-              {formatPrice(line.priceSnapshotMinor * line.quantity, line.currency)}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantity(line.productId, 0)}
-              className="text-sm text-ink/40 hover:text-danger"
-              aria-label={`Remove ${line.name}`}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
-      <div className="flex items-baseline justify-between px-1">
-        <span className="text-ink/70">Estimated total</span>
-        <span className="text-xl font-bold text-heading">{formatPrice(estimatedTotal, currency)}</span>
-      </div>
-      <p className="text-right text-xs text-ink/40">
-        Prices are confirmed at sign-in and checkout.{' '}
-        <Link to="/login" className="underline hover:text-brand">
-          Sign in
-        </Link>{' '}
-        to keep your cart.
-      </p>
     </div>
   )
 }
