@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { createPaymentIntent, createProduct, demoLogin, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPage, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listPages, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updatePage, updateProduct } from '../sdk.gen';
-import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, DemoLoginData, DemoLoginResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPageData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListPagesData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdatePageData, UpdatePageResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
+import { createPaymentIntent, createProduct, demoLogin, getCart, getCurrentUser, getHealth, getMyOrders, getOrder, getPage, getPaymentIntent, getProduct, handlePaymentWebhook, listAdminProducts, listAllOrders, listCategories, listPages, listProducts, listUsers, login, mergeCart, type Options, placeOrder, register, setCartItem, setProductArchived, simulatePayment, transitionOrderStatus, updatePage, updateProduct } from '../sdk.gen';
+import type { CreatePaymentIntentData, CreatePaymentIntentResponse, CreateProductData, CreateProductResponse, DemoLoginData, DemoLoginResponse, GetCartData, GetCurrentUserData, GetHealthData, GetMyOrdersData, GetOrderData, GetPageData, GetPaymentIntentData, GetProductData, HandlePaymentWebhookData, HandlePaymentWebhookResponse, ListAdminProductsData, ListAdminProductsResponse, ListAllOrdersData, ListAllOrdersResponse, ListCategoriesData, ListPagesData, ListProductsData, ListProductsResponse, ListUsersData, LoginData, LoginResponse, MergeCartData, MergeCartResponse2, PlaceOrderData, PlaceOrderError, PlaceOrderResponse, RegisterData, RegisterResponse, SetCartItemData, SetCartItemResponse, SetProductArchivedData, SetProductArchivedResponse, SimulatePaymentData, SimulatePaymentResponse, TransitionOrderStatusData, TransitionOrderStatusResponse, UpdatePageData, UpdatePageResponse, UpdateProductData, UpdateProductResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -161,6 +161,27 @@ export const getProductOptions = (options: Options<GetProductData>) => {
             return data;
         },
         queryKey: getProductQueryKey(options)
+    });
+};
+
+export const listCategoriesQueryKey = (options?: Options<ListCategoriesData>) => createQueryKey('listCategories', options);
+
+/**
+ * List categories
+ * Every category with its count of active (non-archived) products, in catalog order. Categories with no products are included with a count of 0.
+ */
+export const listCategoriesOptions = (options?: Options<ListCategoriesData>) => {
+    return queryOptions({
+        queryFn: async ({ queryKey, signal }) => {
+            const { data } = await listCategories({
+                ...options,
+                ...queryKey[0],
+                signal,
+                throwOnError: true
+            });
+            return data;
+        },
+        queryKey: listCategoriesQueryKey(options)
     });
 };
 

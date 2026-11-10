@@ -91,6 +91,32 @@
             }
           },
           {
+            "name": "minPriceMinor",
+            "in": "query",
+            "description": "Only products priced at or above this, in minor units (inclusive)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "title": "Long"
+            }
+          },
+          {
+            "name": "maxPriceMinor",
+            "in": "query",
+            "description": "Only products priced at or below this, in minor units (inclusive)",
+            "required": false,
+            "deprecated": false,
+            "explode": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "title": "Long"
+            }
+          },
+          {
             "name": "sort",
             "in": "query",
             "description": "Sort order (default newest)",
@@ -152,6 +178,29 @@
           "404": {
             "description": "No product with this id",
             "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [],
+        "summary": "List categories",
+        "description": "Every category with its count of active (non-archived) products, in catalog order. Categories with no products are included with a count of 0.",
+        "operationId": "listCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All categories with product counts",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
           }
         },
         "deprecated": false
@@ -1334,11 +1383,17 @@
           "archived": {
             "type": "boolean",
             "title": "Boolean"
+          },
+          "createdAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long"
           }
         },
         "required": [
           "archived",
           "category",
+          "createdAtEpochSeconds",
           "currency",
           "description",
           "id",
@@ -2216,6 +2271,40 @@
         "required": [
           "pages"
         ]
+      },
+      "CategoryCountResponse": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/ProductCategoryDto"
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int32",
+            "title": "Int"
+          }
+        },
+        "required": [
+          "category",
+          "productCount"
+        ],
+        "title": "CategoryCountResponse"
+      },
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryCountResponse"
+            },
+            "title": "ArrayList<CategoryCountResponse>"
+          }
+        },
+        "required": [
+          "categories"
+        ],
+        "title": "CategoryListResponse"
       }
     },
     "examples": {}

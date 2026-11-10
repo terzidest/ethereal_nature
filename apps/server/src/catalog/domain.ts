@@ -33,6 +33,7 @@ export interface Product {
   category: ProductCategory
   imageUrl: string | null
   archived: boolean
+  createdAt: Date
 }
 
 export function makeProduct(fields: Product): Product {
@@ -41,6 +42,16 @@ export function makeProduct(fields: Product): Product {
   parseMoney(fields.price.amountMinor, fields.price.currency)
   parseStock(fields.stock)
   return fields
+}
+
+export interface CategoryCount {
+  category: ProductCategory
+  productCount: number
+}
+
+/** Every category in catalog order; categories nothing was counted for show 0. */
+export function categoryCounts(counted: ReadonlyMap<ProductCategory, number>): CategoryCount[] {
+  return PRODUCT_CATEGORIES.map((category) => ({ category, productCount: counted.get(category) ?? 0 }))
 }
 
 export class ProductNotFound extends AppError {

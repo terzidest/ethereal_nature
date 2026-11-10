@@ -5,7 +5,7 @@ import type { DB, ProductsTable } from '../platform/db/types.js'
 import { makeProduct, type Product, type ProductCategory } from './domain.js'
 import type { ProductQuery, ProductRepository, ProductSort } from './ports.js'
 
-type ProductRow = Omit<ProductsTable, 'created_at'> & { created_at?: Date }
+type ProductRow = Omit<ProductsTable, 'created_at'> & { created_at: Date }
 
 function toProduct(row: ProductRow): Product {
   return makeProduct({
@@ -18,6 +18,7 @@ function toProduct(row: ProductRow): Product {
     category: row.category as ProductCategory,
     imageUrl: row.image_url,
     archived: row.archived,
+    createdAt: row.created_at,
   })
 }
 
@@ -52,6 +53,8 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
       const term = raw.replace(/[\\%_]/g, '').toLowerCase()
       if (term) out = out.where(sql<boolean>`lower(name) like ${'%' + term + '%'}`)
     }
+    if (query.minPriceMinor !== null) out = out.where('price_minor', '>=', query.minPriceMinor)
+    if (query.maxPriceMinor !== null) out = out.where('price_minor', '<=', query.maxPriceMinor)
     return out
   }
 
@@ -82,6 +85,17 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
       if (ids.length === 0) return []
       const rows = await tx.getExecutor().selectFrom('products').selectAll().where('id', 'in', ids).execute()
       return rows.map(toProduct)
+    },
+
+    async countActiveByCategory() {
+      const rows = await tx
+        .getExecutor()
+        .selectFrom('products')
+        .select(['category', sql<number>`count(*)::int`.as('n')])
+        .where('archived', '=', false)
+        .groupBy('category')
+        .execute()
+      return new Map(rows.map((row) => [row.category as ProductCategory, row.n]))
     },
 
     async decrementStock(id, quantity) {
@@ -115,6 +129,7 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
           category: product.category,
           image_url: product.imageUrl,
           archived: product.archived,
+          created_at: product.createdAt,
         })
         .execute()
     },

@@ -69,6 +69,10 @@ export type ProductResponse = {
      * Boolean
      */
     archived: boolean;
+    /**
+     * Long
+     */
+    createdAtEpochSeconds: number;
 };
 
 /**
@@ -633,6 +637,27 @@ export type PageListResponse = {
     pages: Array<PageSummary>;
 };
 
+/**
+ * CategoryCountResponse
+ */
+export type CategoryCountResponse = {
+    category: ProductCategoryDto;
+    /**
+     * Int
+     */
+    productCount: number;
+};
+
+/**
+ * CategoryListResponse
+ */
+export type CategoryListResponse = {
+    /**
+     * ArrayList<CategoryCountResponse>
+     */
+    categories: Array<CategoryCountResponse>;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -672,6 +697,16 @@ export type ListProductsData = {
          * Case-insensitive name search
          */
         q?: string;
+        /**
+         * Long
+         * Only products priced at or above this, in minor units (inclusive)
+         */
+        minPriceMinor?: number;
+        /**
+         * Long
+         * Only products priced at or below this, in minor units (inclusive)
+         */
+        maxPriceMinor?: number;
         /**
          * Sort order (default newest)
          */
@@ -717,6 +752,22 @@ export type GetProductResponses = {
 };
 
 export type GetProductResponse = GetProductResponses[keyof GetProductResponses];
+
+export type ListCategoriesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/categories';
+};
+
+export type ListCategoriesResponses = {
+    /**
+     * All categories with product counts
+     */
+    200: CategoryListResponse;
+};
+
+export type ListCategoriesResponse = ListCategoriesResponses[keyof ListCategoriesResponses];
 
 export type RegisterData = {
     body?: RegisterRequest;
