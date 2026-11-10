@@ -29,7 +29,16 @@ const GLOW: Record<ProductCategoryDto, string> = {
  * sits over the photo but outside the link (a button inside an <a> is
  * invalid); it shows on hover/focus with a pointer, always on touch.
  */
-export function ProductCard({ product, quickAdd }: { product: ProductResponse; quickAdd?: ReactNode }) {
+export function ProductCard({
+  product,
+  quickAdd,
+  quickAddBeside,
+}: {
+  product: ProductResponse
+  quickAdd?: ReactNode
+  /** Phones only: a quick add beside the name instead of on the photo (Home board's New arrivals). */
+  quickAddBeside?: ReactNode
+}) {
   const tilt = useTilt(8)
   const badge =
     product.stock === 0
@@ -81,13 +90,15 @@ export function ProductCard({ product, quickAdd }: { product: ProductResponse; q
           )}
         </div>
         {quickAdd && product.stock > 0 && (
-          <div className="absolute bottom-2 right-2 z-10 transition duration-300 md:inset-x-3.5 md:bottom-3.5 md:translate-y-2 md:opacity-0 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-hover:translate-y-0 md:group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100">
+          <div
+            className={`absolute bottom-2 right-2 z-10 transition duration-300 md:inset-x-3.5 md:bottom-3.5 md:translate-y-2 md:opacity-0 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-hover:translate-y-0 md:group-hover:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100 ${quickAddBeside ? 'max-md:hidden' : ''}`}
+          >
             {quickAdd}
           </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-1 px-0.5 md:flex-row md:items-start md:justify-between md:gap-3 md:px-1">
+      <div className={`flex flex-col gap-1 px-0.5 md:flex-row md:items-start md:justify-between md:gap-3 md:px-1 ${quickAddBeside ? 'max-md:pr-12' : ''}`}>
         <div className="flex min-w-0 flex-col gap-1 md:gap-1.5">
           <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-brand md:text-[11px]">
             {categoryLabel(product.category)}
@@ -95,13 +106,17 @@ export function ProductCard({ product, quickAdd }: { product: ProductResponse; q
           <Link
             to="/products/$productId"
             params={{ productId: product.id }}
-            className="text-sm font-medium leading-[1.3] text-heading transition after:absolute after:inset-0 after:content-[''] hover:text-brand md:text-base md:leading-[1.35]"
+            className="[overflow-wrap:anywhere] text-sm font-medium leading-[1.3] text-heading transition after:absolute after:inset-0 after:content-[''] hover:text-brand md:text-base md:leading-[1.35]"
           >
             {product.name}
           </Link>
         </div>
         <span className="whitespace-nowrap font-display text-[17px] font-semibold text-heading md:text-xl">{price}</span>
       </div>
+      {quickAddBeside && product.stock > 0 && (
+        // Sits over the stretched link (z-10), bottom-right of the text block, phones only.
+        <div className="absolute bottom-0 right-0 z-10 md:hidden">{quickAddBeside}</div>
+      )}
     </article>
   )
 }

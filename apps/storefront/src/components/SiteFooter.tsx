@@ -3,7 +3,7 @@ import { getHealthOptions } from '@ethereal-nature/api-client'
 import { StatusPill } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { BrandMark } from '@ethereal-nature/ui'
+import { Art, BrandMark } from '@ethereal-nature/ui'
 
 const heading = 'pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-brand'
 const link = 'py-2 text-ink-soft transition hover:text-heading md:py-0'
@@ -52,6 +52,11 @@ export function SiteFooter() {
               </Link>
             </nav>
           </div>
+        </div>
+
+        {/* Eucalyptus plate tucked under the link columns (desktop Home board). */}
+        <div className="relative hidden md:block" aria-hidden="true">
+          <Art name="plate-eucalyptus" className="pointer-events-none absolute -top-[150px] right-6 w-[200px] opacity-80" />
         </div>
 
         <div

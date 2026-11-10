@@ -37,7 +37,7 @@ function AddOn({ product, inBasket }: { product: ProductResponse; inBasket: bool
         <ProductImage imageUrl={product.imageUrl} name="" category={product.category} seed={product.slug} className="blur-up h-full w-full" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-sm font-medium leading-[1.3] text-heading">{product.name}</span>
+        <span className="text-sm font-medium leading-[1.3] text-heading [overflow-wrap:anywhere]">{product.name}</span>
         <span className="font-display text-[17px] font-semibold text-heading">{formatPrice(product.priceMinor, product.currency)}</span>
       </div>
       <button

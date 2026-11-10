@@ -1,6 +1,7 @@
 import { registerMutation } from '@ethereal-nature/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { AuthForm, errorMessage } from '../features/account/components/AuthForm'
 import { useSession } from '../features/account/session'
 import { mergeGuestCartAfterLogin } from '../features/cart/merge'
@@ -27,6 +28,13 @@ function RegisterPage() {
       else void navigate({ to: merged ? '/cart' : '/account' })
     },
   })
+
+  // Already signed in when arriving (the form hasn't been used): nothing to do here.
+  const arrivedSignedIn = session.user !== null && mutation.isIdle
+  useEffect(() => {
+    if (arrivedSignedIn) void navigate({ href: redirect ?? '/account', replace: true })
+  }, [arrivedSignedIn, navigate, redirect])
+  if (arrivedSignedIn) return null
 
   return (
     <AuthForm

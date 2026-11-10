@@ -63,7 +63,7 @@ function ProductPage() {
     <>
       <main className="relative mx-auto w-full max-w-[1240px] overflow-x-clip px-5 md:px-6 md:pt-10">
         <span
-          className={`aurora -left-40 top-[120px] h-[340px] w-[340px] md:left-auto md:right-[-120px] md:top-0 md:h-[520px] md:w-[520px] ${
+          className={`aurora -left-40 top-[120px] h-[340px] w-[340px] md:-left-56 md:top-20 md:h-[520px] md:w-[520px] ${
             crystals
               ? 'bg-[light-dark(rgb(180_150_230/0.40),rgb(140_100_220/0.30))]'
               : 'bg-[light-dark(rgb(122_196_148/0.40),rgb(60_160_105/0.30))]'

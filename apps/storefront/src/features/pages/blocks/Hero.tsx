@@ -1,4 +1,4 @@
-import { Art, useMagnetic } from '@ethereal-nature/ui'
+import { Art, BranchGlyph, useMagnetic } from '@ethereal-nature/ui'
 import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { SORTS } from '../../catalog/search'
@@ -36,10 +36,11 @@ export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust
         <span className="mote right-[18%] top-[16%] h-2 w-2 bg-amber-accent/50 [animation-delay:-6s]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-[1240px] items-center gap-10 px-5 pb-14 pt-10 md:grid-cols-[1.1fr_1fr] md:gap-12 md:px-6 md:pb-28 md:pt-20">
+      {/* 1240px of content inside the gutters, as on the board (other sections are 1240 including them). */}
+      <div className="relative mx-auto grid max-w-[1288px] grid-cols-[minmax(0,1fr)] items-center gap-6 px-5 pb-12 pt-6 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] md:gap-16 md:px-6 md:pb-24 md:pt-[84px]">
         <div className="flex flex-col items-start gap-6 md:gap-7">
-          <span className="rise inline-flex items-center gap-2.5 rounded-full border border-line bg-surface-raised/70 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-heading backdrop-blur md:text-xs">
-            <span className="h-2 w-2 rounded-full bg-amber-accent" aria-hidden="true" />
+          <span className="rise inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-brand md:text-xs">
+            <span className="h-2 w-2 flex-none rounded-full bg-amber-accent shadow-[0_0_0_4px_light-dark(rgb(232_176_79/0.25),rgb(240_190_104/0.22))]" aria-hidden="true" />
             {eyebrow}
           </span>
 
@@ -71,9 +72,12 @@ export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust
               to="/products"
               {...magnet.bind}
               style={magnet.style}
-              className="inline-flex h-[54px] items-center justify-center rounded-full bg-brand px-8 text-[15px] font-semibold text-on-brand shadow-glow transition-[background-color] hover:bg-brand-deep"
+              className="inline-flex h-[54px] items-center justify-center gap-2.5 rounded-full bg-brand px-7 text-[15px] font-semibold text-on-brand shadow-glow transition-[background-color] hover:bg-brand-deep md:h-14"
             >
               {primaryCta.label}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </Link>
             <Link
               to="/products"
@@ -81,14 +85,14 @@ export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust
                 ...(secondaryCta.sort ? { sort: secondaryCta.sort } : {}),
                 ...(secondaryCta.maxPriceMinor ? { maxPrice: secondaryCta.maxPriceMinor } : {}),
               }}
-              className="inline-flex h-[54px] items-center justify-center rounded-full border border-line-strong bg-surface-raised/60 px-8 text-[15px] font-semibold text-heading backdrop-blur transition hover:border-brand hover:text-brand"
+              className="inline-flex h-[54px] items-center justify-center rounded-full border border-line-strong bg-glass px-7 md:h-14 text-[15px] font-semibold text-heading backdrop-blur transition hover:border-brand hover:text-brand"
             >
               {secondaryCta.label}
             </Link>
           </div>
 
           {trust.length > 0 && (
-            <ul className="rise rise-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-soft">
+            <ul className="rise rise-4 flex flex-wrap gap-x-7 gap-y-2 pt-1 text-[13px] text-ink-soft md:pt-3">
               {trust.map((item) => (
                 <li key={item} className="flex items-center gap-2">
                   <svg
@@ -116,27 +120,36 @@ export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust
   )
 }
 
-/** Three botanical plates on a soft sun disc with a dashed ring and a rotating seal. No photos (spec §3). */
+/**
+ * The botanical composition from the Home boards: a 570×600 box with a soft
+ * sun disc and dashed ring, three overlapping plates (eucalyptus, lavender,
+ * chamomile), a horizon line and the rotating seal top-right. Positions are
+ * the board's, as percentages of that box, so phones get the same picture
+ * scaled down (the mobile board scales it to 0.57). No photos (spec §3).
+ */
 function HeroArt() {
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[340px] md:max-w-[540px]" aria-hidden="true">
-      <span className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle_at_40%_35%,light-dark(#fbe7bf,rgb(240_190_104/0.18)),light-dark(#f5ddb0,rgb(240_190_104/0.06))_60%,transparent_72%)]" />
-      <span className="absolute inset-[3%] rounded-full border border-dashed border-line-strong" />
+    <div className="relative mx-auto aspect-[570/600] w-full max-w-[340px] md:max-w-[570px]" aria-hidden="true">
+      <span className="absolute left-1/2 top-1/2 aspect-square w-[87.7%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,light-dark(rgb(214_236_222/0.95),rgb(125_211_160/0.14)),transparent_70%)]" />
+      <span className="absolute left-1/2 top-1/2 aspect-square w-[87.7%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-line-strong" />
 
-      <Art name="plate-eucalyptus" eager className="rise rise-1 absolute left-[2%] top-[14%] w-[38%] -rotate-[8deg]" />
-      <Art name="plate-lavender" eager className="rise rise-2 absolute left-[30%] top-[4%] w-[42%]" />
-      <Art name="plate-chamomile" eager className="rise rise-3 absolute right-[2%] top-[22%] w-[36%] rotate-[7deg]" />
+      <Art name="plate-eucalyptus" eager className="rise rise-1 absolute left-[3.5%] top-[18.3%] w-[56.1%]" />
+      <Art name="plate-lavender" eager className="rise rise-2 absolute left-[26.3%] top-[5%] w-[66.7%]" />
+      <Art name="plate-chamomile" eager className="rise rise-3 absolute left-[52.6%] top-[31.7%] w-[47.4%]" />
 
-      <svg viewBox="0 0 120 120" className="spin-slow absolute bottom-[6%] right-[6%] h-24 w-24 md:h-32 md:w-32">
-        <defs>
-          <path id="hero-seal-circle" d="M60 60m-44 0a44 44 0 1 1 88 0a44 44 0 1 1-88 0" />
-        </defs>
-        <circle cx="60" cy="60" r="58" className="fill-surface-raised" />
-        <circle cx="60" cy="60" r="18" className="fill-brand-soft" />
-        <text className="fill-heading font-mono text-[10.5px] tracking-[0.18em]">
-          <textPath href="#hero-seal-circle">{SEAL_TEXT}</textPath>
-        </text>
-      </svg>
+      <span className="absolute inset-x-0 bottom-[1%] h-px bg-[linear-gradient(90deg,transparent,var(--color-line-strong)_20%,var(--color-line-strong)_80%,transparent)]" />
+
+      <div className="absolute right-[1.75%] top-[3.3%] grid aspect-square w-[21%] place-items-center rounded-full bg-surface-raised shadow-card">
+        <svg viewBox="0 0 120 120" className="spin-slow h-[90%] w-[90%]">
+          <defs>
+            <path id="hero-seal-circle" d="M60 60m-44 0a44 44 0 1 1 88 0a44 44 0 1 1-88 0" />
+          </defs>
+          <text className="fill-brand font-mono" fontSize="9" letterSpacing="2.4">
+            <textPath href="#hero-seal-circle">{SEAL_TEXT}</textPath>
+          </text>
+        </svg>
+        <BranchGlyph className="absolute h-[30%] text-brand" />
+      </div>
     </div>
   )
 }

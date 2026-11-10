@@ -1,6 +1,7 @@
 import { Art } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { QuickAddButton } from '../../features/cart/components/QuickAddButton'
 import { CatalogControls } from '../../features/catalog/components/CatalogControls'
 import { ProductCard } from '../../features/catalog/components/ProductCard'
@@ -32,7 +33,16 @@ export const Route = createFileRoute('/products/')({
 
 function CatalogPage() {
   const search = Route.useSearch()
+  const navigate = Route.useNavigate()
   const { data } = useQuery(catalogListQuery(search))
+
+  // A page past the end (stale link, filters narrowed) goes to the last real page.
+  const lastPage = data && data.totalPages > 0 && pageOf(search) > data.totalPages ? data.totalPages : null
+  useEffect(() => {
+    if (lastPage !== null) {
+      void navigate({ search: (prev) => ({ ...prev, page: lastPage === 1 ? undefined : lastPage }), replace: true })
+    }
+  }, [lastPage, navigate])
   const copy = CATALOG_COPY[search.category ?? 'ALL']
   const filtered = Boolean(search.q || search.category || search.maxPrice)
 

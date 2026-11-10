@@ -1,6 +1,5 @@
 import { listProductsOptions } from '@ethereal-nature/api-client'
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { z } from 'zod'
 import { QuickAddButton } from '../../cart/components/QuickAddButton'
@@ -42,21 +41,14 @@ export function ProductStrip(props: ProductStripProps) {
     <section className="mx-auto w-full max-w-[1240px] py-12 md:py-20">
       <div className="flex items-end justify-between gap-6 px-5 md:px-6">
         <SectionHeading eyebrow={props.eyebrow} heading={props.title} />
-        <div className="flex shrink-0 items-center gap-3 pb-1 md:pb-2">
-          <Link
-            to="/products"
-            search={props.category ? { category: props.category } : {}}
-            className="text-[15px] font-medium text-brand transition hover:text-heading"
-          >
-            View all →
-          </Link>
-          {scrollable && (
-            <span className="hidden gap-2 md:flex">
-              <ArrowButton direction={-1} onClick={() => pageBy(-1)} />
-              <ArrowButton direction={1} onClick={() => pageBy(1)} />
-            </span>
-          )}
-        </div>
+        {/* Phones swipe; desktop pages with arrows (Home boards). */}
+        <span className="whitespace-nowrap pb-1.5 text-xs text-ink-soft md:hidden" aria-hidden="true">
+          Swipe →
+        </span>
+        <span className="hidden shrink-0 gap-2 pb-2 md:flex">
+          <ArrowButton direction={-1} disabled={!scrollable} onClick={() => pageBy(-1)} />
+          <ArrowButton direction={1} disabled={!scrollable} onClick={() => pageBy(1)} />
+        </span>
       </div>
 
       <ul
@@ -69,7 +61,11 @@ export function ProductStrip(props: ProductStripProps) {
             className="rise w-[232px] shrink-0 snap-start md:w-[calc((100%-3*1.25rem)/4)]"
             style={{ animationDelay: `${Math.min(i, 4) * 80}ms` }}
           >
-            <ProductCard product={product} quickAdd={<QuickAddButton product={product} />} />
+            <ProductCard
+              product={product}
+              quickAdd={<QuickAddButton product={product} />}
+              quickAddBeside={<QuickAddButton product={product} variant="beside" />}
+            />
           </li>
         ))}
       </ul>
@@ -77,16 +73,21 @@ export function ProductStrip(props: ProductStripProps) {
   )
 }
 
-function ArrowButton({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
+function ArrowButton({ direction, disabled, onClick }: { direction: 1 | -1; disabled: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-label={direction === 1 ? 'Next products' : 'Previous products'}
-      className="grid h-11 w-11 place-items-center rounded-full border border-line-strong text-heading transition hover:border-brand hover:text-brand"
+      className={`grid h-12 w-12 place-items-center rounded-full transition disabled:opacity-40 ${
+        direction === 1
+          ? 'bg-brand text-on-brand hover:bg-brand-deep'
+          : 'border border-line-strong text-heading hover:border-brand hover:text-brand'
+      }`}
     >
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d={direction === 1 ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'} />
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d={direction === 1 ? 'M5 12h14M13 6l6 6-6 6' : 'M19 12H5M11 6l-6 6 6 6'} />
       </svg>
     </button>
   )

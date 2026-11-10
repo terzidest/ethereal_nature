@@ -65,7 +65,11 @@ function CategoryChips({ search }: { search: CatalogSearch }) {
               active ? 'border-brand bg-brand text-on-brand' : 'border-line-strong text-heading hover:bg-brand-soft'
             }`}
           >
-            {category && <CategoryGlyph category={category} className="h-4 w-4 md:-ml-1 md:h-[18px] md:w-[18px]" />}
+            {/* "All" has a grid glyph on phones only (Mobile Catalog board; desktop shows none). */}
+            <CategoryGlyph
+              category={category ?? 'ALL'}
+              className={`h-4 w-4 md:-ml-1 md:h-[18px] md:w-[18px] ${category ? '' : 'md:hidden'}`}
+            />
             {CATALOG_COPY[category ?? 'ALL'].chip}
             <span
               className={`grid h-[26px] min-w-[26px] place-items-center rounded-full px-[7px] font-mono text-[11px] ${

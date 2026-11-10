@@ -50,6 +50,7 @@ export function CategoryTiles({ eyebrow, heading, tiles }: z.output<typeof categ
   const countOf = (category: ProductCategoryDto) =>
     data?.categories.find((c) => c.category === category)?.productCount
   const total = data?.categories.reduce((sum, c) => sum + c.productCount, 0)
+  const browse = total !== undefined ? `Browse all ${total} products` : 'Browse all products'
 
   return (
     <section className="mx-auto w-full max-w-[1240px] px-5 py-12 md:px-6 md:py-24">
@@ -57,9 +58,9 @@ export function CategoryTiles({ eyebrow, heading, tiles }: z.output<typeof categ
         <SectionHeading eyebrow={eyebrow} heading={heading} />
         <Link
           to="/products"
-          className="rise rise-2 text-sm font-semibold text-brand transition hover:text-heading md:pb-2"
+          className="rise rise-2 hidden text-sm font-semibold text-brand transition hover:text-heading md:block md:pb-2"
         >
-          {total !== undefined ? `Browse all ${total} products` : 'Browse all products'} →
+          {browse} →
         </Link>
       </div>
 
@@ -72,6 +73,17 @@ export function CategoryTiles({ eyebrow, heading, tiles }: z.output<typeof categ
           </li>
         ))}
       </ul>
+
+      {/* Phones: a full-width button under the tiles (Mobile Home board). */}
+      <Link
+        to="/products"
+        className="mt-4 flex h-[52px] items-center justify-center gap-2 rounded-full border border-line-strong text-sm font-semibold text-heading transition active:scale-[0.97] md:hidden"
+      >
+        {browse}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </Link>
     </section>
   )
 }

@@ -58,7 +58,7 @@ export function BasketLines({
                   <Link
                     to="/products/$productId"
                     params={{ productId: line.productId }}
-                    className="font-display text-lg font-semibold leading-[1.2] text-heading hover:text-brand md:text-[21px]"
+                    className="font-display text-lg font-semibold leading-[1.2] text-heading [overflow-wrap:anywhere] hover:text-brand md:text-[21px]"
                   >
                     {line.name}
                   </Link>
