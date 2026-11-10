@@ -7,7 +7,9 @@ import {
   type HeroProps,
   type KnownBlockProps,
   type KnownBlockType,
+  type NewsletterProps,
   type ProductStripProps,
+  type UspTickerProps,
   type ValuePropsProps,
 } from '../blocks'
 
@@ -42,6 +44,60 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
+const EMPHASIS_HINT = 'Wrap words in *asterisks* to set them in italic.'
+
+/** Optional single-line text: clearing the field removes the prop. */
+function OptionalText({
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string
+  value: string | undefined
+  onChange: (value: string | undefined) => void
+  hint?: string
+}) {
+  return (
+    <Field label={label}>
+      <input
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value === '' ? undefined : e.target.value)}
+        className={inputClass}
+      />
+      {hint && <span className="text-xs font-normal text-ink/40">{hint}</span>}
+    </Field>
+  )
+}
+
+/** One entry per line; blank lines are dropped. */
+function LinesField({
+  label,
+  values,
+  onChange,
+  hint,
+  rows = 4,
+}: {
+  label: string
+  values: string[]
+  onChange: (values: string[]) => void
+  hint?: string
+  rows?: number
+}) {
+  return (
+    <Field label={label}>
+      <textarea
+        rows={rows}
+        value={values.join('\n')}
+        onChange={(e) => onChange(e.target.value.split('\n'))}
+        onBlur={(e) => onChange(e.target.value.split('\n').map((v) => v.trim()).filter((v) => v !== ''))}
+        className={inputClass}
+      />
+      {hint && <span className="text-xs font-normal text-ink/40">{hint}</span>}
+    </Field>
+  )
+}
+
 function HeroEditor({ props, onChange }: EditorProps<HeroProps>) {
   const set = (patch: Partial<HeroProps>) => onChange({ ...props, ...patch })
   return (
@@ -51,6 +107,7 @@ function HeroEditor({ props, onChange }: EditorProps<HeroProps>) {
       </Field>
       <Field label="Title">
         <input value={props.title} onChange={(e) => set({ title: e.target.value })} className={inputClass} />
+        <span className="text-xs font-normal text-ink/40">{EMPHASIS_HINT}</span>
       </Field>
       <Field label="Subtitle">
         <textarea
@@ -60,7 +117,7 @@ function HeroEditor({ props, onChange }: EditorProps<HeroProps>) {
           className={inputClass}
         />
       </Field>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Primary button label">
           <input
             value={props.primaryCta.label}
@@ -96,8 +153,29 @@ function HeroEditor({ props, onChange }: EditorProps<HeroProps>) {
             ))}
           </select>
         </Field>
+        <Field label="Secondary button: products up to (€)">
+          <input
+            type="number"
+            min={0}
+            step={0.5}
+            value={props.secondaryCta.maxPriceMinor === undefined ? '' : props.secondaryCta.maxPriceMinor / 100}
+            onChange={(e) => {
+              const minor = Math.round(Number(e.target.value) * 100)
+              // undefined is dropped by JSON serialization, so a cleared field saves as "no limit"
+              set({ secondaryCta: { ...props.secondaryCta, maxPriceMinor: minor > 0 ? minor : undefined } })
+            }}
+            placeholder="No price limit"
+            className={inputClass}
+          />
+        </Field>
       </div>
-      <p className="text-xs text-ink/40">Both buttons link to the catalog; the artwork grid is fixed.</p>
+      <LinesField
+        label="Trust row (one per line, up to 4)"
+        values={props.trust}
+        rows={3}
+        onChange={(trust) => set({ trust: trust.slice(0, 4) })}
+      />
+      <p className="text-xs text-ink/40">Both buttons link to the catalog; the botanical artwork is fixed.</p>
     </div>
   )
 }
@@ -110,13 +188,17 @@ function CategoryTilesEditor({ props, onChange }: EditorProps<CategoryTilesProps
     })
   return (
     <div className="flex flex-col gap-4">
-      <Field label="Heading">
-        <input
-          value={props.heading}
-          onChange={(e) => onChange({ ...props, heading: e.target.value })}
-          className={inputClass}
-        />
-      </Field>
+      <div className="grid gap-4 sm:grid-cols-[1fr_2fr]">
+        <OptionalText label="Eyebrow" value={props.eyebrow} onChange={(eyebrow) => onChange({ ...props, eyebrow })} />
+        <Field label="Heading">
+          <input
+            value={props.heading}
+            onChange={(e) => onChange({ ...props, heading: e.target.value })}
+            className={inputClass}
+          />
+          <span className="text-xs font-normal text-ink/40">{EMPHASIS_HINT}</span>
+        </Field>
+      </div>
       <div className="flex flex-col gap-3">
         {props.tiles.map((tile, index) => (
           <div key={index} className="grid gap-3 rounded-card border border-brand-100 p-3 sm:grid-cols-3">
@@ -150,6 +232,7 @@ function ProductStripEditor({ props, onChange }: EditorProps<ProductStripProps>)
   const set = (patch: Partial<ProductStripProps>) => onChange({ ...props, ...patch })
   return (
     <div className="grid gap-4 sm:grid-cols-2">
+      <OptionalText label="Eyebrow" value={props.eyebrow} onChange={(eyebrow) => set({ eyebrow })} />
       <Field label="Title">
         <input value={props.title} onChange={(e) => set({ title: e.target.value })} className={inputClass} />
       </Field>
@@ -197,9 +280,23 @@ function ProductStripEditor({ props, onChange }: EditorProps<ProductStripProps>)
 
 function ValuePropsEditor({ props, onChange }: EditorProps<ValuePropsProps>) {
   const setItem = (index: number, patch: Partial<ValuePropsProps['items'][number]>) =>
-    onChange({ items: props.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) })
+    onChange({ ...props, items: props.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) })
   return (
     <div className="flex flex-col gap-3">
+      <div className="grid gap-4 sm:grid-cols-[1fr_2fr]">
+        <OptionalText label="Eyebrow" value={props.eyebrow} onChange={(eyebrow) => onChange({ ...props, eyebrow })} />
+        <OptionalText
+          label="Heading"
+          value={props.heading}
+          onChange={(heading) => onChange({ ...props, heading })}
+          hint={EMPHASIS_HINT}
+        />
+      </div>
+      <OptionalText
+        label="Caption under the artwork"
+        value={props.caption}
+        onChange={(caption) => onChange({ ...props, caption })}
+      />
       {props.items.map((item, index) => (
         <div key={index} className="grid gap-3 rounded-card border border-brand-100 p-3 sm:grid-cols-[1fr_2fr_auto]">
           <Field label="Title">
@@ -210,7 +307,7 @@ function ValuePropsEditor({ props, onChange }: EditorProps<ValuePropsProps>) {
           </Field>
           <button
             type="button"
-            onClick={() => onChange({ items: props.items.filter((_, i) => i !== index) })}
+            onClick={() => onChange({ ...props, items: props.items.filter((_, i) => i !== index) })}
             className="self-end rounded px-2 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
           >
             Remove
@@ -220,12 +317,48 @@ function ValuePropsEditor({ props, onChange }: EditorProps<ValuePropsProps>) {
       <div>
         <button
           type="button"
-          onClick={() => onChange({ items: [...props.items, { title: '', blurb: '' }] })}
+          onClick={() => onChange({ ...props, items: [...props.items, { title: '', blurb: '' }] })}
           className="rounded-full bg-brand-50 px-4 py-1.5 text-sm font-semibold text-brand-900 hover:bg-brand-100"
         >
           + Add item
         </button>
       </div>
+    </div>
+  )
+}
+
+function UspTickerEditor({ props, onChange }: EditorProps<UspTickerProps>) {
+  return (
+    <LinesField
+      label="Values (one per line)"
+      values={props.items}
+      rows={6}
+      onChange={(items) => onChange({ items })}
+      hint="Scrolls across a sand band; decorative, so keep each value short."
+    />
+  )
+}
+
+function NewsletterEditor({ props, onChange }: EditorProps<NewsletterProps>) {
+  const set = (patch: Partial<NewsletterProps>) => onChange({ ...props, ...patch })
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 sm:grid-cols-[1fr_2fr]">
+        <OptionalText label="Eyebrow" value={props.eyebrow} onChange={(eyebrow) => set({ eyebrow })} />
+        <Field label="Heading">
+          <input value={props.heading} onChange={(e) => set({ heading: e.target.value })} className={inputClass} />
+          <span className="text-xs font-normal text-ink/40">{EMPHASIS_HINT}</span>
+        </Field>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
+        <OptionalText label="Body" value={props.body} onChange={(body) => set({ body })} />
+        <Field label="Button label">
+          <input value={props.buttonLabel} onChange={(e) => set({ buttonLabel: e.target.value })} className={inputClass} />
+        </Field>
+      </div>
+      <p className="text-xs text-ink/40">
+        Sign-up is not live yet: the storefront shows the form but stores no address.
+      </p>
     </div>
   )
 }
@@ -249,6 +382,10 @@ export function BlockEditor({
       return <ProductStripEditor props={props as ProductStripProps} onChange={onChange} />
     case 'valueProps':
       return <ValuePropsEditor props={props as ValuePropsProps} onChange={onChange} />
+    case 'uspTicker':
+      return <UspTickerEditor props={props as UspTickerProps} onChange={onChange} />
+    case 'newsletter':
+      return <NewsletterEditor props={props as NewsletterProps} onChange={onChange} />
   }
 }
 

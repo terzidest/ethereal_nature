@@ -9,3 +9,10 @@ export function formatPrice(amountMinor: number, currency: string): string {
 export function categoryLabel(category: string): string {
   return category.charAt(0) + category.slice(1).toLowerCase()
 }
+
+/** A product counts as "New" for this many days after it was added (FE-only rule). */
+export const NEW_FOR_DAYS = 30
+
+export function isNewProduct(createdAtEpochSeconds: number, nowMs: number = Date.now()): boolean {
+  return nowMs - createdAtEpochSeconds * 1000 < NEW_FOR_DAYS * 24 * 60 * 60 * 1000
+}

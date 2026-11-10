@@ -80,6 +80,8 @@ export function useSpotlight(color = 'rgb(125 211 160 / 0.22)') {
   const onPointerLeave = useCallback(() => setAt(null), [])
   return {
     bind: (enabled ? { onPointerMove, onPointerLeave } : {}) satisfies PointerBindings,
+    /** Pointer position in percent, null when the pointer is away — for a custom gradient. */
+    at,
     /** Background for an absolutely positioned overlay; transparent when idle. */
     background: at
       ? `radial-gradient(260px circle at ${Math.round(at.x)}% ${Math.round(at.y)}%, ${color}, transparent 70%)`

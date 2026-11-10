@@ -200,13 +200,13 @@ Either way GDPR consent copy is needed before collecting anything.
 
 | # | PR | Layer | Status |
 |---|---|---|---|
-| 1 | This plan + `redesign-spec.md` filled from the canvas | docs | in review |
-| 2 | `V10`: seed products use the R2 photo URLs | BE | in review |
-| 3 | Foundations — tokens (both themes), JetBrains Mono, theme switch, shell (nav, tab bar, footer) | FE | started |
-| 4 | Catalog contract — `createdAt`, price filter, category counts | BE + client | next |
-| 5 | Gallery + specs — migration, DTOs, admin product form | BE + BO | |
-| 6 | Motion primitives + brand art components in `packages/ui` | FE | |
-| 7 | Home — restyled blocks, `uspTicker`, `newsletter` (UI only), admin block editors | FE + BO | |
+| 1 | This plan + `redesign-spec.md` filled from the canvas | docs | done |
+| 2 | `V10`: seed products use the R2 photo URLs | BE | done |
+| 3 | Foundations — tokens (both themes), JetBrains Mono, theme switch, shell (nav, tab bar, footer) | FE | done |
+| 4 | Catalog contract — `createdAt`, price filter, category counts | BE + client | done |
+| 5 | Gallery + specs — migration, DTOs, admin product form | BE + BO | done |
+| 6 | Motion primitives + brand art components in `packages/ui` | FE | done |
+| 7 | Home — restyled blocks, `uspTicker`, `newsletter` (UI only), admin block editors | FE + BO | in review |
 | 8 | Catalog + basket sheet/drawer | FE | |
 | 9 | Product detail — gallery, specs, packing band, pairs-well-with | FE | |
 | 10 | Basket page + checkout / pay / done | FE | |

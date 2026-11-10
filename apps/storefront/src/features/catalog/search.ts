@@ -12,6 +12,8 @@ export interface CatalogSearch {
   category?: ProductCategoryDto
   q?: string
   sort?: ProductSortDto
+  /** Price ceiling in minor units (the hero's "Under €15" → 1500). */
+  maxPrice?: number
 }
 
 export const pageOf = (search: CatalogSearch) => search.page ?? 1
@@ -22,10 +24,12 @@ export function validateCatalogSearch(input: Record<string, unknown>): CatalogSe
   const page = Math.max(1, Math.trunc(Number(input.page)) || 1)
   const q = typeof input.q === 'string' ? input.q.trim() : ''
   const sort = SORTS.find((s) => s === input.sort)
+  const maxPrice = Math.trunc(Number(input.maxPrice))
   return {
     page: page === 1 ? undefined : page,
     category: CATEGORIES.find((c) => c === input.category),
     q: q === '' ? undefined : q,
     sort: sort === 'newest' ? undefined : sort,
+    maxPrice: maxPrice > 0 ? maxPrice : undefined,
   }
 }

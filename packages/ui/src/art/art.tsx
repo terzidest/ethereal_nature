@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 
 /**
  * Botanical illustrations from the brand board (docs/design/redesign-spec.md §3).
@@ -89,14 +89,14 @@ export function Art({
     }
   }, [name, eager])
 
-  return (
-    <span
-      ref={box}
-      aria-hidden="true"
-      className={`art block ${className}`}
-      style={{ aspectRatio: ASPECT[name], ...style }}
-    >
-      {art && (
+  // Built once per loaded piece. A parent re-render (a hover spotlight updates
+  // on every pointer move) must not reach this element: React re-applies
+  // dangerouslySetInnerHTML when it reconciles it, which replaces every path and
+  // restarts their animations — leaves re-unfurl from invisible, hover loops
+  // never get past their first frame. A memoised element is skipped entirely.
+  const drawing = useMemo(
+    () =>
+      art && (
         <svg
           viewBox={art.viewBox}
           className="block h-full w-full overflow-visible"
@@ -104,7 +104,18 @@ export function Art({
           // Static, first-party path data generated from the design canvas.
           dangerouslySetInnerHTML={{ __html: art.markup }}
         />
-      )}
+      ),
+    [art],
+  )
+
+  return (
+    <span
+      ref={box}
+      aria-hidden="true"
+      className={`art block ${className}`}
+      style={{ aspectRatio: ASPECT[name], ...style }}
+    >
+      {drawing}
     </span>
   )
 }

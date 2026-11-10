@@ -68,12 +68,12 @@ function CatalogPage() {
 
 function ProductCardSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col overflow-hidden rounded-tile bg-surface-raised shadow-card" aria-hidden>
-      <div className="aspect-square bg-brand-soft" />
-      <div className="flex flex-col gap-2 px-4 py-3.5">
+    <div className="flex animate-pulse flex-col gap-3.5" aria-hidden>
+      <div className="aspect-[4/5] rounded-[24px] bg-skeleton max-md:rounded-[18px]" />
+      <div className="flex flex-col gap-2 px-1">
         <div className="h-3 w-16 rounded bg-skeleton" />
         <div className="h-5 w-3/4 rounded bg-skeleton" />
-        <div className="h-6 w-20 rounded bg-brand-soft" />
+        <div className="h-6 w-20 rounded bg-skeleton" />
       </div>
     </div>
   )
