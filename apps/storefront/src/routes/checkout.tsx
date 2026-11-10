@@ -112,7 +112,7 @@ function CheckoutPage() {
         </h1>
       </div>
 
-      <div className="mt-5 grid items-start gap-5 md:mt-11 md:grid-cols-[minmax(0,1fr)_380px] md:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="mt-5 grid grid-cols-[minmax(0,1fr)] items-start gap-5 md:mt-11 md:grid-cols-[minmax(0,1fr)_380px] md:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
         <div className="flex flex-col gap-4 md:gap-5">
           {rejection && (
             <div
@@ -141,7 +141,7 @@ function CheckoutPage() {
 
           <ReviewItems lines={basket.lines} changed={changed} forceOpen={rejection !== null} />
 
-          <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 md:gap-4">
             <InfoCard label="Account" title="Signed in" detail={user.email} icon="user" />
             <InfoCard label="Payment" title="Ethereal Pay" detail="Demo provider — no real money moves." icon="card" />
           </div>
@@ -318,7 +318,7 @@ function SignInFirst() {
         >
           Sign in
         </Link>
-        <Link to="/register" className="inline-flex h-[52px] items-center rounded-full border border-line-strong px-7 font-semibold text-heading transition hover:border-brand">
+        <Link to="/register" search={{ redirect: '/checkout' }} className="inline-flex h-[52px] items-center rounded-full border border-line-strong px-7 font-semibold text-heading transition hover:border-brand">
           Create an account
         </Link>
       </div>

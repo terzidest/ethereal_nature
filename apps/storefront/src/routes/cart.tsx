@@ -48,7 +48,7 @@ function BasketPage() {
       ) : empty ? (
         <EmptyBasket />
       ) : (
-        <div className="mt-6 grid items-start gap-6 md:mt-11 md:grid-cols-[minmax(0,1fr)_360px] md:gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] items-start gap-6 md:mt-11 md:grid-cols-[minmax(0,1fr)_360px] md:gap-10 lg:grid-cols-[minmax(0,1fr)_400px]">
           <div className="flex flex-col gap-5">
             <AdjustmentsBanner shelf={shelfChanges(basket.lines)} />
             {basket.isLoading ? (
