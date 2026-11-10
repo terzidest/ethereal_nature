@@ -1,5 +1,7 @@
 // App chrome: router-level fallbacks (error boundary, 404, slow-load).
 import { Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { markShellHydrated } from '../shellHydration'
 
 export function ErrorFallback({ error }: { error: Error }) {
   return (
@@ -25,6 +27,8 @@ export function NotFoundFallback() {
 }
 
 export function PendingFallback() {
+  // The SPA shell renders this in place of the route tree; see shellHydration.ts.
+  useEffect(markShellHydrated, [])
   return (
     <main className="mx-auto max-w-5xl px-6 py-10" aria-busy="true">
       <div className="h-7 w-32 animate-pulse rounded bg-brand-100" />
