@@ -14,7 +14,10 @@ import { useCartUi } from '../ui-store'
  * guest store otherwise) and opens the drawer. Only intents are sent — price
  * and stock are always recomputed server-side.
  */
-export function useAddToCart(product: ProductResponse) {
+export function useAddToCart(
+  product: ProductResponse,
+  { openDrawer: open = true, onAdded }: { openDrawer?: boolean; onAdded?: () => void } = {},
+) {
   const { user } = useSession()
   const queryClient = useQueryClient()
   const addGuestLine = useGuestCart((s) => s.addLine)
@@ -25,7 +28,8 @@ export function useAddToCart(product: ProductResponse) {
     ...setCartItemMutation({ throwOnError: true }),
     onSuccess: (cart) => {
       queryClient.setQueryData(getCartQueryKey(), cart)
-      openDrawer()
+      onAdded?.()
+      if (open) openDrawer()
     },
   })
 
@@ -46,7 +50,8 @@ export function useAddToCart(product: ProductResponse) {
         },
         quantity,
       )
-      openDrawer()
+      onAdded?.()
+      if (open) openDrawer()
     }
   }
 

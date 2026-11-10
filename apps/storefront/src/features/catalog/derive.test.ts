@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { categoryLabel, formatPrice, isLowStock, isNewProduct, NEW_FOR_DAYS } from './derive'
+import { categoryLabel, formatPrice, isLowStock, isNewProduct, NEW_FOR_DAYS, splitName } from './derive'
 
 describe('formatPrice', () => {
   it('formats minor units as euros with a fixed locale', () => {
@@ -34,5 +34,13 @@ describe('isLowStock', () => {
     expect(isLowStock(10)).toBe(true)
     expect(isLowStock(11)).toBe(false)
     expect(isLowStock(0)).toBe(false)
+  })
+})
+
+describe('splitName', () => {
+  it('splits off the first word', () => {
+    expect(splitName('Amethyst Cluster')).toEqual(['Amethyst', 'Cluster'])
+    expect(splitName('Lavender Essential Oil')).toEqual(['Lavender', 'Essential Oil'])
+    expect(splitName('Mugwort')).toEqual(['Mugwort', ''])
   })
 })
