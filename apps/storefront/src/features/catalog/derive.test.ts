@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { categoryLabel, formatPrice, isNewProduct, NEW_FOR_DAYS } from './derive'
+import { categoryLabel, formatPrice, isLowStock, isNewProduct, NEW_FOR_DAYS } from './derive'
 
 describe('formatPrice', () => {
   it('formats minor units as euros with a fixed locale', () => {
@@ -25,5 +25,14 @@ describe('isNewProduct', () => {
     expect(isNewProduct(daysAgo(NEW_FOR_DAYS - 1), now)).toBe(true)
     expect(isNewProduct(daysAgo(NEW_FOR_DAYS), now)).toBe(false)
     expect(isNewProduct(daysAgo(400), now)).toBe(false)
+  })
+})
+
+describe('isLowStock', () => {
+  it('is low from 1 to 10, not when sold out or plentiful', () => {
+    expect(isLowStock(1)).toBe(true)
+    expect(isLowStock(10)).toBe(true)
+    expect(isLowStock(11)).toBe(false)
+    expect(isLowStock(0)).toBe(false)
   })
 })

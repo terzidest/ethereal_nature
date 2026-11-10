@@ -16,3 +16,8 @@ export const NEW_FOR_DAYS = 30
 export function isNewProduct(createdAtEpochSeconds: number, nowMs: number = Date.now()): boolean {
   return nowMs - createdAtEpochSeconds * 1000 < NEW_FOR_DAYS * 24 * 60 * 60 * 1000
 }
+
+/** "Only N left" / "Low stock" threshold (redesign-spec §3, FE-only rule). */
+export const LOW_STOCK_AT = 10
+
+export const isLowStock = (stock: number) => stock > 0 && stock <= LOW_STOCK_AT

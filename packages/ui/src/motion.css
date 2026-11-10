@@ -51,6 +51,18 @@
   to { opacity: 1; transform: none; }
 }
 @keyframes en-draw { to { stroke-dashoffset: 0; } }
+@keyframes en-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+@keyframes en-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes en-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 @utility rise {
   animation: en-rise 0.8s var(--ease-grow) both;
@@ -105,6 +117,10 @@
 @utility shake { animation: en-shake 0.4s ease-in-out; }
 @utility pop { animation: en-pop 0.4s ease-out; }
 @utility roll { animation: en-roll 0.4s ease-out; }
+/* Basket drawer (desktop) and bottom sheets (phones), with their scrim. */
+@utility slide-in { animation: en-slide-in 0.45s var(--ease-grow) both; }
+@utility sheet-up { animation: en-sheet-up 0.45s var(--ease-grow) both; }
+@utility scrim-in { animation: en-fade-in 0.3s ease-out both; }
 /* Line draw: give the path pathLength="1". */
 @utility draw {
   stroke-dasharray: 1;

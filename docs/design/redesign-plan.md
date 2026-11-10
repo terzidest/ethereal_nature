@@ -206,8 +206,8 @@ Either way GDPR consent copy is needed before collecting anything.
 | 4 | Catalog contract — `createdAt`, price filter, category counts | BE + client | done |
 | 5 | Gallery + specs — migration, DTOs, admin product form | BE + BO | done |
 | 6 | Motion primitives + brand art components in `packages/ui` | FE | done |
-| 7 | Home — restyled blocks, `uspTicker`, `newsletter` (UI only), admin block editors | FE + BO | in review |
-| 8 | Catalog + basket sheet/drawer | FE | |
+| 7 | Home — restyled blocks, `uspTicker`, `newsletter` (UI only), admin block editors | FE + BO | done |
+| 8 | Catalog + basket sheet/drawer | FE | in review |
 | 9 | Product detail — gallery, specs, packing band, pairs-well-with | FE | |
 | 10 | Basket page + checkout / pay / done | FE | |
 | 11 | Leftover screens — auth, account, orders, 404 | FE | |
