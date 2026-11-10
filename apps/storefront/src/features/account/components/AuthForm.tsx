@@ -17,7 +17,7 @@ export function AuthForm({
 }) {
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-6 py-20">
-      <h1 className="text-center font-display text-3xl font-semibold tracking-tight text-brand-900">{title}</h1>
+      <h1 className="text-center font-display text-3xl font-semibold tracking-tight text-heading">{title}</h1>
       <form
         className="flex flex-col gap-4 rounded-tile bg-surface-raised p-6 shadow-card"
         onSubmit={(event) => {
@@ -33,7 +33,7 @@ export function AuthForm({
             type="email"
             required
             autoComplete="email"
-            className="rounded border border-brand-100 bg-white px-3 py-2 text-base font-normal outline-none focus:border-brand-500"
+            className="rounded border border-line bg-surface-raised px-3 py-2 text-base font-normal outline-none focus:border-brand"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm font-medium text-ink">
@@ -44,14 +44,14 @@ export function AuthForm({
             required
             minLength={8}
             autoComplete="current-password"
-            className="rounded border border-brand-100 bg-white px-3 py-2 text-base font-normal outline-none focus:border-brand-500"
+            className="rounded border border-line bg-surface-raised px-3 py-2 text-base font-normal outline-none focus:border-brand"
           />
         </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand transition hover:bg-brand-deep disabled:opacity-50"
         >
           {isPending ? 'Please wait…' : submitLabel}
         </button>

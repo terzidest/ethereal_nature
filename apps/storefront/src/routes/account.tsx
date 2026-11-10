@@ -21,18 +21,18 @@ function AccountPage() {
   if (!user) {
     return (
       <main className="mx-auto flex max-w-2xl flex-col items-start gap-4 px-6 py-24">
-        <h1 className="text-2xl font-bold text-brand-900">You're not signed in</h1>
+        <h1 className="text-2xl font-bold text-heading">You're not signed in</h1>
         <p className="text-ink/70">Sign in to see your account and order history.</p>
         <div className="flex gap-3">
           <Link
             to="/login"
-            className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+            className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
           >
             Sign in
           </Link>
           <Link
             to="/register"
-            className="rounded-full bg-brand-50 px-6 py-2.5 text-sm font-semibold text-brand-900 hover:bg-brand-100"
+            className="rounded-full bg-brand-soft px-6 py-2.5 text-sm font-semibold text-heading hover:bg-brand-soft-strong"
           >
             Create account
           </Link>
@@ -43,7 +43,7 @@ function AccountPage() {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col items-start gap-6 px-6 py-16">
-      <h1 className="text-3xl font-bold tracking-tight text-brand-900">Account</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-heading">Account</h1>
       <dl className="flex flex-col gap-2 text-ink">
         <div className="flex gap-2">
           <dt className="font-medium">Email:</dt>
@@ -61,7 +61,7 @@ function AccountPage() {
           logout()
           void navigate({ to: '/' })
         }}
-        className="rounded-full bg-brand-50 px-6 py-2.5 text-sm font-semibold text-brand-900 hover:bg-brand-100"
+        className="rounded-full bg-brand-soft px-6 py-2.5 text-sm font-semibold text-heading hover:bg-brand-soft-strong"
       >
         Sign out
       </button>
@@ -74,17 +74,17 @@ function OrderHistory() {
 
   return (
     <section className="flex w-full flex-col gap-3">
-      <h2 className="text-xl font-semibold text-brand-900">Order history</h2>
+      <h2 className="text-xl font-semibold text-heading">Order history</h2>
       {orders.isPending && <p className="text-sm text-ink/50">Loading orders…</p>}
       {orders.data?.length === 0 && <p className="text-sm text-ink/50">No orders yet.</p>}
       {orders.data && orders.data.length > 0 && (
-        <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
+        <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
           {orders.data.map((order) => (
             <li key={order.id}>
               <Link
                 to="/orders/$orderId"
                 params={{ orderId: order.id }}
-                className="flex items-center justify-between gap-4 p-4 hover:bg-brand-50/50"
+                className="flex items-center justify-between gap-4 p-4 hover:bg-brand-soft"
               >
                 <span className="flex flex-col">
                   <span className="font-medium text-ink">
@@ -95,7 +95,7 @@ function OrderHistory() {
                     {orderStatusLabels[order.status] ?? order.status}
                   </span>
                 </span>
-                <span className="font-semibold text-brand-900">
+                <span className="font-semibold text-heading">
                   {formatPrice(order.totalMinor, order.currency)}
                 </span>
               </Link>

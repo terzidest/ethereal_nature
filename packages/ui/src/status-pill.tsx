@@ -6,9 +6,9 @@ interface StatusPillProps {
 }
 
 const toneClasses: Record<StatusPillProps['tone'], string> = {
-  ok: 'bg-brand-100 text-brand-900',
-  error: 'bg-red-100 text-red-900',
-  pending: 'bg-gray-100 text-gray-600',
+  ok: 'bg-brand-soft text-heading',
+  error: 'bg-danger-wash text-danger',
+  pending: 'bg-sand-100 text-ink-soft',
 }
 
 export function StatusPill({ tone, children }: StatusPillProps) {

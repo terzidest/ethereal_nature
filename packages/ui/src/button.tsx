@@ -5,10 +5,10 @@ type Size = 'sm' | 'md' | 'lg'
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-brand-600 text-white hover:bg-brand-700 shadow-card disabled:hover:bg-brand-600',
+    'bg-brand text-on-brand hover:bg-brand-deep shadow-card disabled:hover:bg-brand',
   secondary:
-    'bg-brand-50 text-brand-900 hover:bg-brand-100 disabled:hover:bg-brand-50',
-  ghost: 'text-brand-700 hover:bg-brand-50 disabled:hover:bg-transparent',
+    'bg-brand-soft text-heading hover:bg-brand-soft-strong disabled:hover:bg-brand-soft',
+  ghost: 'text-brand hover:bg-brand-soft disabled:hover:bg-transparent',
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -19,7 +19,7 @@ const sizeClasses: Record<Size, string> = {
 
 const base =
   'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition ' +
-  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ' +
   'disabled:opacity-50 disabled:cursor-not-allowed'
 
 export function buttonClasses(variant: Variant = 'primary', size: Size = 'md', extra = ''): string {

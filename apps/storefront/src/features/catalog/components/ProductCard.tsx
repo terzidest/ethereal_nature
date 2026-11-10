@@ -19,22 +19,22 @@ export function ProductCard({ product }: { product: ProductResponse }) {
           className="h-full w-full transition duration-500 group-hover:scale-105"
         />
         {product.stock === 0 && (
-          <span className="absolute left-3 top-3 rounded-full bg-ink/70 px-3 py-1 text-xs font-semibold text-white">
+          <span className="absolute left-3 top-3 rounded-full bg-heading/80 px-3 py-1 text-xs font-semibold text-surface">
             Out of stock
           </span>
         )}
         {product.stock > 0 && product.stock <= 5 && (
-          <span className="absolute left-3 top-3 rounded-full bg-amber-accent px-3 py-1 text-xs font-semibold text-ink">
+          <span className="absolute left-3 top-3 rounded-full bg-amber-accent px-3 py-1 text-xs font-semibold text-on-amber">
             Only {product.stock} left
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 px-4 py-3.5">
-        <span className="text-xs font-medium uppercase tracking-wide text-brand-600">
+        <span className="text-xs font-medium uppercase tracking-wide text-brand">
           {categoryLabel(product.category)}
         </span>
-        <span className="font-medium leading-snug text-ink group-hover:text-brand-700">{product.name}</span>
-        <span className="mt-auto pt-1.5 font-display text-lg font-semibold text-brand-900">
+        <span className="font-medium leading-snug text-ink group-hover:text-brand">{product.name}</span>
+        <span className="mt-auto pt-1.5 font-display text-lg font-semibold text-heading">
           {formatPrice(product.priceMinor, product.currency)}
         </span>
       </div>

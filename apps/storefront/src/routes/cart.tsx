@@ -24,7 +24,7 @@ function CartPage() {
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-brand-900">Your cart</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-heading">Your cart</h1>
       <AdjustmentsBanner />
       {user ? <ServerCart /> : <GuestCart />}
     </main>
@@ -37,7 +37,7 @@ function EmptyCart() {
       <p className="text-ink/60">Your cart is empty.</p>
       <Link
         to="/products"
-        className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-on-brand hover:bg-brand-deep"
       >
         Browse the shop
       </Link>
@@ -63,7 +63,7 @@ function QuantityControls({
         disabled={disabled}
         onClick={() => onChange(quantity - 1)}
         aria-label="Decrease quantity"
-        className="h-7 w-7 rounded-full bg-brand-50 font-semibold text-brand-900 hover:bg-brand-100 disabled:opacity-40"
+        className="h-7 w-7 rounded-full bg-brand-soft font-semibold text-heading hover:bg-brand-soft-strong disabled:opacity-40"
       >
         −
       </button>
@@ -73,7 +73,7 @@ function QuantityControls({
         disabled={disabled || (max !== undefined && quantity >= max)}
         onClick={() => onChange(quantity + 1)}
         aria-label="Increase quantity"
-        className="h-7 w-7 rounded-full bg-brand-50 font-semibold text-brand-900 hover:bg-brand-100 disabled:opacity-40"
+        className="h-7 w-7 rounded-full bg-brand-soft font-semibold text-heading hover:bg-brand-soft-strong disabled:opacity-40"
       >
         +
       </button>
@@ -90,7 +90,7 @@ function ServerCart() {
   })
 
   if (serverCart.isPending) return <p className="text-ink/50">Loading your cart…</p>
-  if (serverCart.isError) return <p className="text-red-600">Could not load your cart.</p>
+  if (serverCart.isError) return <p className="text-danger">Could not load your cart.</p>
 
   const cart = serverCart.data
   if (cart.lines.length === 0) return <EmptyCart />
@@ -100,7 +100,7 @@ function ServerCart() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
+      <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
         {cart.lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
@@ -110,13 +110,13 @@ function ServerCart() {
               <Link
                 to="/products/$productId"
                 params={{ productId: line.productId }}
-                className="font-medium text-ink hover:text-brand-700"
+                className="font-medium text-ink hover:text-brand"
               >
                 {line.name}
               </Link>
               <span className="text-sm text-ink/60">
                 {formatPrice(line.unitPriceMinor, line.currency)} each
-                {!line.available && <span className="ml-2 text-red-600">— currently unavailable</span>}
+                {!line.available && <span className="ml-2 text-danger">— currently unavailable</span>}
               </span>
             </div>
             <QuantityControls
@@ -132,7 +132,7 @@ function ServerCart() {
               type="button"
               onClick={() => setQuantity(line, 0)}
               disabled={mutation.isPending}
-              className="text-sm text-ink/40 hover:text-red-600"
+              className="text-sm text-ink/40 hover:text-danger"
               aria-label={`Remove ${line.name}`}
             >
               ✕
@@ -142,14 +142,14 @@ function ServerCart() {
       </ul>
       <div className="flex items-baseline justify-between px-1">
         <span className="text-ink/70">Subtotal</span>
-        <span className="text-xl font-bold text-brand-900">
+        <span className="text-xl font-bold text-heading">
           {formatPrice(cart.subtotalMinor, cart.currency)}
         </span>
       </div>
       <div className="flex justify-end">
         <Link
           to="/checkout"
-          className="rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+          className="rounded-full bg-brand px-8 py-3 text-sm font-semibold text-on-brand transition hover:bg-brand-deep"
         >
           Proceed to checkout
         </Link>
@@ -169,7 +169,7 @@ function GuestCart() {
 
   return (
     <div className="flex flex-col gap-4">
-      <ul className="divide-y divide-brand-50 rounded-card border border-brand-100 bg-white">
+      <ul className="divide-y divide-line rounded-card border border-line bg-surface-raised">
         {lines.map((line) => (
           <li key={line.productId} className="flex items-center gap-4 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-card">
@@ -179,7 +179,7 @@ function GuestCart() {
               <Link
                 to="/products/$productId"
                 params={{ productId: line.productId }}
-                className="font-medium text-ink hover:text-brand-700"
+                className="font-medium text-ink hover:text-brand"
               >
                 {line.name}
               </Link>
@@ -197,7 +197,7 @@ function GuestCart() {
             <button
               type="button"
               onClick={() => setQuantity(line.productId, 0)}
-              className="text-sm text-ink/40 hover:text-red-600"
+              className="text-sm text-ink/40 hover:text-danger"
               aria-label={`Remove ${line.name}`}
             >
               ✕
@@ -207,11 +207,11 @@ function GuestCart() {
       </ul>
       <div className="flex items-baseline justify-between px-1">
         <span className="text-ink/70">Estimated total</span>
-        <span className="text-xl font-bold text-brand-900">{formatPrice(estimatedTotal, currency)}</span>
+        <span className="text-xl font-bold text-heading">{formatPrice(estimatedTotal, currency)}</span>
       </div>
       <p className="text-right text-xs text-ink/40">
         Prices are confirmed at sign-in and checkout.{' '}
-        <Link to="/login" className="underline hover:text-brand-700">
+        <Link to="/login" className="underline hover:text-brand">
           Sign in
         </Link>{' '}
         to keep your cart.

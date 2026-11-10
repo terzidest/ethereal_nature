@@ -17,17 +17,17 @@ export function CartDrawer() {
   return (
     <Dialog.Root open={isDrawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-in" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim backdrop-blur-[2px] data-[state=open]:animate-in" />
         <Dialog.Content
           className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-surface-raised shadow-lifted outline-none"
           aria-describedby={undefined}
         >
-          <header className="flex items-center justify-between border-b border-brand-100 px-6 py-4">
-            <Dialog.Title className="font-display text-xl font-semibold text-brand-900">
+          <header className="flex items-center justify-between border-b border-line px-6 py-4">
+            <Dialog.Title className="font-display text-xl font-semibold text-heading">
               Your cart
             </Dialog.Title>
             <Dialog.Close
-              className="rounded-full p-2 text-ink/50 hover:bg-brand-50 hover:text-ink"
+              className="rounded-full p-2 text-ink/50 hover:bg-brand-soft hover:text-ink"
               aria-label="Close cart"
             >
               ✕
@@ -38,20 +38,20 @@ export function CartDrawer() {
             {user ? <ServerLines /> : <GuestLines />}
           </div>
 
-          <footer className="flex flex-col gap-3 border-t border-brand-100 px-6 py-4">
+          <footer className="flex flex-col gap-3 border-t border-line px-6 py-4">
             <DrawerTotals />
             <div className="flex gap-3">
               <Link
                 to="/cart"
                 onClick={closeDrawer}
-                className="flex-1 rounded-full bg-brand-50 px-6 py-2.5 text-center text-sm font-semibold text-brand-900 hover:bg-brand-100"
+                className="flex-1 rounded-full bg-brand-soft px-6 py-2.5 text-center text-sm font-semibold text-heading hover:bg-brand-soft-strong"
               >
                 View cart
               </Link>
               <Link
                 to="/checkout"
                 onClick={closeDrawer}
-                className="flex-1 rounded-full bg-brand-600 px-6 py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-700"
+                className="flex-1 rounded-full bg-brand px-6 py-2.5 text-center text-sm font-semibold text-on-brand hover:bg-brand-deep"
               >
                 Checkout
               </Link>
@@ -71,7 +71,7 @@ function EmptyDrawer() {
       <Link
         to="/products"
         onClick={closeDrawer}
-        className="text-sm font-medium text-brand-700 hover:text-brand-900"
+        className="text-sm font-medium text-brand hover:text-heading"
       >
         Browse the shop →
       </Link>
@@ -107,17 +107,17 @@ function LineRow({
           to="/products/$productId"
           params={{ productId }}
           onClick={closeDrawer}
-          className="truncate text-sm font-medium text-ink hover:text-brand-700"
+          className="truncate text-sm font-medium text-ink hover:text-brand"
         >
           {name}
         </Link>
         <span className="text-xs text-ink/50">× {quantity}</span>
       </div>
-      <span className="text-sm font-semibold text-brand-900">{priceLabel}</span>
+      <span className="text-sm font-semibold text-heading">{priceLabel}</span>
       <button
         type="button"
         onClick={onRemove}
-        className="p-1 text-xs text-ink/30 hover:text-red-600"
+        className="p-1 text-xs text-ink/30 hover:text-danger"
         aria-label={`Remove ${name}`}
       >
         ✕
@@ -139,7 +139,7 @@ function ServerLines() {
   if (lines.length === 0) return <EmptyDrawer />
 
   return (
-    <ul className="divide-y divide-brand-50">
+    <ul className="divide-y divide-line">
       {lines.map((line) => (
         <LineRow
           key={line.productId}
@@ -161,7 +161,7 @@ function GuestLines() {
   if (lines.length === 0) return <EmptyDrawer />
 
   return (
-    <ul className="divide-y divide-brand-50">
+    <ul className="divide-y divide-line">
       {lines.map((line) => (
         <LineRow
           key={line.productId}
@@ -192,7 +192,7 @@ function DrawerTotals() {
   return (
     <div className="flex items-baseline justify-between">
       <span className="text-sm text-ink/60">{user ? 'Subtotal' : 'Estimated total'}</span>
-      <span className="text-lg font-bold text-brand-900">{formatPrice(total, currency)}</span>
+      <span className="text-lg font-bold text-heading">{formatPrice(total, currency)}</span>
     </div>
   )
 }

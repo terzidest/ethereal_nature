@@ -42,7 +42,7 @@ export function CatalogControls({ search }: { search: CatalogSearch }) {
           name="q"
           defaultValue={search.q ?? ''}
           placeholder="Search products…"
-          className="w-44 rounded-full border border-brand-100 bg-white px-4 py-1.5 text-sm outline-none focus:border-brand-500"
+          className="w-44 rounded-full border border-line bg-surface-raised px-4 py-1.5 text-sm outline-none focus:border-brand"
         />
         <select
           value={sortOf(search)}
@@ -52,7 +52,7 @@ export function CatalogControls({ search }: { search: CatalogSearch }) {
               search: (prev) => ({ ...prev, sort: sort === 'newest' ? undefined : sort, page: undefined }),
             })
           }}
-          className="rounded-full border border-brand-100 bg-white px-3 py-1.5 text-sm"
+          className="rounded-full border border-line bg-surface-raised px-3 py-1.5 text-sm"
           aria-label="Sort"
         >
           {SORTS.map((sort) => (
@@ -82,7 +82,7 @@ function CategoryTab({
       to="/products"
       search={{ ...search, category, page: undefined }}
       className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-        active ? 'bg-brand-600 text-white' : 'bg-brand-50 text-brand-900 hover:bg-brand-100'
+        active ? 'bg-brand text-on-brand' : 'bg-brand-soft text-heading hover:bg-brand-soft-strong'
       }`}
     >
       {label}
