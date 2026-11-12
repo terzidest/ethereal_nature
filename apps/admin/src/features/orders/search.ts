@@ -1,6 +1,6 @@
 import type { OrderStatusDto } from '@ethereal-nature/api-client'
 
-export const ORDER_STATUSES = ['PLACED', 'PAID', 'PACKED', 'SHIPPED'] as const satisfies readonly OrderStatusDto[]
+export const ORDER_STATUSES = ['PLACED', 'PAID', 'PACKED', 'SHIPPED', 'CANCELLED'] as const satisfies readonly OrderStatusDto[]
 export const PAGE_SIZES = [10, 25, 50] as const
 
 /** Grid state in the URL — a pasted admin link reproduces the exact view. */

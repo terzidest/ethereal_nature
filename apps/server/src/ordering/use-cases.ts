@@ -5,6 +5,7 @@ import {
   InvalidStatusTransition,
   makeOrder,
   OrderNotFound,
+  paymentDueAt,
   priceCart,
   pricedTotalMinor,
   type CheckoutIssue,
@@ -25,6 +26,8 @@ export interface ProductCatalogPort {
   productInfo(ids: readonly string[]): Promise<Map<string, ProductInfo>>
   /** Guarded decrements; returns the ids that failed (insufficient stock). */
   decrementStock(intents: readonly OrderIntent[]): Promise<string[]>
+  /** Gives a cancelled order's quantities back (ADR-0012). */
+  restoreStock(intents: readonly OrderIntent[]): Promise<void>
 }
 
 export interface OrderRepository {
@@ -32,12 +35,23 @@ export interface OrderRepository {
   findById(id: string): Promise<Order | null>
   findByUser(userId: string): Promise<Order[]>
   findPage(page: number, pageSize: number, status: OrderStatus | null): Promise<{ orders: Order[]; total: number }>
-  updateStatus(id: string, status: OrderStatus): Promise<void>
+  /** Compare-and-set: changes the status only if it is still `from`; false when it wasn't. */
+  updateStatus(id: string, from: OrderStatus, to: OrderStatus): Promise<boolean>
+  /** Ids of PLACED orders placed before the cutoff, oldest first. */
+  findUnpaidPlacedBefore(cutoff: Date, limit: number): Promise<string[]>
 }
 
 export interface TransactionRunner {
   run<T>(fn: () => Promise<T>): Promise<T>
 }
+
+export interface OrderingSettings {
+  /** How long a PLACED order waits for payment before it's cancelled. */
+  paymentTimeoutMinutes: number
+}
+
+/** Upper bound per sweep; anything beyond waits for the next one. */
+const SWEEP_BATCH = 50
 
 export type PlaceOrderOutcome =
   | { kind: 'placed'; order: Order }
@@ -59,7 +73,30 @@ export function orderingUseCases(
   catalog: ProductCatalogPort,
   orders: OrderRepository,
   tx: TransactionRunner,
+  settings: OrderingSettings,
 ) {
+  /**
+   * One step of the status machine, atomically. The compare-and-set means a
+   * payment and a cancellation racing on the same order can't both win, and
+   * only the cancel that won returns stock, so it is never returned twice.
+   */
+  function transition(id: string, target: OrderStatus): Promise<Order> {
+    return tx.run(async () => {
+      const order = await orders.findById(id)
+      if (!order) throw new OrderNotFound(id)
+      if (!canTransitionTo(order.status, target)) throw new InvalidStatusTransition(order.status, target)
+      if (!(await orders.updateStatus(id, order.status, target))) {
+        // Changed underneath us since the read; report what it is now.
+        const current = (await orders.findById(id))?.status ?? order.status
+        throw new InvalidStatusTransition(current, target)
+      }
+      if (target === 'CANCELLED') {
+        await catalog.restoreStock(order.lines.map((l) => ({ productId: l.productId, quantity: l.quantity })))
+      }
+      return { ...order, status: target }
+    })
+  }
+
   return {
     /**
      * The one atomic transaction of ADR-0007: re-validate price and stock,
@@ -133,15 +170,35 @@ export function orderingUseCases(
       })
     },
 
-    /** The only mutation an order supports: advancing one step in the fulfillment flow. */
+    /** The only mutation an order supports: one step forward, or cancelling an unpaid order. */
     transitionOrderStatus(id: string, target: OrderStatus): Promise<Order> {
-      return tx.run(async () => {
-        const order = await orders.findById(id)
-        if (!order) throw new OrderNotFound(id)
-        if (!canTransitionTo(order.status, target)) throw new InvalidStatusTransition(order.status, target)
-        await orders.updateStatus(id, target)
-        return { ...order, status: target }
-      })
+      return transition(id, target)
+    },
+
+    /**
+     * Cancels PLACED orders whose payment window has closed and returns their
+     * stock (ADR-0012). Each order gets its own transaction. An order paid in
+     * the meantime is skipped; any other error ends this sweep and the next
+     * one retries. Returns how many were cancelled.
+     */
+    async cancelOverdueOrders(now: Date = new Date()): Promise<number> {
+      const cutoff = new Date(now.getTime() - settings.paymentTimeoutMinutes * 60_000)
+      const ids = await tx.run(() => orders.findUnpaidPlacedBefore(cutoff, SWEEP_BATCH))
+      let cancelled = 0
+      for (const id of ids) {
+        try {
+          await transition(id, 'CANCELLED')
+          cancelled++
+        } catch (error) {
+          if (!(error instanceof InvalidStatusTransition)) throw error
+        }
+      }
+      return cancelled
+    },
+
+    /** When this order is released if still unpaid; null once paid or cancelled. */
+    paymentDueAt(order: Order): Date | null {
+      return paymentDueAt(order, settings.paymentTimeoutMinutes)
     },
   }
 }

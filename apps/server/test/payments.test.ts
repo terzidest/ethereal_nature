@@ -275,6 +275,48 @@ describe('payment routes (ported from PaymentRoutesTest)', () => {
     expect(again.json().code).toBe('ORDER_NOT_PAYABLE')
   })
 
+  it('a cancelled order is not payable: no new intent, and a late success is refused (ADR-0012)', async () => {
+    const token = await freshCustomer()
+    const orderId = await placedOrder(token)
+    const intentId = (await createIntent(token, orderId)).json().id as string
+
+    await inject({
+      method: 'POST',
+      url: `/admin/orders/${orderId}/status`,
+      headers: { authorization: `Bearer ${await adminToken()}` },
+      payload: { status: 'CANCELLED' },
+    })
+
+    const late = await simulate(token, intentId, 'PAY')
+    expect(late.statusCode).toBe(409)
+    expect(late.json().code).toBe('ORDER_NOT_PAYABLE')
+    expect(await orderStatus(token, orderId)).toBe('CANCELLED')
+    // The intent settle rolled back with the refusal.
+    const intent = await inject({ method: 'GET', url: `/payments/intents/${intentId}`, headers: { authorization: `Bearer ${token}` } })
+    expect(intent.json().status).toBe('CREATED')
+
+    const fresh = await createIntent(token, orderId)
+    expect(fresh.statusCode).toBe(409)
+    expect(fresh.json().code).toBe('ORDER_NOT_PAYABLE')
+  })
+
+  it('a decline on a cancelled order still settles; the order stays cancelled', async () => {
+    const token = await freshCustomer()
+    const orderId = await placedOrder(token)
+    const intentId = (await createIntent(token, orderId)).json().id as string
+    await inject({
+      method: 'POST',
+      url: `/admin/orders/${orderId}/status`,
+      headers: { authorization: `Bearer ${await adminToken()}` },
+      payload: { status: 'CANCELLED' },
+    })
+
+    const declined = await simulate(token, intentId, 'DECLINE')
+    expect(declined.statusCode).toBe(200)
+    expect(declined.json().status).toBe('FAILED')
+    expect(await orderStatus(token, orderId)).toBe('CANCELLED')
+  })
+
   it('admin race: webhook success after a manual PAID transition stays a no-op', async () => {
     const token = await freshCustomer()
     const orderId = await placedOrder(token)
@@ -309,6 +351,7 @@ describe('transaction soundness (the ALS design proof)', () => {
       catalogGatewayAdapter(harness.app.catalog),
       kyselyOrderRepository(tx),
       tx,
+      { paymentTimeoutMinutes: 30 },
     )
     const realGateway = orderingGatewayAdapter(ordering)
     const sabotaged = paymentsUseCases(
@@ -374,6 +417,7 @@ describe('transaction soundness (the ALS design proof)', () => {
       catalogGatewayAdapter(harness.app.catalog),
       kyselyOrderRepository(tx),
       tx,
+      { paymentTimeoutMinutes: 30 },
     )
 
     const me = await inject({ method: 'GET', url: '/auth/me', headers: { authorization: `Bearer ${token}` } })

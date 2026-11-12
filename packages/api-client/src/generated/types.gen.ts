@@ -409,7 +409,7 @@ export type PlaceOrderRequest = {
 /**
  * OrderStatusDto
  */
-export type OrderStatusDto = 'PLACED' | 'PAID' | 'PACKED' | 'SHIPPED';
+export type OrderStatusDto = 'PLACED' | 'PAID' | 'PACKED' | 'SHIPPED' | 'CANCELLED';
 
 /**
  * OrderLineResponse
@@ -470,6 +470,11 @@ export type OrderResponse = {
      * Long
      */
     placedAtEpochSeconds: number;
+    /**
+     * Long
+     * When an unpaid order is released and its stock returned. Present only while the order is PLACED.
+     */
+    paymentDueAtEpochSeconds?: number;
 };
 
 /**
@@ -1166,7 +1171,7 @@ export type TransitionOrderStatusErrors = {
      */
     404: unknown;
     /**
-     * Invalid transition
+     * Invalid transition (including an order that changed status concurrently)
      */
     409: unknown;
 };
@@ -1438,6 +1443,10 @@ export type HandlePaymentWebhookErrors = {
      * Unknown payment intent
      */
     404: unknown;
+    /**
+     * The order was cancelled before the payment succeeded; nothing is settled
+     */
+    409: unknown;
 };
 
 export type HandlePaymentWebhookResponses = {
@@ -1471,6 +1480,10 @@ export type SimulatePaymentErrors = {
      * No such intent (or not yours)
      */
     404: unknown;
+    /**
+     * The order was cancelled before the payment succeeded; nothing is settled
+     */
+    409: unknown;
 };
 
 export type SimulatePaymentResponses = {

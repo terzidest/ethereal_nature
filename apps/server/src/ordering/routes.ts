@@ -21,7 +21,8 @@ function orderIdFrom(raw: string | undefined): string {
   return raw.toLowerCase()
 }
 
-function toOrderResponse(order: Order) {
+/** Null-omission: paymentDueAtEpochSeconds is omitted once an order is paid or cancelled. */
+function toOrderResponse(order: Order, paymentDueAt: Date | null) {
   return {
     id: order.id,
     userId: order.userId,
@@ -37,6 +38,7 @@ function toOrderResponse(order: Order) {
     totalMinor: orderTotalMinor(order),
     currency: orderCurrency(order),
     placedAtEpochSeconds: Math.floor(order.placedAt.getTime() / 1000),
+    paymentDueAtEpochSeconds: paymentDueAt ? Math.floor(paymentDueAt.getTime() / 1000) : undefined,
   }
 }
 
@@ -51,9 +53,9 @@ function toIssueDto(issue: CheckoutIssue) {
   }
 }
 
-function toListResponse(page: OrderPage) {
+function toListResponse(page: OrderPage, toOrder: (order: Order) => ReturnType<typeof toOrderResponse>) {
   return {
-    items: page.items.map(toOrderResponse),
+    items: page.items.map(toOrder),
     page: page.page,
     pageSize: page.pageSize,
     totalItems: page.totalItems,
@@ -68,19 +70,21 @@ function lenientQuerySchema(schema: FastifySchema): FastifySchema {
 }
 
 export function orderRoutes(app: FastifyInstance, ordering: OrderingUseCases, tokens: TokenService): void {
+  const toOrder = (order: Order) => toOrderResponse(order, ordering.paymentDueAt(order))
+
   const authed = requireAuth(tokens)
 
   app.post('/orders', { schema: opSchema('/orders', 'post'), preHandler: authed }, async (request, reply) => {
     const { expectedTotalMinor } = request.body as { expectedTotalMinor: number }
     const outcome = await ordering.placeOrder(request.authUser!.id, expectedTotalMinor)
-    if (outcome.kind === 'placed') return reply.status(201).send(toOrderResponse(outcome.order))
+    if (outcome.kind === 'placed') return reply.status(201).send(toOrder(outcome.order))
     return reply
       .status(409)
       .send({ issues: outcome.issues.map(toIssueDto), currentTotalMinor: outcome.currentTotalMinor })
   })
 
   app.get('/orders', { schema: opSchema('/orders', 'get'), preHandler: authed }, async (request) =>
-    (await ordering.getMyOrders(request.authUser!.id)).map(toOrderResponse),
+    (await ordering.getMyOrders(request.authUser!.id)).map(toOrder),
   )
 
   app.get(
@@ -90,7 +94,7 @@ export function orderRoutes(app: FastifyInstance, ordering: OrderingUseCases, to
       const { id } = request.params as { id: string }
       const role = request.authUser!.role
       const canViewAnyOrder = role === 'ADMIN' || role === 'VIEWER'
-      return toOrderResponse(await ordering.getOrder(orderIdFrom(id), request.authUser!.id, canViewAnyOrder))
+      return toOrder(await ordering.getOrder(orderIdFrom(id), request.authUser!.id, canViewAnyOrder))
     },
   )
 
@@ -107,7 +111,7 @@ export function orderRoutes(app: FastifyInstance, ordering: OrderingUseCases, to
       const pageSize = Math.min(100, Math.max(1, Number.parseInt(query.pageSize ?? '', 10) || 25))
       const status =
         ORDER_STATUSES.find((s) => s.toLowerCase() === query.status?.toLowerCase()) ?? null
-      return toListResponse(await ordering.listOrders(page, pageSize, status))
+      return toListResponse(await ordering.listOrders(page, pageSize, status), toOrder)
     },
   )
 
@@ -117,7 +121,7 @@ export function orderRoutes(app: FastifyInstance, ordering: OrderingUseCases, to
     async (request) => {
       const { id } = request.params as { id: string }
       const { status } = request.body as { status: OrderStatus }
-      return toOrderResponse(await ordering.transitionOrderStatus(orderIdFrom(id), status))
+      return toOrder(await ordering.transitionOrderStatus(orderIdFrom(id), status))
     },
   )
 }

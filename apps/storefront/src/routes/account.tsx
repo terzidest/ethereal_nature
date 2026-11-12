@@ -94,12 +94,13 @@ function AccountPage() {
   )
 }
 
-/** Status chip colour: settled steps in brand, waiting-for-payment in amber. */
+/** Status chip colour: settled steps in brand, waiting-for-payment in amber, cancelled in neutral. */
 const STATUS_TONE: Record<OrderStatusDto, string> = {
   PLACED: 'bg-amber-wash text-amber-text',
   PAID: 'bg-brand-soft text-brand',
   PACKED: 'bg-brand-soft text-brand',
   SHIPPED: 'bg-brand text-on-brand',
+  CANCELLED: 'bg-sand-100 text-ink-soft',
 }
 
 function OrderHistory() {

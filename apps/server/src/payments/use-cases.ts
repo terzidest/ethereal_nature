@@ -27,9 +27,14 @@ export interface PayableOrder {
 export interface OrderGateway {
   /** null when the order doesn't exist or isn't the requester's — the caller 404s either way. */
   findOwnedOrder(orderId: string, requesterId: string): Promise<PayableOrder | null>
-  /** Idempotent: an order already at or past PAID is left untouched. */
-  markPaid(orderId: string): Promise<void>
+  /**
+   * Idempotent: an order already at or past PAID is left untouched
+   * ('already_paid'). A cancelled order can't be paid ('cancelled').
+   */
+  markPaid(orderId: string): Promise<MarkPaidOutcome>
 }
+
+export type MarkPaidOutcome = 'paid' | 'already_paid' | 'cancelled'
 
 export interface PaymentIntentRepository {
   insert(intent: PaymentIntent): Promise<void>
@@ -109,7 +114,8 @@ export function paymentsUseCases(
      * One payments transaction wraps both writes; ordering's markPaid joins
      * it through the shared ambient runner, so intent and order settle or
      * roll back together. Replays are answered by intent status: a terminal
-     * intent is a 200 no-op.
+     * intent is a 200 no-op. A success for an order that was cancelled first
+     * (its payment window closed, ADR-0012) is refused and nothing settles.
      */
     handlePspEvent(rawBody: string, signatureHex: string | null | undefined): Promise<WebhookOutcome> {
       if (!WebhookSignature.verify(settings.webhookSecret, rawBody, signatureHex)) {
@@ -138,7 +144,10 @@ export function paymentsUseCases(
         const target: PaymentIntentStatus = event.type === 'PAYMENT_SUCCEEDED' ? 'SUCCEEDED' : 'FAILED'
         const settled = settle(intent, target, event.eventId)
         await intents.settle(settled.id, settled.status, event.eventId)
-        if (settled.status === 'SUCCEEDED') await orders.markPaid(intent.orderId)
+        if (settled.status === 'SUCCEEDED' && (await orders.markPaid(intent.orderId)) === 'cancelled') {
+          // Throwing rolls back the intent settle above as well.
+          throw new OrderNotPayable(intent.orderId)
+        }
         return 'processed'
       })
     },

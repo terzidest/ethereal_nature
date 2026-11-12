@@ -99,8 +99,28 @@ export function kyselyOrderRepository(tx: AmbientTransactions): OrderRepository 
       return { orders: await hydrate(rows), total: counted.n }
     },
 
-    async updateStatus(id, status) {
-      await tx.getExecutor().updateTable('orders').set({ status }).where('id', '=', id).execute()
+    async updateStatus(id, from, to) {
+      const result = await tx
+        .getExecutor()
+        .updateTable('orders')
+        .set({ status: to })
+        .where('id', '=', id)
+        .where('status', '=', from)
+        .executeTakeFirst()
+      return result.numUpdatedRows === 1n
+    },
+
+    async findUnpaidPlacedBefore(cutoff, limit) {
+      const rows = await tx
+        .getExecutor()
+        .selectFrom('orders')
+        .select('id')
+        .where('status', '=', 'PLACED')
+        .where('placed_at', '<', cutoff)
+        .orderBy('placed_at', 'asc')
+        .limit(limit)
+        .execute()
+      return rows.map((row) => row.id)
     },
   }
 }
@@ -138,6 +158,9 @@ export function catalogGatewayAdapter(catalog: CatalogUseCases): ProductCatalogP
     },
     decrementStock(intents) {
       return catalog.decrementStock(intents.map((i) => ({ productId: i.productId, quantity: i.quantity })))
+    },
+    restoreStock(intents) {
+      return catalog.restoreStock(intents.map((i) => ({ productId: i.productId, quantity: i.quantity })))
     },
   }
 }

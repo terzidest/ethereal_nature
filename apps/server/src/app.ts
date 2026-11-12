@@ -92,6 +92,7 @@ export async function buildApp({ config, db }: AppDeps): Promise<App> {
     catalogGatewayAdapter(catalog),
     kyselyOrderRepository(tx),
     tx,
+    config.ordering,
   )
   const content = contentUseCases(kyselyPageRepository(tx), tx)
   const payments = paymentsUseCases(
