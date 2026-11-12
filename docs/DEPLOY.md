@@ -45,6 +45,9 @@ CORS_ALLOWED_ORIGINS=https://<storefront-domain>,https://<admin-domain>
 Notes:
 - `MOCK_PSP_ENABLED=true` is deliberate — the mock PSP **is** the demo's payment
   flow. Disabling it removes the only way to pay.
+- `ORDER_PAYMENT_TIMEOUT_MINUTES` is optional (default `30`): how long a placed
+  order waits for payment before the server cancels it and returns its stock
+  (ADR-0012). The sweep runs inside the API process once a minute.
 - If private networking misbehaves, fall back to the public proxy:
   `postgres://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}`.
 - `PORT` is injected by Railway; the app already reads it. Netty binds `0.0.0.0`.

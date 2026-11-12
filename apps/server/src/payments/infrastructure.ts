@@ -101,10 +101,14 @@ export function orderingGatewayAdapter(ordering: OrderingUseCases): OrderGateway
     async markPaid(orderId) {
       try {
         await ordering.transitionOrderStatus(orderId, 'PAID')
+        return 'paid'
       } catch (error) {
+        if (!(error instanceof InvalidStatusTransition)) throw error
+        // Cancelled before the money arrived: the caller refuses the payment.
+        if (error.from === 'CANCELLED') return 'cancelled'
         // Already at or past PAID (e.g. an admin advanced it first) — the
         // goal state holds, so a replayed or racing webhook is a no-op.
-        if (!(error instanceof InvalidStatusTransition)) throw error
+        return 'already_paid'
       }
     },
   }

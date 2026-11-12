@@ -45,6 +45,8 @@ export interface ProductRepository {
   countActiveByCategory(): Promise<Map<ProductCategory, number>>
   /** Guarded decrement: false when stock is insufficient (no change made). */
   decrementStock(id: string, quantity: number): Promise<boolean>
+  /** Unguarded increment, for returning a cancelled order's stock. */
+  incrementStock(id: string, quantity: number): Promise<void>
   slugExists(slug: string): Promise<boolean>
   insert(product: Product): Promise<void>
   update(product: Product): Promise<void>

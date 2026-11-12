@@ -15,6 +15,7 @@ export const nextStatus: Record<OrderStatusDto, OrderStatusDto | null> = {
   PAID: 'PACKED',
   PACKED: 'SHIPPED',
   SHIPPED: null,
+  CANCELLED: null,
 }
 
 export const statusTone: Record<OrderStatusDto, string> = {
@@ -22,4 +23,5 @@ export const statusTone: Record<OrderStatusDto, string> = {
   PAID: 'bg-blue-100 text-blue-900',
   PACKED: 'bg-purple-100 text-purple-900',
   SHIPPED: 'bg-brand-100 text-brand-900',
+  CANCELLED: 'bg-gray-100 text-gray-600',
 }

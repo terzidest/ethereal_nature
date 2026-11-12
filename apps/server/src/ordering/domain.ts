@@ -2,16 +2,30 @@ import { AppError, domainRequire } from '../platform/errors.js'
 
 /** Ordering domain — pure. */
 
-export type OrderStatus = 'PLACED' | 'PAID' | 'PACKED' | 'SHIPPED'
-export const ORDER_STATUSES: readonly OrderStatus[] = ['PLACED', 'PAID', 'PACKED', 'SHIPPED']
+export type OrderStatus = 'PLACED' | 'PAID' | 'PACKED' | 'SHIPPED' | 'CANCELLED'
 
-/** Linear fulfillment flow — the only mutation an order ever sees. */
+/** The linear fulfillment flow. CANCELLED sits outside it (ADR-0012). */
+const FULFILLMENT_FLOW: readonly OrderStatus[] = ['PLACED', 'PAID', 'PACKED', 'SHIPPED']
+export const ORDER_STATUSES: readonly OrderStatus[] = [...FULFILLMENT_FLOW, 'CANCELLED']
+
+/** Next step in the fulfillment flow; null at the end of it and for a cancelled order. */
 export function nextStatus(status: OrderStatus): OrderStatus | null {
-  return ORDER_STATUSES[ORDER_STATUSES.indexOf(status) + 1] ?? null
+  if (status === 'CANCELLED') return null
+  return FULFILLMENT_FLOW[FULFILLMENT_FLOW.indexOf(status) + 1] ?? null
 }
 
+/**
+ * Status is the only thing an order ever changes: one step forward, or
+ * PLACED → CANCELLED while it's still unpaid. CANCELLED is terminal.
+ */
 export function canTransitionTo(from: OrderStatus, target: OrderStatus): boolean {
+  if (target === 'CANCELLED') return from === 'PLACED'
   return target === nextStatus(from)
+}
+
+/** When an unpaid order is released; null once it's paid or cancelled. */
+export function paymentDueAt(order: Pick<Order, 'status' | 'placedAt'>, timeoutMinutes: number): Date | null {
+  return order.status === 'PLACED' ? new Date(order.placedAt.getTime() + timeoutMinutes * 60_000) : null
 }
 
 /** A frozen snapshot line. Name and price are copied at placement. */
@@ -69,7 +83,10 @@ export class OrderNotFound extends AppError {
 export class InvalidStatusTransition extends AppError {
   readonly status = 409
   readonly code = 'INVALID_STATUS_TRANSITION'
-  constructor(from: OrderStatus, to: OrderStatus) {
+  constructor(
+    readonly from: OrderStatus,
+    readonly to: OrderStatus,
+  ) {
     super(`Cannot transition order from ${from} to ${to}`)
   }
 }

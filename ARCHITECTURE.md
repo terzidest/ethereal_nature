@@ -262,10 +262,17 @@ separate is what lets cart behavior change freely without ever risking the
 integrity of a historical purchase, and it is where a future `payments` context
 plugs in.
 
+### Unpaid orders give their stock back
+Stock is taken at checkout, so an order that is never paid would hold it
+forever. A `PLACED` order can become `CANCELLED` (by an admin, or automatically
+once its payment window closes), which returns every line's quantity to the
+catalog in the same transaction. Every status change is compare-and-set, so a
+payment and a cancellation racing on one order can't both win (ADR-0012).
+
 ### Deliberately deferred
 - **Stock reservation at add-to-cart** (vs. decrement at checkout). Reserve-at-
   cart is more correct for real commerce but adds reservation-expiry machinery.
-  We decrement at checkout for the demo.
+  We decrement at checkout and release unpaid orders instead (ADR-0012).
 
 ---
 

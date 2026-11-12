@@ -146,6 +146,15 @@ export function kyselyProductRepository(tx: AmbientTransactions): ProductReposit
       return result.numUpdatedRows === 1n
     },
 
+    async incrementStock(id, quantity) {
+      await tx
+        .getExecutor()
+        .updateTable('products')
+        .set((eb) => ({ stock: eb('stock', '+', quantity) }))
+        .where('id', '=', id)
+        .execute()
+    },
+
     async slugExists(slug) {
       const row = await tx.getExecutor().selectFrom('products').select('id').where('slug', '=', slug).executeTakeFirst()
       return row !== undefined

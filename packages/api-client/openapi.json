@@ -635,8 +635,8 @@
     "/admin/orders/{id}/status": {
       "post": {
         "tags": [],
-        "summary": "Advance an order's fulfillment status (admin)",
-        "description": "The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.",
+        "summary": "Advance or cancel an order (admin)",
+        "description": "The only mutation an order supports. Fulfillment is linear (PLACED → PAID → PACKED → SHIPPED); a PLACED order can also become CANCELLED, which returns its stock to the catalog. Anything else is rejected. Order contents are never editable.",
         "operationId": "transitionOrderStatus",
         "parameters": [
           {
@@ -687,7 +687,7 @@
             "headers": {}
           },
           "409": {
-            "description": "Invalid transition",
+            "description": "Invalid transition (including an order that changed status concurrently)",
             "headers": {}
           }
         },
@@ -1101,6 +1101,10 @@
           "404": {
             "description": "Unknown payment intent",
             "headers": {}
+          },
+          "409": {
+            "description": "The order was cancelled before the payment succeeded; nothing is settled",
+            "headers": {}
           }
         },
         "deprecated": false
@@ -1154,6 +1158,10 @@
           },
           "404": {
             "description": "No such intent (or not yours)",
+            "headers": {}
+          },
+          "409": {
+            "description": "The order was cancelled before the payment succeeded; nothing is settled",
             "headers": {}
           }
         },
@@ -1908,7 +1916,8 @@
           "PLACED",
           "PAID",
           "PACKED",
-          "SHIPPED"
+          "SHIPPED",
+          "CANCELLED"
         ],
         "title": "OrderStatusDto"
       },
@@ -1987,6 +1996,12 @@
             "type": "integer",
             "format": "int64",
             "title": "Long"
+          },
+          "paymentDueAtEpochSeconds": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Long",
+            "description": "When an unpaid order is released and its stock returned. Present only while the order is PLACED."
           }
         },
         "required": [

@@ -130,6 +130,15 @@ export function catalogUseCases(products: ProductRepository, tx: TransactionRunn
       }
       return failed
     },
+
+    /**
+     * Gives quantities back when an unpaid order is cancelled (ADR-0012).
+     * Archived products get theirs back too: the count stays true. No
+     * transaction of its own: joins the caller's.
+     */
+    async restoreStock(items: readonly StockDecrement[]): Promise<void> {
+      for (const item of items) await products.incrementStock(item.productId, item.quantity)
+    },
   }
 }
 

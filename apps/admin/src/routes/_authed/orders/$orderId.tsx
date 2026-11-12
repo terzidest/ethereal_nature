@@ -4,6 +4,7 @@ import {
   transitionOrderStatusMutation,
 } from '@ethereal-nature/api-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useIsViewer } from '../../../features/auth/viewer'
 import { formatOrderDate, formatPrice, nextStatus, statusTone } from '../../../features/orders/derive'
@@ -19,16 +20,24 @@ function OrderDetailPage() {
   const isViewer = useIsViewer()
   const queryClient = useQueryClient()
   const order = useQuery(getOrderOptions({ path: { id: orderId } }))
+  // Cancelling takes two clicks: an inline confirm instead of a browser dialog.
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
 
   const transition = useMutation({
     ...transitionOrderStatusMutation({ throwOnError: true }),
     onSuccess: (updated) => {
+      setConfirmingCancel(false)
       queryClient.setQueryData(getOrderQueryKey({ path: { id: orderId } }), updated)
       // Every page/filter variant of the admin list is stale now.
       void queryClient.invalidateQueries({
         predicate: (query) =>
           (query.queryKey[0] as { _id?: string } | undefined)?._id === 'listAllOrders',
       })
+    },
+    // 409: it changed underneath us (paid, or released by the expiry sweep). Show what it is now.
+    onError: () => {
+      setConfirmingCancel(false)
+      void queryClient.invalidateQueries({ queryKey: getOrderQueryKey({ path: { id: orderId } }) })
     },
   })
 
@@ -71,13 +80,56 @@ function OrderDetailPage() {
             {transition.isPending ? 'Updating…' : `Mark as ${advance}`}
           </button>
         )}
+        {data.status === 'PLACED' &&
+          (confirmingCancel ? (
+            <span className="flex items-center gap-2 text-sm">
+              <span className="text-ink/70">Cancel and return its stock?</span>
+              <button
+                type="button"
+                disabled={transition.isPending}
+                onClick={() => transition.mutate({ path: { id: data.id }, body: { status: 'CANCELLED' } })}
+                className="rounded-full bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                Yes, cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingCancel(false)}
+                className="rounded-full px-3 py-2 font-medium text-ink/70 hover:text-ink"
+              >
+                Keep
+              </button>
+            </span>
+          ) : (
+            <button
+              type="button"
+              disabled={isViewer || transition.isPending}
+              title={isViewer ? 'Read-only demo' : undefined}
+              onClick={() => setConfirmingCancel(true)}
+              className="rounded-full border border-red-200 px-5 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+            >
+              Cancel order
+            </button>
+          ))}
       </header>
+
+      {transition.isError && (
+        <p role="alert" className="text-sm text-red-600">
+          The order changed before this went through. It now shows its current status.
+        </p>
+      )}
 
       <dl className="flex gap-8 text-sm text-ink/70">
         <div>
           <dt className="font-medium text-ink">Placed</dt>
           <dd>{formatOrderDate(data.placedAtEpochSeconds)}</dd>
         </div>
+        {data.paymentDueAtEpochSeconds && (
+          <div>
+            <dt className="font-medium text-ink">Released if unpaid</dt>
+            <dd>{formatOrderDate(data.paymentDueAtEpochSeconds)}</dd>
+          </div>
+        )}
         <div>
           <dt className="font-medium text-ink">Customer</dt>
           <dd>
@@ -123,7 +175,8 @@ function OrderDetailPage() {
 
       <p className="text-sm text-ink/40">
         Order contents are a frozen snapshot and cannot be edited — only the fulfillment status advances
-        (PLACED → PAID → PACKED → SHIPPED).
+        (PLACED → PAID → PACKED → SHIPPED). An unpaid order can be cancelled, which returns its stock; unpaid
+        orders are also cancelled automatically when their payment window closes.
       </p>
     </main>
   )

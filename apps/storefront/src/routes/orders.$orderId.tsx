@@ -7,7 +7,7 @@ import { formatPrice } from '../features/catalog/derive'
 import { productDetailQuery } from '../features/catalog/queries'
 import { OrderTimeline } from '../features/checkout/components/OrderTimeline'
 import { shortOrderId } from '../features/checkout/flow'
-import { formatOrderDate } from '../features/checkout/format'
+import { formatOrderDate, formatOrderTime } from '../features/checkout/format'
 import { useStartPayment } from '../features/payments/useStartPayment'
 
 export const Route = createFileRoute('/orders/$orderId')({
@@ -43,7 +43,10 @@ function OrderPage() {
   }
 
   const data = order.data
-  const paid = data.status !== 'PLACED'
+  // Cancelled before payment: the window closed or the shop cancelled it. Its stock went back (ADR-0012).
+  const cancelled = data.status === 'CANCELLED'
+  const awaitingPayment = data.status === 'PLACED'
+  const paid = !cancelled && !awaitingPayment
   const total = formatPrice(data.totalMinor, data.currency)
   const count = data.lines.reduce((n, l) => n + l.quantity, 0)
 
@@ -76,6 +79,10 @@ function OrderPage() {
           <>
             Thank you — <em className="font-normal italic text-brand">it&apos;s paid.</em>
           </>
+        ) : cancelled ? (
+          <>
+            This order was <em className="font-normal italic text-brand">cancelled.</em>
+          </>
         ) : (
           <>
             Almost <em className="font-normal italic text-brand">there.</em>
@@ -85,10 +92,14 @@ function OrderPage() {
       <p className="rise rise-2 max-w-[520px] text-base leading-relaxed text-ink-soft md:text-lg">
         {paid
           ? "Your order is paid and on its way through fulfilment. We'll pack it in a recycled kraft box with paper tape, and a sprig of lavender."
-          : 'Your order is reserved, but the payment hasn’t gone through yet. Nothing was charged.'}
+          : cancelled
+            ? 'It was cancelled before payment went through, so its items went back on the shelf. Nothing was charged.'
+            : data.paymentDueAtEpochSeconds
+              ? `Your order is reserved until ${formatOrderTime(data.paymentDueAtEpochSeconds)}, but the payment hasn’t gone through yet. Nothing was charged.`
+              : 'Your order is reserved, but the payment hasn’t gone through yet. Nothing was charged.'}
       </p>
 
-      {!paid && (
+      {awaitingPayment && (
         <button
           type="button"
           disabled={startPayment.isPending}
@@ -100,7 +111,7 @@ function OrderPage() {
         </button>
       )}
 
-      <OrderTimeline status={data.status} />
+      {!cancelled && <OrderTimeline status={data.status} />}
 
       <LinesStrip order={data} count={count} total={total} />
 

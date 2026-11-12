@@ -194,8 +194,8 @@ export const listAllOrders = <ThrowOnError extends boolean = false>(options?: Op
 };
 
 /**
- * Advance an order's fulfillment status (admin)
- * The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.
+ * Advance or cancel an order (admin)
+ * The only mutation an order supports. Fulfillment is linear (PLACED → PAID → PACKED → SHIPPED); a PLACED order can also become CANCELLED, which returns its stock to the catalog. Anything else is rejected. Order contents are never editable.
  */
 export const transitionOrderStatus = <ThrowOnError extends boolean = false>(options: Options<TransitionOrderStatusData, ThrowOnError>) => {
     return (options.client ?? client).post<TransitionOrderStatusResponses, TransitionOrderStatusErrors, ThrowOnError>({

@@ -25,6 +25,8 @@ const envSchema = z.object({
     .default('true')
     .transform((v) => v === 'true'),
   CORS_ALLOWED_ORIGINS: z.string().default('http://localhost:3000,http://localhost:3001'),
+  // How long a placed order waits for payment before its stock is released (ADR-0012).
+  ORDER_PAYMENT_TIMEOUT_MINUTES: z.coerce.number().int().positive().default(30),
 })
 
 export interface AppConfig {
@@ -34,6 +36,7 @@ export interface AppConfig {
   admin: { email: string; password: string }
   demo: { viewerEmail: string; viewerPassword: string; loginEnabled: boolean }
   payments: { webhookSecret: string; mockPspEnabled: boolean }
+  ordering: { paymentTimeoutMinutes: number }
   corsAllowedOrigins: string[]
 }
 
@@ -47,6 +50,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     admin: { email: e.ADMIN_EMAIL, password: e.ADMIN_PASSWORD },
     demo: { viewerEmail: e.VIEWER_EMAIL, viewerPassword: e.VIEWER_PASSWORD, loginEnabled: e.DEMO_LOGIN_ENABLED },
     payments: { webhookSecret: e.PAYMENTS_WEBHOOK_SECRET, mockPspEnabled: e.MOCK_PSP_ENABLED },
+    ordering: { paymentTimeoutMinutes: e.ORDER_PAYMENT_TIMEOUT_MINUTES },
     corsAllowedOrigins: e.CORS_ALLOWED_ORIGINS.split(',')
       .map((o) => o.trim())
       .filter((o) => o.length > 0),

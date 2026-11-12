@@ -45,6 +45,15 @@ function PayPage() {
         void navigate({ to: '/orders/$orderId', params: { orderId: settled.orderId } })
       }
     },
+    // Refused: the order was cancelled before the payment went through
+    // (ADR-0012). Its own page explains that; nothing was charged.
+    onError: () => {
+      const orderId = intent.data?.orderId
+      if (!orderId) return
+      void queryClient.invalidateQueries({ queryKey: getOrderQueryKey({ path: { id: orderId } }) })
+      void queryClient.invalidateQueries({ queryKey: getMyOrdersQueryKey() })
+      void navigate({ to: '/orders/$orderId', params: { orderId } })
+    },
   })
 
   if (isRestoring || (user && intent.isPending)) {

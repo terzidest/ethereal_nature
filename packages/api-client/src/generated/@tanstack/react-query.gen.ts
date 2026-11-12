@@ -422,8 +422,8 @@ export const listAllOrdersInfiniteOptions = (options?: Options<ListAllOrdersData
 };
 
 /**
- * Advance an order's fulfillment status (admin)
- * The only mutation an order supports. Transitions are linear (PLACED → PAID → PACKED → SHIPPED); anything else is rejected. Order contents are never editable.
+ * Advance or cancel an order (admin)
+ * The only mutation an order supports. Fulfillment is linear (PLACED → PAID → PACKED → SHIPPED); a PLACED order can also become CANCELLED, which returns its stock to the catalog. Anything else is rejected. Order contents are never editable.
  */
 export const transitionOrderStatusMutation = (options?: Partial<Options<TransitionOrderStatusData>>): UseMutationOptions<TransitionOrderStatusResponse, DefaultError, Options<TransitionOrderStatusData>> => {
     const mutationOptions: UseMutationOptions<TransitionOrderStatusResponse, DefaultError, Options<TransitionOrderStatusData>> = {

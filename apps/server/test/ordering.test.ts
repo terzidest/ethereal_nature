@@ -6,6 +6,7 @@ import {
   makeOrder,
   makeOrderLine,
   orderTotalMinor,
+  paymentDueAt,
   priceCart,
   pricedTotalMinor,
   type OrderIntent,
@@ -54,6 +55,22 @@ describe('priceCart + status machine (ported from OrderDomainTest)', () => {
     expect(canTransitionTo('PLACED', 'SHIPPED')).toBe(false)
     expect(canTransitionTo('SHIPPED', 'PLACED')).toBe(false)
     expect(canTransitionTo('PAID', 'PAID')).toBe(false)
+  })
+
+  it('only an unpaid order can be cancelled, and cancelled is terminal (ADR-0012)', () => {
+    expect(canTransitionTo('PLACED', 'CANCELLED')).toBe(true)
+    expect(canTransitionTo('PAID', 'CANCELLED')).toBe(false)
+    expect(canTransitionTo('SHIPPED', 'CANCELLED')).toBe(false)
+    expect(canTransitionTo('CANCELLED', 'CANCELLED')).toBe(false)
+    expect(canTransitionTo('CANCELLED', 'PAID')).toBe(false)
+    expect(canTransitionTo('CANCELLED', 'PLACED')).toBe(false)
+  })
+
+  it('the payment deadline exists only while the order is unpaid', () => {
+    const placedAt = new Date('2026-11-12T10:00:00Z')
+    expect(paymentDueAt({ status: 'PLACED', placedAt }, 30)).toEqual(new Date('2026-11-12T10:30:00Z'))
+    expect(paymentDueAt({ status: 'PAID', placedAt }, 30)).toBeNull()
+    expect(paymentDueAt({ status: 'CANCELLED', placedAt }, 30)).toBeNull()
   })
 })
 
@@ -333,5 +350,105 @@ describe('order routes (ported from OrderRoutesTest)', () => {
     })
     expect(reread.json().lines[0].unitPriceMinor).toBe(2000)
     expect(reread.json().totalMinor).toBe(2000)
+  })
+})
+
+describe('unpaid order expiry (ADR-0012)', () => {
+  async function placed(stock = 10, quantity = 2) {
+    const token = await freshCustomer()
+    const productId = await createProduct(1000, stock)
+    await putItem(token, productId, quantity)
+    const order = (await placeOrder(token, 1000 * quantity)).json()
+    return { token, productId, orderId: order.id as string, order }
+  }
+
+  async function setStatus(orderId: string, status: string) {
+    return inject({
+      method: 'POST',
+      url: `/admin/orders/${orderId}/status`,
+      headers: { authorization: `Bearer ${await adminToken()}` },
+      payload: { status },
+    })
+  }
+
+  async function getOrder(token: string, orderId: string) {
+    return (await inject({ method: 'GET', url: `/orders/${orderId}`, headers: { authorization: `Bearer ${token}` } })).json()
+  }
+
+  it('a placed order carries its payment deadline; it disappears once paid', async () => {
+    const { token, orderId, order } = await placed()
+    expect(order.paymentDueAtEpochSeconds - order.placedAtEpochSeconds).toBe(30 * 60)
+
+    await setStatus(orderId, 'PAID')
+    expect((await getOrder(token, orderId)).paymentDueAtEpochSeconds).toBeUndefined()
+  })
+
+  it('admin cancel returns the stock, exactly once', async () => {
+    const { token, productId, orderId } = await placed(10, 3)
+    expect(await productStock(productId)).toBe(7)
+
+    const cancelled = await setStatus(orderId, 'CANCELLED')
+    expect(cancelled.statusCode).toBe(200)
+    expect(cancelled.json().status).toBe('CANCELLED')
+    expect(cancelled.json().paymentDueAtEpochSeconds).toBeUndefined()
+    expect(await productStock(productId)).toBe(10)
+
+    const again = await setStatus(orderId, 'CANCELLED')
+    expect(again.statusCode).toBe(409)
+    expect(again.json().code).toBe('INVALID_STATUS_TRANSITION')
+    expect(await productStock(productId)).toBe(10)
+
+    // Contents are untouched: still a frozen snapshot.
+    expect((await getOrder(token, orderId)).lines[0].quantity).toBe(3)
+  })
+
+  it('a paid order cannot be cancelled and keeps its stock taken', async () => {
+    const { productId, orderId } = await placed(10, 2)
+    await setStatus(orderId, 'PAID')
+    const res = await setStatus(orderId, 'CANCELLED')
+    expect(res.statusCode).toBe(409)
+    expect(await productStock(productId)).toBe(8)
+  })
+
+  it('a cancelled order goes nowhere else', async () => {
+    const { orderId } = await placed()
+    await setStatus(orderId, 'CANCELLED')
+    expect((await setStatus(orderId, 'PAID')).statusCode).toBe(409)
+  })
+
+  it('the sweep cancels only orders past the window and returns their stock', async () => {
+    const overdue = await placed(10, 2)
+    const fresh = await placed(10, 1)
+    const paid = await placed(10, 4)
+    await setStatus(paid.orderId, 'PAID')
+    // Backdate far enough to be first in the sweep's oldest-first batch,
+    // whatever older test orders the shared dev DB holds.
+    await harness.db
+      .updateTable('orders')
+      .set({ placed_at: new Date('2000-01-01T00:00:00Z') })
+      .where('id', 'in', [overdue.orderId, paid.orderId])
+      .execute()
+
+    expect(await harness.app.ordering.cancelOverdueOrders()).toBeGreaterThanOrEqual(1)
+
+    expect((await getOrder(overdue.token, overdue.orderId)).status).toBe('CANCELLED')
+    expect(await productStock(overdue.productId)).toBe(10)
+    expect((await getOrder(fresh.token, fresh.orderId)).status).toBe('PLACED')
+    expect(await productStock(fresh.productId)).toBe(9)
+    expect((await getOrder(paid.token, paid.orderId)).status).toBe('PAID')
+    expect(await productStock(paid.productId)).toBe(6)
+  })
+
+  it('cancelled orders can be listed by status in the back office', async () => {
+    const { orderId } = await placed()
+    await setStatus(orderId, 'CANCELLED')
+    const res = await inject({
+      method: 'GET',
+      url: '/admin/orders?status=CANCELLED&pageSize=100',
+      headers: { authorization: `Bearer ${await adminToken()}` },
+    })
+    const items = res.json().items as Array<{ id: string; status: string }>
+    expect(items.every((o) => o.status === 'CANCELLED')).toBe(true)
+    expect(items.some((o) => o.id === orderId)).toBe(true)
   })
 })
