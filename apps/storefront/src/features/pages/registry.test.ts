@@ -1,10 +1,10 @@
+import { manifest, validateConfig } from '@ethereal-nature/blocks-contract'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { blockSchemas } from './registry'
 
 /**
- * Seed ↔ registry consistency: every home config a migration writes must
- * validate against the registered block schemas, forever. If a schema evolves
+ * Seed ↔ manifest consistency: every home config a migration writes must
+ * validate against the shared block schemas, forever. If a schema evolves
  * non-additively (or a block is renamed), this fails before the live home
  * page silently drops sections to the prod fallback.
  */
@@ -29,18 +29,22 @@ function v12Config(): Entry[] {
 
 function expectValid(entries: Entry[]) {
   expect(entries.length).toBeGreaterThan(0)
-  for (const entry of entries) {
-    const schema = blockSchemas[entry.type as keyof typeof blockSchemas]
-    expect(schema, `block type "${entry.type}" is not in the registry`).toBeDefined()
-    const result = schema.safeParse(entry.props)
-    expect(
-      result.success,
-      `props for "${entry.type}" fail its schema: ${result.success ? '' : JSON.stringify(result.error.issues)}`,
-    ).toBe(true)
-  }
+  const report = validateConfig(manifest, entries)
+  expect(
+    report.unknownTypes,
+    'every seeded block type must exist in the manifest',
+  ).toEqual([])
+  const failures = report.entries.filter((entry) => !entry.ok)
+  expect(
+    report.ok,
+    `seeded props fail their schema: ${JSON.stringify(
+      failures.map((f) => ({ type: f.entry.type, ...('issues' in f ? { issues: f.issues } : {}) })),
+    )}`,
+  ).toBe(true)
+  expect(report.duplicateIds).toEqual([])
 }
 
-describe('home configs written by migrations vs block registry', () => {
+describe('home configs written by migrations vs block manifest', () => {
   it('V9 launch seed still validates (old shapes keep rendering)', () => {
     expectValid(v9Config())
   })

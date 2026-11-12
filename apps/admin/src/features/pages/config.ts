@@ -1,14 +1,12 @@
+import type { BlockConfig } from '@ethereal-nature/blocks-contract'
+
 /**
- * Pure editing operations on a page's block config. The shape mirrors the
- * server's structural contract (and blockprint's): an array of
- * `{ type, props?, id? }` entries. Entries whose type the admin build doesn't
- * know are preserved untouched — never dropped or rewritten.
+ * Pure editing operations on a page's block config: an array of
+ * `{ type, props?, id? }` entries (blockprint's BlockConfig, re-exported by
+ * the contract package). Entries whose type the admin build doesn't know are
+ * preserved untouched — never dropped or rewritten.
  */
-export interface BlockEntry {
-  type: string
-  props?: unknown
-  id?: string | number
-}
+export type BlockEntry = BlockConfig
 
 /** Lenient read of a server config (`unknown` in the contract). */
 export function entriesOf(config: unknown): BlockEntry[] {

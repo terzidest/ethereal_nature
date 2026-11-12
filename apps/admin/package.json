@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ethereal-nature/api-client": "workspace:*",
+    "@ethereal-nature/blocks-contract": "workspace:*",
     "@ethereal-nature/ui": "workspace:*",
     "@tailwindcss/vite": "4.3.2",
     "@tanstack/react-query": "5.101.2",

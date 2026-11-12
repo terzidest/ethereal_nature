@@ -1,11 +1,7 @@
-import { z } from 'zod'
-
-export const uspTickerSchema = z.object({
-  items: z.array(z.string()).min(1),
-})
+import type { UspTickerProps } from '@ethereal-nature/blocks-contract'
 
 /** Values marquee on a sand band (spec §2.2). Decorative: the same values are said elsewhere in text. */
-export function UspTicker({ items }: z.output<typeof uspTickerSchema>) {
+export function UspTicker({ items }: UspTickerProps) {
   // Two identical runs; the marquee slides by exactly one run (-50%) and loops.
   const run = (copy: number) =>
     items.map((item, i) => (

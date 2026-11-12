@@ -17,6 +17,9 @@ importers:
       '@ethereal-nature/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@ethereal-nature/blocks-contract':
+        specifier: workspace:*
+        version: link:../../packages/blocks-contract
       '@ethereal-nature/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -88,8 +91,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       blockprint:
-        specifier: ^0.2.1
-        version: 0.2.1(react@19.2.7)
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.7)
       fastify:
         specifier: ^5.2.1
         version: 5.12.7
@@ -133,6 +136,9 @@ importers:
       '@ethereal-nature/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
+      '@ethereal-nature/blocks-contract':
+        specifier: workspace:*
+        version: link:../../packages/blocks-contract
       '@ethereal-nature/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -155,8 +161,8 @@ importers:
         specifier: 1.168.27
         version: 1.168.27(crossws@0.4.7(srvx@0.11.18))(esbuild@0.28.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rolldown@1.1.3)(rollup@4.66.0)(vite@8.1.3(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
       blockprint:
-        specifier: ^0.2.1
-        version: 0.2.1(react@19.2.7)
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.7)
       nitro:
         specifier: npm:nitro-nightly@3.0.1-20260701-161626-1f1e52d7
         version: nitro-nightly@3.0.1-20260701-161626-1f1e52d7(chokidar@5.0.0)(dotenv@16.6.1)(giget@1.2.5)(jiti@2.7.0)(lru-cache@11.5.1)(rollup@4.66.0)(vite@8.1.3(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
@@ -224,6 +230,34 @@ importers:
       typescript:
         specifier: ^5.8.0
         version: 5.9.3
+
+  packages/blocks-contract:
+    dependencies:
+      '@ethereal-nature/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      blockprint:
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.7)
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@ethereal-nature/config':
+        specifier: workspace:*
+        version: link:../config
+      '@tanstack/react-query':
+        specifier: ^5.101.2
+        version: 5.101.2(react@19.2.7)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.39.4(jiti@2.7.0)
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.9
+        version: 4.1.9(@types/node@22.20.5)(vite@8.1.3(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
 
   packages/config:
     dependencies:
@@ -1620,8 +1654,8 @@ packages:
     resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
-  blockprint@0.2.1:
-    resolution: {integrity: sha512-eF30lR3lfysXq5JdtUjtvl3LcWAWtuGi0n2b2ftlfhPpYE5pNHk8hYrcY0NLcPxXPNqoGvbAM4kYa9ucg7W/KQ==}
+  blockprint@0.3.0:
+    resolution: {integrity: sha512-F7V08fjn3hNfz+EDrlM5l2ZhYCKgO7lazdAh6IuBYsc7xcQwIGYEC0QmYqX5x0gqQrsqSwEbWkprYOs+1v/3qA==}
     peerDependencies:
       react: '>=18'
     peerDependenciesMeta:
@@ -4487,7 +4521,7 @@ snapshots:
 
   bcryptjs@3.0.3: {}
 
-  blockprint@0.2.1(react@19.2.7):
+  blockprint@0.3.0(react@19.2.7):
     optionalDependencies:
       react: 19.2.7
 

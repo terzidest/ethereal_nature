@@ -2,8 +2,9 @@ import { getPageOptions } from '@ethereal-nature/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Renderer } from 'blockprint'
+import { productStripSchema } from '@ethereal-nature/blocks-contract'
 import { categoryCountsQuery } from '../features/catalog/queries'
-import { productStripQuery, productStripSchema } from '../features/pages/blocks/ProductStrip'
+import { productStripQuery } from '../features/pages/blocks/ProductStrip'
 import { homeRegistry } from '../features/pages/registry'
 
 // Built lazily: hey-api captures the client baseUrl into the query key at

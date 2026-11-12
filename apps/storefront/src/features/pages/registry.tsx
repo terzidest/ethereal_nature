@@ -1,38 +1,31 @@
+import { manifest } from '@ethereal-nature/blocks-contract'
 import { createRegistry } from 'blockprint'
-import { CategoryTiles, categoryTilesSchema } from './blocks/CategoryTiles'
-import { Hero, heroSchema } from './blocks/Hero'
-import { Newsletter, newsletterSchema } from './blocks/Newsletter'
-import { ProductStrip, productStripSchema } from './blocks/ProductStrip'
-import { UspTicker, uspTickerSchema } from './blocks/UspTicker'
-import { ValueProps, valuePropsSchema } from './blocks/ValueProps'
+import { CategoryTiles } from './blocks/CategoryTiles'
+import { Hero } from './blocks/Hero'
+import { Newsletter } from './blocks/Newsletter'
+import { ProductStrip } from './blocks/ProductStrip'
+import { UspTicker } from './blocks/UspTicker'
+import { ValueProps } from './blocks/ValueProps'
 
 /**
- * The storefront's block registry. Configs arrive from the DB (untrusted) —
- * every block is schema-backed, and blocks whose props fail validation route
- * to blockprint's default fallback (dev: warning box, prod: silently skipped).
+ * The storefront's block registry: the shared manifest (schemas, labels,
+ * defaults — see @ethereal-nature/blocks-contract) joined with this app's
+ * components. Configs arrive from the DB (untrusted) — every block is
+ * schema-backed, and blocks whose props fail validation route to blockprint's
+ * default fallback (dev: warning box, prod: silently skipped).
  *
- * Adding a block = component + zod schema in `blocks/` + an entry here + an
- * editor card in the admin. Old configs are unaffected (unknown types fall
- * back), so deploy the storefront before saving configs that use a new block.
- * Schemas must evolve additively: new props optional or defaulted, or
- * existing DB configs stop validating.
+ * Adding a block = schema + defineBlock entry in the contract package +
+ * a component here + an editor card in the admin (see the add-block skill).
+ * Old configs are unaffected (unknown types fall back), so deploy the
+ * storefront before saving configs that use a new block.
  */
-export const homeRegistry = createRegistry({
-  hero: { component: Hero, schema: heroSchema },
-  categoryTiles: { component: CategoryTiles, schema: categoryTilesSchema },
-  productStrip: { component: ProductStrip, schema: productStripSchema },
-  valueProps: { component: ValueProps, schema: valuePropsSchema },
-  uspTicker: { component: UspTicker, schema: uspTickerSchema },
-  newsletter: { component: Newsletter, schema: newsletterSchema },
+export const homeRegistry = createRegistry(manifest, {
+  hero: Hero,
+  uspTicker: UspTicker,
+  categoryTiles: CategoryTiles,
+  productStrip: ProductStrip,
+  valueProps: ValueProps,
+  newsletter: Newsletter,
 })
 
-export const blockSchemas = {
-  hero: heroSchema,
-  categoryTiles: categoryTilesSchema,
-  productStrip: productStripSchema,
-  valueProps: valuePropsSchema,
-  uspTicker: uspTickerSchema,
-  newsletter: newsletterSchema,
-} as const
-
-export { productStripQuery, productStripSchema } from './blocks/ProductStrip'
+export { productStripQuery } from './blocks/ProductStrip'

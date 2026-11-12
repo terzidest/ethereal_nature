@@ -1,0 +1,26 @@
+{
+  "name": "@ethereal-nature/blocks-contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "lint": "eslint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ethereal-nature/api-client": "workspace:*",
+    "blockprint": "^0.3.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@ethereal-nature/config": "workspace:*",
+    "@tanstack/react-query": "^5.101.2",
+    "eslint": "^9.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "4.1.9"
+  }
+}

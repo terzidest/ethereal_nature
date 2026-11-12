@@ -1,21 +1,13 @@
+import type { NewsletterProps } from '@ethereal-nature/blocks-contract'
 import { Art } from '@ethereal-nature/ui'
 import { useId, useState } from 'react'
-import { z } from 'zod'
 import { SectionHeading } from '../emphasis'
-
-export const newsletterSchema = z.object({
-  eyebrow: z.string().optional(),
-  /** `*words*` render italic. */
-  heading: z.string(),
-  body: z.string().optional(),
-  buttonLabel: z.string().default('Subscribe'),
-})
 
 /**
  * "Harvest notes" sign-up — UI only (decision D4): nothing stores or sends
  * addresses yet, so submitting only says so. The address never leaves the page.
  */
-export function Newsletter({ eyebrow, heading, body, buttonLabel }: z.output<typeof newsletterSchema>) {
+export function Newsletter({ eyebrow, heading, body, buttonLabel }: NewsletterProps) {
   const [submitted, setSubmitted] = useState(false)
   const noteId = useId()
 

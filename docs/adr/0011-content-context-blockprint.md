@@ -39,6 +39,16 @@ The decisions a future session would otherwise re-litigate:
    zod schemas as local interfaces + normalizers. Accepted at 4 blocks;
    the exit is a shared `blocks-contract` package of schemas (blockprint
    0.2.0's `PropsFor`/`InputFor` exist for exactly this).
+   > **v2 (2026-11-12): the exit landed.** `@ethereal-nature/blocks-contract`
+   > holds the schemas + a blockprint 0.3.0 manifest (`defineBlock`: label,
+   > defaults, summary); the storefront joins components via
+   > `createRegistry(manifest, components)`, the admin imports the manifest
+   > and its `blocks.ts` is gone. Leniency is now **strict, entry-level**:
+   > an editor entry whose props fail the schema is edited from the block's
+   > defaults (the old normalizers recovered per field); storefront
+   > semantics are unchanged. The server stays structure-only and must not
+   > import the contract package (raw-TS workspace package; the server's
+   > NodeNext build and Docker prune can't consume it).
 6. **Viewer (demo) sees the editor read-only**; the server's role check is
    the boundary, as everywhere else.
 
