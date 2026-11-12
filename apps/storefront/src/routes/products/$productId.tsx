@@ -75,11 +75,11 @@ function ProductPage() {
           aria-label="Breadcrumb"
           className="relative flex flex-wrap gap-2 pb-3 pt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-ink-soft md:gap-2.5 md:p-0 md:text-xs"
         >
-          <Link to="/products" className="hover:text-heading">
+          <Link to="/products" className="-my-3 py-3 hover:text-heading">
             Shop
           </Link>
           <span aria-hidden="true">/</span>
-          <Link to="/products" search={{ category: product.category }} className="hover:text-heading">
+          <Link to="/products" search={{ category: product.category }} className="-my-3 py-3 hover:text-heading">
             {categoryLabel(product.category)}
           </Link>
           <span aria-hidden="true">/</span>

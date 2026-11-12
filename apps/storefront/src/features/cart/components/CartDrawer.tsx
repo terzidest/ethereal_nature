@@ -179,7 +179,7 @@ function Stepper({
   onQuantity: (quantity: number) => void
 }) {
   const button =
-    'grid h-9 w-9 place-items-center rounded-full text-lg text-heading transition hover:bg-brand-soft disabled:opacity-40 disabled:hover:bg-transparent'
+    'grid h-11 w-11 place-items-center rounded-full text-lg text-heading transition hover:bg-brand-soft disabled:opacity-40 disabled:hover:bg-transparent'
   return (
     <div className="inline-flex items-center gap-0.5 self-start rounded-full border border-line-strong p-0.5 md:p-0">
       <button type="button" onClick={() => onQuantity(quantity - 1)} disabled={pending} aria-label={`One fewer ${name}`} className={button}>

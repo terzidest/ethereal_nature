@@ -210,8 +210,8 @@ Either way GDPR consent copy is needed before collecting anything.
 | 8 | Catalog + basket sheet/drawer | FE | done |
 | 9 | Product detail — gallery, specs, packing band, pairs-well-with | FE | done |
 | 10 | Basket page + checkout / pay / done | FE | done |
-| 11 | Leftover screens — auth, account, orders, 404 | FE | in review |
-| 12 | Polish — view transitions, motion pass, reduced-motion + a11y audit | FE | |
+| 11 | Leftover screens — auth, account, orders, 404 | FE | done |
+| 12 | Polish — view transitions, motion pass, reduced-motion + a11y audit | FE | in review |
 
 3 and 4–5 can run in parallel (FE vs BE files don't overlap). 7–10 each
 include the mobile layout for that screen.

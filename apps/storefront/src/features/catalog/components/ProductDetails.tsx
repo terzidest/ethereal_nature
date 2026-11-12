@@ -47,7 +47,7 @@ export function ProductDetails({ product }: { product: ProductResponse }) {
                 type="button"
                 onClick={() => setOpen(expanded ? -1 : i)}
                 aria-expanded={expanded}
-                aria-controls={`${id}-${i}`}
+                aria-controls={expanded ? `${id}-${i}` : undefined}
                 className="flex h-14 w-full items-center justify-between text-left text-base font-semibold text-heading md:min-h-[60px] md:font-display md:text-xl"
               >
                 {section.title}

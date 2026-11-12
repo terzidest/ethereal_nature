@@ -210,7 +210,25 @@
 :where(.art-hover:hover, .art-hover:focus-visible) .art .m-steam { animation: en-steam 2s ease-out infinite; }
 :where(.art-hover:hover, .art-hover:focus-visible) .art .m-steam.b { animation-delay: 0.6s; }
 
+/* Page transitions (View Transitions API): a quick cross-fade for the page,
+   a settle-speed morph for shared elements (card photo → product stage);
+   the header keeps its place instead of fading. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+::view-transition-group(*) {
+  animation-duration: 0.45s;
+  animation-timing-function: var(--ease-grow);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
   *,
   *::before,
   *::after {

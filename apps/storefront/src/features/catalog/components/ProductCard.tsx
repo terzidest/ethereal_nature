@@ -1,8 +1,8 @@
 import type { ProductCategoryDto, ProductResponse } from '@ethereal-nature/api-client'
 import { ProductImage, useTilt } from '@ethereal-nature/ui'
 import { Link } from '@tanstack/react-router'
-import type { ReactNode } from 'react'
-import { categoryLabel, formatPrice, isLowStock, isNewProduct } from '../derive'
+import { useRef, type ReactNode } from 'react'
+import { categoryLabel, formatPrice, isLowStock, isNewProduct, productPhotoTransition } from '../derive'
 
 /** Photo placeholder per category — also what the blur-up starts from. Full class names for Tailwind. */
 const PLACEHOLDER: Record<ProductCategoryDto, string> = {
@@ -40,6 +40,7 @@ export function ProductCard({
   quickAddBeside?: ReactNode
 }) {
   const tilt = useTilt(8)
+  const photo = useRef<HTMLDivElement>(null)
   const badge =
     product.stock === 0
       ? 'Out of stock'
@@ -57,6 +58,7 @@ export function ProductCard({
           link's stretched ::after above the quick-add button. The tilt brings its own perspective(). */}
       <div className="relative">
         <div
+          ref={photo}
           className={`relative aspect-[4/5] overflow-hidden rounded-[18px] transition-[transform,box-shadow] duration-200 ease-out md:rounded-[24px] ${PLACEHOLDER[product.category]} ${tilt.active ? 'shadow-lifted' : ''}`}
           style={tilt.style}
         >
@@ -106,6 +108,11 @@ export function ProductCard({
           <Link
             to="/products/$productId"
             params={{ productId: product.id }}
+            viewTransition
+            // Name the photo only now, so two strips showing the same product never collide.
+            onClick={() => {
+              if (photo.current) photo.current.style.viewTransitionName = productPhotoTransition(product.id)
+            }}
             className="[overflow-wrap:anywhere] text-sm font-medium leading-[1.3] text-heading transition after:absolute after:inset-0 after:content-[''] hover:text-brand md:text-base md:leading-[1.35]"
           >
             {product.name}

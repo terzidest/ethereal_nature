@@ -6,7 +6,8 @@ import { Link } from '@tanstack/react-router'
 import { Art, BrandMark } from '@ethereal-nature/ui'
 
 const heading = 'pb-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-brand'
-const link = 'py-2 text-ink-soft transition hover:text-heading md:py-0'
+// 44px tall on phones (touch targets, spec §1); plain text links on desktop.
+const link = 'flex min-h-11 items-center text-ink-soft transition hover:text-heading md:block md:min-h-0'
 
 export function SiteFooter() {
   return (

@@ -114,3 +114,15 @@
 
   --ease-grow: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
+
+/* Keyboard focus: one brand ring everywhere instead of the browser default
+   (which was orange on some controls and white-on-light on brand buttons).
+   Fields that show focus through their border keep doing so.
+   Longhands on purpose: light-dark() inside the `outline` shorthand (via the
+   variable) doesn't resolve and falls back to currentColor. */
+:where(a, button, [role='button'], summary, [tabindex]):focus-visible {
+  outline-style: solid;
+  outline-width: 2px;
+  outline-color: var(--color-brand);
+  outline-offset: 2px;
+}

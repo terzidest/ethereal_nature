@@ -40,7 +40,7 @@ export function Newsletter({ eyebrow, heading, body, buttonLabel }: NewsletterPr
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="h-[52px] min-w-0 flex-1 rounded-full border border-line-strong bg-surface-raised px-5 text-base text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand md:h-12 md:border-0 md:bg-transparent md:text-[15px]"
+          className="h-[52px] min-w-0 rounded-full md:flex-1 border border-line-strong bg-surface-raised px-5 text-base text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-brand md:h-12 md:border-0 md:bg-transparent md:text-[15px]"
         />
         <button
           type="submit"
