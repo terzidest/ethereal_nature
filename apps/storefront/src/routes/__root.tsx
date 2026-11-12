@@ -17,11 +17,12 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'Ethereal Nature' },
+      // Unknown URLs only match the root; give them a title that says so.
+      { title: match.globalNotFound ? 'Page not found | Ethereal Nature' : 'Ethereal Nature' },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),

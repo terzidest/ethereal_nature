@@ -1,7 +1,7 @@
 import type { ProductCategoryDto, ProductResponse } from '@ethereal-nature/api-client'
 import { ProductImage, useTilt } from '@ethereal-nature/ui'
 import { useRef, useState, type UIEvent } from 'react'
-import { isLowStock } from '../derive'
+import { isLowStock, productPhotoTransition } from '../derive'
 
 const PLACEHOLDER: Record<ProductCategoryDto, string> = {
   OILS: 'bg-ph-oils',
@@ -75,7 +75,7 @@ function DesktopGallery({ product, shots }: { product: ProductResponse; shots: S
       <div {...tilt.bind} className="group">
         <div
           className={`relative aspect-[4/5] overflow-hidden rounded-[32px] shadow-lifted transition-transform duration-200 ease-out ${PLACEHOLDER[product.category]}`}
-          style={tilt.style}
+          style={{ ...tilt.style, viewTransitionName: productPhotoTransition(product.id) }}
         >
           {/* The key remounts the photo, so each pick blurs up again. */}
           <ProductImage
@@ -120,7 +120,12 @@ function MobileGallery({ product, shots }: { product: ProductResponse; shots: Sh
         className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {shots.map((s, i) => (
-          <div key={`${s.url}-${i}`} className={`relative aspect-[4/5] w-full flex-none snap-center ${PLACEHOLDER[product.category]}`}>
+          <div
+            key={`${s.url}-${i}`}
+            className={`relative aspect-[4/5] w-full flex-none snap-center ${PLACEHOLDER[product.category]}`}
+            // The first photo is where a card's photo lands (display:none galleries don't take part).
+            style={i === 0 ? { viewTransitionName: productPhotoTransition(product.id) } : undefined}
+          >
             <ProductImage
               imageUrl={s.url}
               name={`${product.name} — ${s.label}`}

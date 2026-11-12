@@ -28,3 +28,11 @@ export function splitName(name: string): [string, string] {
   const space = trimmed.indexOf(' ')
   return space === -1 ? [trimmed, ''] : [trimmed.slice(0, space), trimmed.slice(space + 1)]
 }
+
+/**
+ * Shared-element name for a product's photo: the card's photo and the product
+ * page's stage carry the same name, so the browser morphs one into the other
+ * on navigation (View Transitions, plan §2.2). Names must be unique on a page,
+ * which is why cards only take theirs at the moment they are clicked.
+ */
+export const productPhotoTransition = (productId: string) => `product-photo-${productId}`

@@ -21,8 +21,11 @@ export function productStripQuery(props: ProductStripProps) {
 export function ProductStrip(props: ProductStripProps) {
   const { data } = useQuery(productStripQuery(props))
   const row = useRef<HTMLUListElement>(null)
-  const pageBy = (direction: 1 | -1) =>
-    row.current?.scrollBy({ left: direction * row.current.clientWidth, behavior: 'smooth' })
+  const pageBy = (direction: 1 | -1) => {
+    // Reduced motion: jump instead of gliding.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    row.current?.scrollBy({ left: direction * row.current.clientWidth, behavior: reduce ? 'auto' : 'smooth' })
+  }
   const scrollable = (data?.items.length ?? 0) > 4
 
   return (

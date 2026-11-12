@@ -47,7 +47,7 @@ export function SiteHeader() {
   const productPage = PRODUCT_PAGE.test(pathname)
 
   return (
-    <header className="sticky top-0 z-30 px-3 pt-2.5 md:px-6 md:pt-[18px]">
+    <header className="sticky top-0 z-30 px-3 pt-2.5 [view-transition-name:site-header] md:px-6 md:pt-[18px]">
       <div className="mx-auto flex h-[60px] max-w-[1240px] items-center gap-3 rounded-[22px] md:gap-7 border border-line bg-glass pl-3 pr-2 shadow-nav backdrop-blur-[16px] backdrop-saturate-[1.4] md:h-auto md:rounded-full md:py-2.5 md:pl-5 md:pr-2.5">
         {back && (
           <div className="flex min-w-0 items-center gap-1 md:hidden">

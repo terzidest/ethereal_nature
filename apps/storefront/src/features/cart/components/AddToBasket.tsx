@@ -53,7 +53,7 @@ export function AddToBasket({
   const panel = variant === 'panel'
   const label = added ? 'Added to basket' : `Add to basket · ${formatPrice(product.priceMinor * quantity, product.currency)}`
   const stepButton = `grid place-items-center rounded-full text-heading transition hover:bg-brand-soft disabled:opacity-40 disabled:hover:bg-transparent ${
-    panel ? 'h-[58px] w-[52px] text-xl' : 'h-10 w-10 text-lg'
+    panel ? 'h-[58px] w-[52px] text-xl' : 'h-11 w-11 text-lg'
   }`
 
   return (
