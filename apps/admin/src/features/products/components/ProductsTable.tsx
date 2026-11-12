@@ -101,6 +101,9 @@ export function ProductsTable({
   sort: ProductSortDto
   onSortChange: (sort: ProductSortDto) => void
 }) {
+  // TanStack Table returns fresh functions every render, so React Compiler
+  // skips memoizing this component. That's the intended behaviour here.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: products,
     columns,
