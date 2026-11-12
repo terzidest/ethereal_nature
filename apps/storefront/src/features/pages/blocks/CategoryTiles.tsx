@@ -1,24 +1,10 @@
-import { Art, type ArtName, useSpotlight } from '@ethereal-nature/ui'
 import type { ProductCategoryDto } from '@ethereal-nature/api-client'
+import type { CategoryTilesProps } from '@ethereal-nature/blocks-contract'
+import { Art, type ArtName, useSpotlight } from '@ethereal-nature/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { z } from 'zod'
 import { categoryCountsQuery } from '../../catalog/queries'
-import { CATEGORIES } from '../../catalog/search'
 import { SectionHeading } from '../emphasis'
-
-export const categoryTilesSchema = z.object({
-  eyebrow: z.string().optional(),
-  /** `*words*` render italic. */
-  heading: z.string(),
-  tiles: z.array(
-    z.object({
-      category: z.enum(CATEGORIES),
-      label: z.string(),
-      blurb: z.string(),
-    }),
-  ),
-})
 
 const ICON: Record<ProductCategoryDto, ArtName> = {
   OILS: 'icon-oils',
@@ -45,7 +31,7 @@ const GLOW: Record<ProductCategoryDto, string> = {
   TEAS: '210 140 100',
 }
 
-export function CategoryTiles({ eyebrow, heading, tiles }: z.output<typeof categoryTilesSchema>) {
+export function CategoryTiles({ eyebrow, heading, tiles }: CategoryTilesProps) {
   const { data } = useQuery(categoryCountsQuery())
   const countOf = (category: ProductCategoryDto) =>
     data?.categories.find((c) => c.category === category)?.productCount
@@ -92,7 +78,7 @@ function CategoryTile({
   tile,
   count,
 }: {
-  tile: z.output<typeof categoryTilesSchema>['tiles'][number]
+  tile: CategoryTilesProps['tiles'][number]
   count: number | undefined
 }) {
   const spotlight = useSpotlight()

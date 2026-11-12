@@ -3,8 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useIsViewer } from '../../../features/auth/viewer'
-import { BLOCKS, isKnownBlockType, KNOWN_BLOCK_TYPES, type KnownBlockType } from '../../../features/pages/blocks'
+import { isKnownBlockType, knownBlockTypes, manifest, type KnownBlockType } from '@ethereal-nature/blocks-contract'
 import { BlockEditor, blockLabel } from '../../../features/pages/components/BlockEditors'
+import { blockDefaults, editorValue, summarize } from '../../../features/pages/editor-values'
 import {
   appendEntry,
   entriesOf,
@@ -125,7 +126,7 @@ function EditPagePage() {
             <header className="flex items-center gap-3 border-b border-brand-100 px-5 py-3">
               <span className="font-semibold text-brand-900">{blockLabel(entry.type)}</span>
               <span className="truncate text-sm text-ink/50">
-                {isKnownBlockType(entry.type) ? summarize(entry) : 'Unknown block — preserved as-is'}
+                {isKnownBlockType(entry.type) ? summarize(entry.type, entry.props) : 'Unknown block — preserved as-is'}
               </span>
               {!isViewer && (
                 <span className="ml-auto flex shrink-0 items-center gap-1">
@@ -155,7 +156,7 @@ function EditPagePage() {
                 <div className="pt-4">
                   <BlockEditor
                     type={entry.type}
-                    props={BLOCKS[entry.type].normalize(entry.props)}
+                    props={editorValue(entry.type, entry.props)}
                     onChange={(props) => edit(updateEntryProps(entries, index, props))}
                   />
                 </div>
@@ -183,15 +184,15 @@ function EditPagePage() {
             onChange={(e) => setAddType(e.target.value as KnownBlockType)}
             className="rounded border border-brand-100 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500"
           >
-            {KNOWN_BLOCK_TYPES.map((type) => (
+            {knownBlockTypes.map((type) => (
               <option key={type} value={type}>
-                {BLOCKS[type].label}
+                {manifest[type].label ?? type}
               </option>
             ))}
           </select>
           <button
             type="button"
-            onClick={() => edit(appendEntry(entries, { type: addType, props: BLOCKS[addType].defaults }))}
+            onClick={() => edit(appendEntry(entries, { type: addType, props: blockDefaults(addType) }))}
             className="rounded-full bg-brand-50 px-5 py-2 text-sm font-semibold text-brand-900 transition hover:bg-brand-100"
           >
             + Add section
@@ -200,12 +201,6 @@ function EditPagePage() {
       )}
     </main>
   )
-}
-
-function summarize(entry: BlockEntry): string {
-  if (!isKnownBlockType(entry.type)) return entry.type
-  const block = BLOCKS[entry.type]
-  return block.summary(block.normalize(entry.props) as never)
 }
 
 function MoveButton({

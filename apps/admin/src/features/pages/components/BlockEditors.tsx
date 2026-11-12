@@ -1,17 +1,18 @@
 import type { ProductCategoryDto, ProductSortDto } from '@ethereal-nature/api-client'
 import {
-  BLOCKS,
   CATEGORIES,
+  isKnownBlockType,
+  manifest,
   SORTS,
   type CategoryTilesProps,
   type HeroProps,
-  type KnownBlockProps,
   type KnownBlockType,
   type NewsletterProps,
   type ProductStripProps,
   type UspTickerProps,
   type ValuePropsProps,
-} from '../blocks'
+} from '@ethereal-nature/blocks-contract'
+import type { KnownBlockProps } from '../editor-values'
 
 const inputClass =
   'rounded border border-brand-100 bg-white px-3 py-2 text-base font-normal outline-none focus:border-brand-500'
@@ -390,5 +391,5 @@ export function BlockEditor({
 }
 
 export function blockLabel(type: string): string {
-  return type in BLOCKS ? BLOCKS[type as KnownBlockType].label : type
+  return isKnownBlockType(type) ? (manifest[type].label ?? type) : type
 }

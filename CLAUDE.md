@@ -67,7 +67,10 @@ over cleverness.
   config only), Postgres; migrations are plain V*.sql (Flyway-compatible).
 - Contract: OpenAPI → generated `api-client`.
 - Content blocks: blockprint (our own library) renders `pages.config`;
-  server validates structure only via `blockprint/config` (ADR-0011).
+  block schemas + manifest live in `@ethereal-nature/blocks-contract`
+  (storefront joins components, admin builds its editor from it); server
+  validates structure only via `blockprint/config` and never imports the
+  contract package (ADR-0011).
 
 ## Process & further knowledge
 

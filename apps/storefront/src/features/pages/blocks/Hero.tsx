@@ -1,28 +1,11 @@
+import type { HeroProps } from '@ethereal-nature/blocks-contract'
 import { Art, BranchGlyph, useMagnetic } from '@ethereal-nature/ui'
 import { Link } from '@tanstack/react-router'
-import { z } from 'zod'
-import { SORTS } from '../../catalog/search'
 import { splitEmphasis } from '../emphasis'
-
-export const heroSchema = z.object({
-  eyebrow: z.string(),
-  /** `*words*` render italic (see emphasis.tsx). */
-  title: z.string(),
-  subtitle: z.string(),
-  primaryCta: z.object({ label: z.string() }),
-  secondaryCta: z.object({
-    label: z.string(),
-    sort: z.enum(SORTS).optional(),
-    /** Price ceiling in minor units for the catalog link ("Under €15" → 1500). */
-    maxPriceMinor: z.number().int().positive().optional(),
-  }),
-  /** Short reassurance row under the buttons. */
-  trust: z.array(z.string()).max(4).default([]),
-})
 
 const SEAL_TEXT = 'SMALL BATCH · SOURCED WITH CARE · '
 
-export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust }: z.output<typeof heroSchema>) {
+export function Hero({ eyebrow, title, subtitle, primaryCta, secondaryCta, trust }: HeroProps) {
   const magnet = useMagnetic(12)
   let wordIndex = 0
 

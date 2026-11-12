@@ -1,22 +1,10 @@
 import { listProductsOptions } from '@ethereal-nature/api-client'
+import type { ProductStripProps } from '@ethereal-nature/blocks-contract'
 import { useQuery } from '@tanstack/react-query'
 import { useRef } from 'react'
-import { z } from 'zod'
 import { QuickAddButton } from '../../cart/components/QuickAddButton'
 import { ProductCard } from '../../catalog/components/ProductCard'
-import { CATEGORIES, SORTS } from '../../catalog/search'
 import { SectionHeading } from '../emphasis'
-
-export const productStripSchema = z.object({
-  eyebrow: z.string().optional(),
-  /** `*words*` render italic. */
-  title: z.string(),
-  category: z.enum(CATEGORIES).optional(),
-  sort: z.enum(SORTS).default('newest'),
-  limit: z.number().int().min(1).max(12).default(4),
-})
-
-export type ProductStripProps = z.output<typeof productStripSchema>
 
 /**
  * Pure query builder, shared by the block and the route loader so the SSR
